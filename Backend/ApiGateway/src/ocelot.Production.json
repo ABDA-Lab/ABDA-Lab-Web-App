@@ -14,16 +14,16 @@
     },
 
     {
-      "UpstreamPathTemplate": "/api/Guest/{everything}",
+      "UpstreamPathTemplate": "/api/auth/{everything}",
       "UpstreamHttpMethod": ["Get", "Post", "Put", "Delete"],
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "{GUEST_MICROSERVICE_HOST}",
-          "Port": "{GUEST_MICROSERVICE_PORT}"
+          "Host": "{IDENTITY_MICROSERVICE_HOST}",
+          "Port": "{IDENTITY_MICROSERVICE_PORT}"
         }
       ],
-      "DownstreamPathTemplate": "/api/Guest/{everything}"
+      "DownstreamPathTemplate": "/api/auth/{everything}"
     }
   ],
   "GlobalConfiguration": {

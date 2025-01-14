@@ -3,14 +3,17 @@ using Infrastructure.Utils;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Infrastructure.Configs;
-using Domain.Repositories;
 using Infrastructure.Repositories;
 using Application.Abstractions.UnitOfWork;
 using Domain.Common;
 using Infrastructure.Common;
 using MassTransit;
+// using Application.Consumers;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Infrastructure.Context;
-using Application.Consumer;
+using Application.Sagas;
+using Domain.Entities;
 
 namespace Infrastructure
 {
@@ -19,8 +22,10 @@ namespace Infrastructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services)
         {
 
-            
-            services.AddScoped<IUserRepository, UserRepository>();
+            services.AddIdentity<User, IdentityRole<Guid>>()
+                .AddEntityFrameworkStores<MyDbContext>()
+                .AddDefaultTokenProviders();
+
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddSingleton<EnvironmentConfig>();
@@ -29,13 +34,14 @@ namespace Infrastructure
             var logger = serviceProvider.GetRequiredService<ILogger<AutoScaffold>>();
             var config = serviceProvider.GetRequiredService<EnvironmentConfig>();
             var scaffold = new AutoScaffold(logger)
-                    .Configure(
-                        config.DatabaseHost,
-                        config.DatabasePort,
-                        config.DatabaseName,
-                        config.DatabaseUser,
-                        config.DatabasePassword,
-                        config.DatabaseProvider);
+                .Configure(
+                    config.DatabaseHost,
+                    config.DatabasePort,
+                    config.DatabaseName,
+                    config.DatabaseUser,
+                    config.DatabasePassword,
+                    config.DatabaseProvider);
+
             scaffold.UpdateAppSettings();
             string solutionDirectory = Directory.GetParent(Directory.GetCurrentDirectory())?.FullName ?? "";
             if (solutionDirectory != null)
@@ -44,9 +50,15 @@ namespace Infrastructure
             }
             services.AddMassTransit(busConfigurator =>
             {
-
                 busConfigurator.SetKebabCaseEndpointNameFormatter();
-                busConfigurator.AddConsumer<IdentityCreatedConsumer>();
+                // busConfigurator.AddConsumer<UserCreatedConsumer>();
+                busConfigurator.AddSagaStateMachine<UserRegisterSaga, UserRegisterSagaData>()
+                    .RedisRepository(r =>
+                    {
+                        r.DatabaseConfiguration($"{config.RedisHost}:{config.RedisPort},password={config.RedisPassword}");
+                        r.KeyPrefix = "user-creating-saga";
+                        r.Expiry = TimeSpan.FromMinutes(10);
+                    });
                 busConfigurator.UsingRabbitMq((context, configurator) =>
                 {
                     configurator.Host(new Uri($"rabbitmq://{config.RabbitMqHost}:{config.RabbitMqPort}/"), h =>
@@ -56,11 +68,12 @@ namespace Infrastructure
                     });
                     configurator.ConfigureEndpoints(context);
                 });
-            });
 
+            });
 
             if (environment == "Development")
             {
+
                 var autoMigration = new AutoMigration(logger);
 
                 string currentHash = SchemaComparer.GenerateDatabaseSchemaHash(
