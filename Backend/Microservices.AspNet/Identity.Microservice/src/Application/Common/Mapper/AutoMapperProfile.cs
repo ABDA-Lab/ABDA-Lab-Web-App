@@ -2,8 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Application.Features.Users.Commands;
-using Application.Features.Users.Queries;
+using Application.Features.Auth.Commands;
+
+// using Application.Guests.Commands;
+// using Application.Guests.Queries;
 using AutoMapper;
 using Domain.Entities;
 
@@ -13,11 +15,8 @@ namespace Application.Common.Mapper
     {
         public AutoMapperProfile()
         {
-            CreateMap<CreateUserCommand, User>();
-            CreateMap<User, CreateUserCommand>();
-
-            CreateMap<GetUserResponse, User>();
-            CreateMap<User, GetUserResponse>();
+            CreateMap<CreateIdentityCommand, User>();
+            CreateMap<User, CreateIdentityCommand>();
         }
         
     }

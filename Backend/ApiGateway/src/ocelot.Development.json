@@ -18,7 +18,7 @@
       "DownstreamPathTemplate": "/api/User/{everything}"
     },
     {
-      "UpstreamPathTemplate": "/api/Guest/{everything}",
+      "UpstreamPathTemplate": "/api/auth/{everything}",
       "UpstreamHttpMethod": [
         "Get",
         "Post",
@@ -28,11 +28,11 @@
       "DownstreamScheme": "http",
       "DownstreamHostAndPorts": [
         {
-          "Host": "{GUEST_MICROSERVICE_HOST}",
-          "Port": "{GUEST_MICROSERVICE_PORT}"
+          "Host": "{IDENTITY_MICROSERVICE_HOST}",
+          "Port": "{IDENTITY_MICROSERVICE_PORT}"
         }
       ],
-      "DownstreamPathTemplate": "/api/Guest/{everything}"
+      "DownstreamPathTemplate": "/api/auth/{everything}"
     }
   ],
   "GlobalConfiguration": {

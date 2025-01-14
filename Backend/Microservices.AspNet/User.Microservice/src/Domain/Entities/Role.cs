@@ -5,11 +5,9 @@ namespace Domain.Entities;
 
 public partial class Role
 {
-    public Guid RoleId { get; set; }
+    public Guid Roleid { get; set; }
 
-    public string RoleName { get; set; } = null!;
+    public string Name { get; set; } = null!;
 
-    public DateTime? CreatedAt { get; set; }
-
-    public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    public virtual ICollection<User> Users { get; set; } = new List<User>();
 }
