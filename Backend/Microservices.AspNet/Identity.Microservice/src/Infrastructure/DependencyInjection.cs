@@ -70,36 +70,6 @@ namespace Infrastructure
                 });
 
             });
-
-            if (environment == "Development")
-            {
-
-                var autoMigration = new AutoMigration(logger);
-
-                string currentHash = SchemaComparer.GenerateDatabaseSchemaHash(
-                    config.DatabaseHost,
-                    config.DatabasePort,
-                    config.DatabaseName,
-                    config.DatabaseUser,
-                    config.DatabasePassword
-                );
-
-                if (!SchemaComparer.TryGetStoredHash(out string storedHash) || currentHash != storedHash)
-                {
-                    logger.LogInformation("Database schema has changed. Performing scaffolding...");
-                    SchemaComparer.SaveHash(currentHash);
-                    scaffold.Run();
-                    SchemaComparer.SetMigrationRequired(true);
-                }
-                else if (Environment.GetEnvironmentVariable("IS_SCAFFOLDING") != "true")
-                {
-                    if (SchemaComparer.IsMigrationRequired())
-                    {
-                        autoMigration.GenerateMigration();
-                    }
-                    SchemaComparer.SetMigrationRequired(false);
-                }
-            }
             return services;
         }
     }
