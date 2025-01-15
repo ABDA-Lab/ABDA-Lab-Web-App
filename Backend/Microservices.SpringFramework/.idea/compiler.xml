@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="config-server" />
+        <module name="discovery-service" />
+      </profile>
+      <profile name="Annotation profile for post-service" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.32/lombok-1.18.32.jar" />
+        </processorPath>
+        <module name="post-service" />
+        <module name="comment-service" />
+        <module name="hashtag-service" />
+        <module name="interact-service" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="comment-service" options="-parameters" />
+      <module name="config-server" options="-parameters" />
+      <module name="discovery-service" options="-parameters" />
+      <module name="hashtag-service" options="-parameters" />
+      <module name="interact-service" options="-parameters" />
+      <module name="post-service" options="-parameters" />
+    </option>
+  </component>
+</project>
