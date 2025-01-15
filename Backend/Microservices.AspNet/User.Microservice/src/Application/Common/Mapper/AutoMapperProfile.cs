@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Application.Users.Commands;
-using Application.Users.Queries;
+using Application.Features.Users.Commands;
+using Application.Features.Users.Queries;
 using AutoMapper;
 using Domain.Entities;
 
@@ -18,6 +18,9 @@ namespace Application.Common.Mapper
 
             CreateMap<GetUserResponse, User>();
             CreateMap<User, GetUserResponse>();
+
+            CreateMap<CreateRoleCommand, Role>();
+            CreateMap<Role, CreateRoleCommand>();
         }
         
     }

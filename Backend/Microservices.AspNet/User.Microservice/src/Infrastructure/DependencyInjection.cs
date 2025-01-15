@@ -9,8 +9,8 @@ using Application.Abstractions.UnitOfWork;
 using Domain.Common;
 using Infrastructure.Common;
 using MassTransit;
-using Application.Sagas;
 using Infrastructure.Context;
+using Application.Consumer;
 
 namespace Infrastructure
 {
@@ -21,6 +21,7 @@ namespace Infrastructure
 
             
             services.AddScoped<IUserRepository, UserRepository>();
+            services.AddScoped<IRoleRepository, RoleRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
             services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
             services.AddSingleton<EnvironmentConfig>();
@@ -45,14 +46,9 @@ namespace Infrastructure
             services.AddMassTransit(busConfigurator =>
             {
 
-                busConfigurator.AddSagaStateMachine<UserCreatingSaga, UserCreatingSagaData>()
-                    .RedisRepository(r =>
-                    {
-                        r.DatabaseConfiguration($"{config.RedisHost}:{config.RedisPort},password={config.RedisPassword}");
-                        r.KeyPrefix = "user-creating-saga";
-                        r.Expiry = TimeSpan.FromMinutes(10);
-                    });
                 busConfigurator.SetKebabCaseEndpointNameFormatter();
+                busConfigurator.AddConsumer<IdentityUserCreatedConsumer>();
+                busConfigurator.AddConsumer<IdentityRoleCreatedConsumer>();
                 busConfigurator.UsingRabbitMq((context, configurator) =>
                 {
                     configurator.Host(new Uri($"rabbitmq://{config.RabbitMqHost}:{config.RabbitMqPort}/"), h =>
@@ -63,36 +59,34 @@ namespace Infrastructure
                     configurator.ConfigureEndpoints(context);
                 });
             });
+            // if (environment == "Development")
+            // {
+            //     var autoMigration = new AutoMigration(logger);
 
+            //     string currentHash = SchemaComparer.GenerateDatabaseSchemaHash(
+            //         config.DatabaseHost,
+            //         config.DatabasePort,
+            //         config.DatabaseName,
+            //         config.DatabaseUser,
+            //         config.DatabasePassword
+            //     );
 
-            if (environment == "Development")
-            {
-                var autoMigration = new AutoMigration(logger);
-
-                string currentHash = SchemaComparer.GenerateDatabaseSchemaHash(
-                    config.DatabaseHost,
-                    config.DatabasePort,
-                    config.DatabaseName,
-                    config.DatabaseUser,
-                    config.DatabasePassword
-                );
-
-                if (!SchemaComparer.TryGetStoredHash(out string storedHash) || currentHash != storedHash)
-                {
-                    logger.LogInformation("Database schema has changed. Performing scaffolding...");
-                    SchemaComparer.SaveHash(currentHash);
-                    scaffold.Run();
-                    SchemaComparer.SetMigrationRequired(true);
-                }
-                else if (Environment.GetEnvironmentVariable("IS_SCAFFOLDING") != "true")
-                {
-                    if (SchemaComparer.IsMigrationRequired())
-                    {
-                        autoMigration.GenerateMigration();
-                    }
-                    SchemaComparer.SetMigrationRequired(false);
-                }
-            }
+            //     if (!SchemaComparer.TryGetStoredHash(out string storedHash) || currentHash != storedHash)
+            //     {
+            //         logger.LogInformation("Database schema has changed. Performing scaffolding...");
+            //         SchemaComparer.SaveHash(currentHash);
+            //         scaffold.Run();
+            //         SchemaComparer.SetMigrationRequired(true);
+            //     }
+            //     else if (Environment.GetEnvironmentVariable("IS_SCAFFOLDING") != "true")
+            //     {
+            //         if (SchemaComparer.IsMigrationRequired())
+            //         {
+            //             autoMigration.GenerateMigration();
+            //         }
+            //         SchemaComparer.SetMigrationRequired(false);
+            //     }
+            // }
             return services;
         }
     }

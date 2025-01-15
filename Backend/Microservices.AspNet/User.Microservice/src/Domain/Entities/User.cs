@@ -5,13 +5,27 @@ namespace Domain.Entities;
 
 public partial class User
 {
-    public Guid UserId { get; set; }
+    public Guid Userid { get; set; }
 
-    public string Name { get; set; } = null!;
+    public string Username { get; set; } = null!;
 
-    public string Email { get; set; } = null!;
+    public string? Fullname { get; set; }
 
-    public DateTime? CreatedAt { get; set; }
+    public string? Nickname { get; set; }
 
-    public virtual ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    public DateOnly? Birthday { get; set; }
+
+    public string? Country { get; set; }
+
+    public string? Description { get; set; }
+
+    public string? Profilemd { get; set; }
+
+    public string? Avatar { get; set; }
+
+    public string? Status { get; set; }
+
+    public DateTime? Createdat { get; set; }
+
+    public virtual ICollection<Role> Roles { get; set; } = new List<Role>();
 }

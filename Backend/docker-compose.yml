@@ -1,17 +1,17 @@
 services:
-  guest-microservice:
+  identity-microservice:
     build:
-      context: ./Microservices
-      dockerfile: ./Guest.Microservice/Dockerfile
+      context: ./Microservices.AspNet
+      dockerfile: ./Identity.Microservice/Dockerfile
       args:
-        SERVICE_NAME: Guest.Microservice
-    image: guest-microservice
-    container_name: guest-microservice
+        SERVICE_NAME: Identity.Microservice
+    image: identity-microservice
+    container_name: identity-microservice
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      DATABASE_HOST: 
-      DATABASE_PORT: 
-      DATABASE_NAME: 
+      DATABASE_HOST: YOUR_HOST
+      DATABASE_PORT: YOUR_PORT
+      DATABASE_NAME: IdentityService
       DATABASE_USERNAME: YOUR_USERNAME
       DATABASE_PASSWORD: YOUR_PASSWORD
       ASPNETCORE_URLS: http://+:5001
@@ -32,7 +32,7 @@ services:
 
   user-microservice:
     build:
-      context: ./Microservices
+      context: ./Microservices.AspNet
       dockerfile: ./User.Microservice/Dockerfile
       args:
         SERVICE_NAME: User.Microservice
@@ -40,9 +40,9 @@ services:
     container_name: user-microservice
     environment:
       ASPNETCORE_ENVIRONMENT: Production
-      DATABASE_HOST: 
-      DATABASE_PORT:
-      DATABASE_NAME: 
+      DATABASE_HOST: YOUR_HOST
+      DATABASE_PORT: YOUR_PORT
+      DATABASE_NAME: UserService
       DATABASE_USERNAME: YOUR_USERNAME
       DATABASE_PASSWORD: YOUR_PASSWORD
       ASPNETCORE_URLS: http://+:5002
@@ -58,6 +58,8 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      identity-microservice:
+        condition: service_healthy
     networks:
       - app-network
 
@@ -72,10 +74,10 @@ services:
     environment:
       ASPNETCORE_ENVIRONMENT: Production
       ASPNETCORE_URLS: http://+:8080
-      USER_MICROSERVICE_HOST: YOUR_MICROSERVICE_HOST #example: user-microservice (the docker service name)
-      USER_MICROSERVICE_PORT: YOUR_MICROSERVICE_PORT
-      GUEST_MICROSERVICE_HOST: YOUR_MICROSERVICE_HOST
-      GUEST_MICROSERVICE_PORT: YOUR_MICROSERVICE_PORT
+      USER_MICROSERVICE_HOST: user-microservice
+      USER_MICROSERVICE_PORT: 5002
+      IDENTITY_MICROSERVICE_HOST: identity-microservice
+      IDENTITY_MICROSERVICE_PORT: 5001
     networks:
       - app-network
 
@@ -83,11 +85,11 @@ services:
     image: rabbitmq:3-management
     container_name: rabbit-mq
     ports:
-      - "5672:5672"
-      - "15672:15672"
+      - "5672:5672" # RabbitMQ message broker port
+      - "15672:15672" # RabbitMQ management console
     environment:
-      RABBITMQ_DEFAULT_USER: YOUR_USERNAME
-      RABBITMQ_DEFAULT_PASS: YOUR_PASSWORD
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: 0Kg04Rq08!
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     networks:
@@ -101,7 +103,7 @@ services:
   redis:
     image: redis:alpine
     container_name: redis
-    command: ["redis-server", "--requirepass", "YOUR_PASSWORD"]
+    command: ["redis-server", "--requirepass", "0Kg04Rs05!"]
     volumes:
       - redis-data:/data
     ports:
@@ -109,7 +111,7 @@ services:
     networks:
       - app-network
     healthcheck:
-      test: ["CMD", "redis-cli","-a", "YOUR_PASSWORD", "ping"]
+      test: ["CMD", "redis-cli","-a", "0Kg04Rs05!", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -119,5 +121,5 @@ networks:
     driver: bridge
 
 volumes:
-  rabbitmq_data:
+  rabbitmq-data:
   redis-data:
