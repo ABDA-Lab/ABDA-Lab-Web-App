@@ -14,7 +14,7 @@ namespace Application.Features.Users.Commands
         Guid UserId,
         Guid RoleId,
         string Username
-    ) : ICommand;
+    ) : ICommand; 
     internal sealed class CreateUserCommandHandler : BaseCommandHandler<CreateUserCommand>
     {
         private readonly IUserRepository _userRepository;

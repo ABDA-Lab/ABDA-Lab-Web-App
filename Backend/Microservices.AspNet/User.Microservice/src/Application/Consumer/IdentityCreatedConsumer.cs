@@ -1,13 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Application.Abstractions.UnitOfWork;
-using Application.Common.ResponseModel;
 using Application.Features.Users.Commands;
-using AutoMapper;
-using Domain.Entities;
-using Domain.Repositories;
 using MassTransit;
 using MediatR;
 using SharedLibrary.Contracts.UserRegisterFlow;
@@ -24,8 +15,7 @@ namespace Application.Consumer
         }
         public async Task Consume(ConsumeContext<IdentityCreatedEvent> context)
         {
-
-            var command = new CreateUserCommand(context.Message.UserId, context.Message.Username);
+            var command = new CreateUserCommand(context.Message.UserId, context.Message.RoleId, context.Message.Username);
             var result = await _mediator.Send(command, context.CancellationToken);
             if (result.IsSuccess)
             {

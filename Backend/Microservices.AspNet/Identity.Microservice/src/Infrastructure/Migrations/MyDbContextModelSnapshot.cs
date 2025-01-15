@@ -119,7 +119,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("identity_user", (string)null);
                 });
 
-<<<<<<< HEAD
             modelBuilder.Entity("Domain.Entities.UserRole", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -140,8 +139,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("identity_user_role", (string)null);
                 });
 
-=======
->>>>>>> 1588b4f9ef8b369e7c479226f1cc1a0c917c19dd
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.Property<int>("Id")
@@ -211,26 +208,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("identity_user_login", (string)null);
                 });
 
-<<<<<<< HEAD
-=======
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
-                {
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("RoleId")
-                        .HasColumnType("uuid");
-
-                    b.HasKey("UserId", "RoleId");
-
-                    b.HasIndex("RoleId");
-
-                    b.ToTable("AspNetUserRoles", (string)null);
-
-                    b.UseTptMappingStrategy();
-                });
-
->>>>>>> 1588b4f9ef8b369e7c479226f1cc1a0c917c19dd
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
                     b.Property<Guid>("UserId")
@@ -250,19 +227,6 @@ namespace Infrastructure.Migrations
                     b.ToTable("identity_user_token", (string)null);
                 });
 
-<<<<<<< HEAD
-=======
-            modelBuilder.Entity("Domain.Entities.UserRole", b =>
-                {
-                    b.HasBaseType("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>");
-
-                    b.Property<DateTime>("AssignedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.ToTable("identity_user_role", (string)null);
-                });
-
->>>>>>> 1588b4f9ef8b369e7c479226f1cc1a0c917c19dd
             modelBuilder.Entity("Domain.Entities.Role", b =>
                 {
                     b.HasOne("Domain.Entities.User", null)
@@ -270,7 +234,6 @@ namespace Infrastructure.Migrations
                         .HasForeignKey("UserId");
                 });
 
-<<<<<<< HEAD
             modelBuilder.Entity("Domain.Entities.UserRole", b =>
                 {
                     b.HasOne("Domain.Entities.Role", null)
@@ -286,8 +249,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-=======
->>>>>>> 1588b4f9ef8b369e7c479226f1cc1a0c917c19dd
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("Domain.Entities.Role", null)
@@ -315,24 +276,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-<<<<<<< HEAD
-=======
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", b =>
-                {
-                    b.HasOne("Domain.Entities.Role", null)
-                        .WithMany()
-                        .HasForeignKey("RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.User", null)
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
->>>>>>> 1588b4f9ef8b369e7c479226f1cc1a0c917c19dd
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<System.Guid>", b =>
                 {
                     b.HasOne("Domain.Entities.User", null)
@@ -342,18 +285,6 @@ namespace Infrastructure.Migrations
                         .IsRequired();
                 });
 
-<<<<<<< HEAD
-=======
-            modelBuilder.Entity("Domain.Entities.UserRole", b =>
-                {
-                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUserRole<System.Guid>", null)
-                        .WithOne()
-                        .HasForeignKey("Domain.Entities.UserRole", "UserId", "RoleId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
->>>>>>> 1588b4f9ef8b369e7c479226f1cc1a0c917c19dd
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
                     b.Navigation("Roles");
