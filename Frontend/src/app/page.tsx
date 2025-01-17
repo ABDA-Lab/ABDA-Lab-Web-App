@@ -7,6 +7,8 @@ import { CardBody, CardContainer, CardItem } from "@/components/ui/3d-card";
 import { useTheme } from "@/hooks/useTheme";
 import { User } from "@/types/User";
 import { useRandomIndex } from "@/hooks/useRandomIndex";
+import UploadFileButton from "@/components/UploadFileButton";
+import DownloadFileButton from "@/components/DownloadFileButton";
 
 const users: User[] = [
   { id: "1", name: "Alice", email: "alice@example.com" },
@@ -30,6 +32,9 @@ export default function Home() {
   };
 
   return (
+    <>
+    <DownloadFileButton />
+    <UploadFileButton />
     <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
       <div className="flex justify-end p-4">
         <button
@@ -88,8 +93,7 @@ export default function Home() {
               height="1000"
               width="1000"
               className="h-60 w-full object-cover rounded-xl group-hover/card:shadow-xl"
-              alt="thumbnail"
-            />
+              alt="thumbnail" />
           </CardItem>
           <div className="flex justify-between items-center mt-20">
             <CardItem
@@ -111,6 +115,6 @@ export default function Home() {
           </div>
         </CardBody>
       </CardContainer>
-    </motion.div>
+    </motion.div></>
   );
 }
