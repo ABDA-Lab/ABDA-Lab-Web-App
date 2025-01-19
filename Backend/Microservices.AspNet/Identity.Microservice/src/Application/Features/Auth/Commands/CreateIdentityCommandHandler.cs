@@ -1,6 +1,6 @@
-using Application.Abstractions.Messaging;
-using Application.Abstractions.UnitOfWork;
-using Application.Common.ResponseModel;
+using SharedLibrary.Abstractions.Messaging;
+using SharedLibrary.Abstractions.UnitOfWork;
+using SharedLibrary.ResponseModel;
 using AutoMapper;
 using Domain.Entities;
 using MassTransit;

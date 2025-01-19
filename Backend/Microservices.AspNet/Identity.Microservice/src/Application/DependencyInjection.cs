@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Application.Behaviors;
+using SharedLibrary.Behaviors;
 // using Domain.Repositories;
 using FluentValidation;
 using MediatR;
@@ -20,14 +20,14 @@ namespace Application
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
             var assembly = typeof(DependencyInjection).Assembly;
-            services.AddSingleton<Config>();
+            services.AddSingleton<EnvironmentConfig>();
             services.AddMediatR(configuration => configuration.RegisterServicesFromAssembly(assembly));
             services.AddValidatorsFromAssembly(assembly);
             services.AddAutoMapper(assembly);
             services.AddScoped(typeof(IPipelineBehavior<,>), typeof(ValidationPipelineBehavior<,>));
             services.AddValidatorsFromAssembly(assembly, includeInternalTypes: true);
             using var serviceProvider = services.BuildServiceProvider();
-            var config = serviceProvider.GetRequiredService<Config>();
+            var config = serviceProvider.GetRequiredService<EnvironmentConfig>();
             services.Configure<IdentityOptions>(options =>
             {
                 options.Password.RequireDigit = true;

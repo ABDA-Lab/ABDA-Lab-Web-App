@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Application.Abstractions.UnitOfWork;
+using SharedLibrary.Abstractions.UnitOfWork;
 using Application.Common.ResponseModel;
 using Application.Users.Commands;
 using AutoMapper;

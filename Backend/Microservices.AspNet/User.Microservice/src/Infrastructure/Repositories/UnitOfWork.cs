@@ -1,5 +1,5 @@
-using Application.Abstractions.UnitOfWork;
-using Domain.Common;
+using SharedLibrary.Abstractions.UnitOfWork;
+using SharedLibrary.Abstractions.Repositories;
 using Infrastructure.Common;
 using Infrastructure.Context;
 
