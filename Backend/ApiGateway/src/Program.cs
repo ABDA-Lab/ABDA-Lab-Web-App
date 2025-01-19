@@ -1,86 +1,125 @@
-using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Configuration;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.Json;
-using System.Text.Json.Nodes;
+
+var builder = WebApplication.CreateBuilder(args);
 
 DotNetEnv.Env.Load();
 
-var builder = WebApplication.CreateBuilder(args);
-var env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? builder.Environment.EnvironmentName;
-var ocelotConfigPath = Path.Combine(builder.Environment.ContentRootPath, $"ocelot.{env}.json");
 
-// Read and store the original JSON file content in memory
-var originalJsonContent = File.ReadAllText(ocelotConfigPath);
-
-// Parse and modify the JSON content
-var jsonObject = JsonNode.Parse(originalJsonContent);
-
-if (jsonObject != null)
+var ocelotConfiguration = new OcelotConfiguration
 {
-    var routes = jsonObject["Routes"];
-    if (routes is JsonArray)
+    Routes = new List<OcelotRoute>(),
+    GlobalConfiguration = new OcelotGlobalConfiguration
     {
-        foreach (var route in routes.AsArray())
-        {
-            if (route["DownstreamHostAndPorts"] is JsonArray downstreams)
-            {
-                foreach (var downstream in downstreams)
-                {
-                    // Handle 'Host'
-                    if (downstream["Host"] is JsonValue hostValue)
-                    {
-                        var host = hostValue.GetValue<string>();
-                        if (host.StartsWith("{") && host.EndsWith("}"))
-                        {
-                            var envVar = host.Trim('{', '}');
-                            downstream["Host"] = Environment.GetEnvironmentVariable(envVar) ?? host;
-                        }
-                    }
+        BaseUrl = Environment.GetEnvironmentVariable("OCELOT_BASE_URL") ?? "http://localhost:8080"
+    }
+};
 
-                    // Handle 'Port' (can be number or string)
-                    if (downstream["Port"] is JsonValue portValue)
-                    {
-                        if (portValue.TryGetValue(out int portInt)) // Port as integer
-                        {
-                            var envVar = Environment.GetEnvironmentVariable($"PORT_{portInt}");
-                            if (envVar != null && int.TryParse(envVar, out int newPort))
-                            {
-                                downstream["Port"] = newPort;
-                            }
-                        }
-                        else if (portValue.TryGetValue(out string portString)) // Port as string
-                        {
-                            if (portString.StartsWith("{") && portString.EndsWith("}"))
-                            {
-                                var envVar = portString.Trim('{', '}');
-                                downstream["Port"] = int.Parse(Environment.GetEnvironmentVariable(envVar) ?? portString);
-                            }
-                        }
-                    }
-                }
-            }
-        }
+// Log the base URL
+Console.WriteLine($"Base URL: {ocelotConfiguration.GlobalConfiguration.BaseUrl}");
+
+int routeIndex = 1;
+while (true)
+{
+    var upstreamPath = Environment.GetEnvironmentVariable($"ROUTE_{routeIndex}_UPSTREAM_PATH");
+    if (string.IsNullOrEmpty(upstreamPath))
+    {
+        Console.WriteLine($"No more routes found. Stopping at route index {routeIndex}.");
+        break; 
     }
 
-    // Save the modified JSON back to the file
-    File.WriteAllText(ocelotConfigPath, jsonObject.ToJsonString(new JsonSerializerOptions { WriteIndented = true }));
+    Console.WriteLine($"Route {routeIndex} - Upstream Path: {upstreamPath}");
+
+    if (!int.TryParse(Environment.GetEnvironmentVariable($"ROUTE_{routeIndex}_DOWNSTREAM_PORT"), out int port))
+    {
+        throw new FormatException($"Invalid port value for ROUTE_{routeIndex}_DOWNSTREAM_PORT. Please provide a valid integer.");
+    }
+
+    var downstreamHost = Environment.GetEnvironmentVariable($"ROUTE_{routeIndex}_DOWNSTREAM_HOST") ?? "localhost";
+    Console.WriteLine($"Route {routeIndex} - Downstream Host: {downstreamHost}, Port: {port}");
+
+    var route = new OcelotRoute
+    {
+        UpstreamPathTemplate = upstreamPath,
+        UpstreamHttpMethod = Environment.GetEnvironmentVariable($"ROUTE_{routeIndex}_UPSTREAM_METHODS")
+            ?.Split(',')
+            .Select(m => m.Trim())
+            .ToArray() ?? Array.Empty<string>(),
+        DownstreamScheme = "http",
+        DownstreamHostAndPorts = new[]
+        {
+            new OcelotHostAndPort
+            {
+                Host = downstreamHost,
+                Port = port
+            }
+        },
+        DownstreamPathTemplate = Environment.GetEnvironmentVariable($"ROUTE_{routeIndex}_DOWNSTREAM_PATH") ?? upstreamPath
+    };
+
+    Console.WriteLine($"Route {routeIndex} - Downstream Path: {route.DownstreamPathTemplate}");
+
+    ocelotConfiguration.Routes.Add(route);
+    routeIndex++;
 }
 
-builder.Configuration.SetBasePath(builder.Environment.ContentRootPath)
-    .AddJsonFile($"ocelot.{env}.json", optional: true, reloadOnChange: true)
-    .AddEnvironmentVariables();
+Console.WriteLine($"Total routes configured: {ocelotConfiguration.Routes.Count}");
 
-builder.Services.AddOcelot(builder.Configuration);
+var ocelotJson = JsonSerializer.Serialize(new
+{
+    Routes = ocelotConfiguration.Routes,
+    GlobalConfiguration = ocelotConfiguration.GlobalConfiguration
+});
+
+Console.WriteLine("Serialized Ocelot Configuration:");
+Console.WriteLine(ocelotJson);
+
+var configBuilder = new ConfigurationBuilder();
+configBuilder.AddJsonStream(new System.IO.MemoryStream(System.Text.Encoding.UTF8.GetBytes(ocelotJson)));
+var configuration = configBuilder.Build();
+
+builder.Services.AddOcelot(configuration);
 
 var app = builder.Build();
 
-// Restore the original JSON content during application shutdown
-var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
-lifetime.ApplicationStopping.Register(() =>
-{
-    File.WriteAllText(ocelotConfigPath, originalJsonContent);
-});
+Console.WriteLine("Initializing Ocelot middleware...");
 
-await app.UseOcelot();
+// Use Ocelot middleware
+app.UseOcelot().Wait();
+
+Console.WriteLine("Ocelot gateway is running.");
+
 app.Run();
+
+public class OcelotConfiguration
+{
+    public List<OcelotRoute> Routes { get; set; } = null!;
+    public OcelotGlobalConfiguration GlobalConfiguration { get; set; } = null!;
+}
+
+public class OcelotRoute
+{
+    public string UpstreamPathTemplate { get; set; } = null!;
+    public string[] UpstreamHttpMethod { get; set; } = null!;
+    public string DownstreamScheme { get; set; } = null!;
+    public OcelotHostAndPort[] DownstreamHostAndPorts { get; set; } = null!;
+    public string DownstreamPathTemplate { get; set; } = null!;
+}
+
+public class OcelotHostAndPort
+{
+    public string Host { get; set; } = null!;
+    public int Port { get; set; }
+}
+
+public class OcelotGlobalConfiguration
+{
+    public string BaseUrl { get; set; } = null!;
+}

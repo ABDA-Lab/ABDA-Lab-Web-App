@@ -1,7 +1,7 @@
-using Application.Abstractions.Messaging;
-using Application.Abstractions.UnitOfWork;
-using Application.Common;
-using Application.Common.ResponseModel;
+using SharedLibrary.Abstractions.Messaging;
+using SharedLibrary.Abstractions.UnitOfWork;
+using Application.SharedLibrary;
+using SharedLibrary.ResponseModel;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Repositories;

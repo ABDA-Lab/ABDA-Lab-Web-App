@@ -1,5 +1,5 @@
-using Application.Abstractions.Messaging;
-using Application.Common.ResponseModel;
+using SharedLibrary.Abstractions.Messaging;
+using SharedLibrary.ResponseModel;
 using Amazon.S3;
 using Amazon.S3.Model;
 using System;

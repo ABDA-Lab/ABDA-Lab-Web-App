@@ -2,12 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Application.Abstractions.Messaging;
-using Application.Abstractions.UnitOfWork;
-using Application.Common.ResponseModel;
+using SharedLibrary.Abstractions.Messaging;
+using SharedLibrary.Abstractions.UnitOfWork;
+using SharedLibrary.ResponseModel;
 using AutoMapper;
 
-namespace Application.Common
+namespace Application.SharedLibrary
 {
     public abstract class BaseCommandHandler<TCommand, TResponse> : ICommandHandler<TCommand, TResponse>
         where TCommand : ICommand<TResponse>
