@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using Application.Configs;
 using Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -9,17 +10,19 @@ namespace Infrastructure.Context;
 
 public partial class MyDbContext : IdentityDbContext<User, Role, Guid, IdentityUserClaim<Guid>, UserRole, IdentityUserLogin<Guid>, IdentityRoleClaim<Guid>, IdentityUserToken<Guid>>
 {
-    public MyDbContext()
-    {
-    }
+    private readonly EnvironmentConfig _config;
 
-    public MyDbContext(DbContextOptions<MyDbContext> options)
+    public MyDbContext(DbContextOptions<MyDbContext> options, EnvironmentConfig config)
         : base(options)
     {
+        _config = config;
     }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseNpgsql("Name=DefaultConnection");
+    {
+        var connectionString = $"Host={_config.DatabaseHost};Port={_config.DatabasePort};Database={_config.DatabaseName};Username={_config.DatabaseUser};Password={_config.DatabasePassword}";
+        optionsBuilder.UseNpgsql(connectionString);
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

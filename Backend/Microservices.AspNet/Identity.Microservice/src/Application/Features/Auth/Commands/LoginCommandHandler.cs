@@ -1,6 +1,5 @@
-using Application.Abstractions.Messaging;
-using Application.Common.ResponseModel;
-using Application.Configs;
+using SharedLibrary.Abstractions.Messaging;
+using SharedLibrary.ResponseModel;
 using Domain.Entities;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
@@ -9,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using Application.Configs;
 
 namespace Application.Features.Auth.Commands
 {
@@ -17,9 +17,9 @@ namespace Application.Features.Auth.Commands
     internal sealed class LoginCommandHandler : ICommandHandler<LoginCommand, string>
     {
         private readonly UserManager<User> _userManager;
-        private readonly Config _config;
+        private readonly EnvironmentConfig _config;
 
-        public LoginCommandHandler(UserManager<User> userManager, Config config)
+        public LoginCommandHandler(UserManager<User> userManager, EnvironmentConfig config)
         {
             _userManager = userManager;
             _config = config;
