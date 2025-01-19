@@ -9,6 +9,7 @@ import { User } from "@/types/User";
 import { useRandomIndex } from "@/hooks/useRandomIndex";
 import UploadFileButton from "@/components/UploadFileButton";
 import DownloadFileButton from "@/components/DownloadFileButton";
+import ViewFile from "@/components/ViewFile";
 
 const users: User[] = [
   { id: "1", name: "Alice", email: "alice@example.com" },
@@ -34,7 +35,11 @@ export default function Home() {
   return (
     <>
     <DownloadFileButton />
-    <UploadFileButton />
+    <div className="w-100px">
+      <UploadFileButton />
+    </div>
+    
+    <ViewFile name="helo" date="11/1/2025" type="zip" size="100 KB"/>
     <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }}>
       <div className="flex justify-end p-4">
         <button
