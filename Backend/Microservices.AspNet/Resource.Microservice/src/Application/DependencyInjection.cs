@@ -6,7 +6,7 @@ using Amazon;
 using Amazon.Extensions.NETCore.Setup;
 using Amazon.Runtime;
 using Amazon.S3;
-using Application.Behaviors;
+using SharedLibrary.Behaviors;
 using Application.Configs;
 using FluentValidation;
 using MediatR;
