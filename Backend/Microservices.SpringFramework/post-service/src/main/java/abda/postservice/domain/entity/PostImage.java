@@ -21,8 +21,7 @@ public class PostImage {
     private UUID postImageId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @Column(name = "PostId")
-    private UUID postId;
+    private Post postId;
     
     @Column(name = "Link", length = 1024)
     private String link;
