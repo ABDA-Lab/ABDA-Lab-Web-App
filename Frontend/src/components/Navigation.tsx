@@ -2,11 +2,13 @@
 import { useState } from 'react';
 import { Menu, MenuItem, ProductItem } from './ui/navbar-menu';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 export default function Navigation() {
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
     return (
+        // <div className={cn('fixed top-10 inset-x-0 max-w-2xl mx-auto z-50')}>
         <Menu setActive={setActiveMenu}>
             <MenuItem item="Home" active={activeMenu} setActive={setActiveMenu}>
                 <Link
@@ -191,5 +193,6 @@ export default function Navigation() {
                 </div>
             </MenuItem>
         </Menu>
+        // </div>
     );
 }

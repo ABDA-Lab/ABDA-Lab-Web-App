@@ -1,7 +1,9 @@
 import type { Config } from 'tailwindcss';
 import { fontFamily } from 'tailwindcss/defaultTheme';
 
-export default {
+import flattenColorPalette from 'tailwindcss/lib/util/flattenColorPalette';
+
+const config: Config = {
     darkMode: ['class'],
     content: [
         './src/pages/**/*.{js,ts,jsx,tsx,mdx}',
@@ -54,7 +56,7 @@ export default {
             },
             fontFamily: {
                 sans: ['Arial', 'Helvetica', 'sans-serif', ...fontFamily.sans],
-                mono: ['JetBrains Mono', 'monospace'], // Thêm JetBrains Mono
+                mono: ['JetBrains Mono', 'monospace'],
             },
             borderRadius: {
                 lg: 'var(--radius)',
@@ -63,5 +65,16 @@ export default {
             },
         },
     },
-    plugins: [],
-} satisfies Config;
+    plugins: [
+        function addVariablesForColors({ addBase, theme }: any) {
+            const allColors = flattenColorPalette(theme('colors'));
+            const newVars = Object.fromEntries(Object.entries(allColors).map(([key, val]) => [`--${key}`, val]));
+
+            addBase({
+                ':root': newVars,
+            });
+        },
+    ],
+};
+
+export default config;

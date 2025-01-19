@@ -13,16 +13,16 @@
         "isolatedModules": true,
         "jsx": "preserve",
         "incremental": true,
+        "baseUrl": ".", // Đặt base URL để dễ cấu hình paths
+        "paths": {
+            "@/*": ["src/*"] // Alias cho các thư mục trong src/
+        },
         "plugins": [
             {
                 "name": "next"
             }
-        ],
-        "paths": {
-            "@/*": ["./src/*"]
-            // "@/*": ["./*"]
-        }
+        ]
     },
-    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
-    "exclude": ["node_modules"]
+    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "types/**/*.d.ts", "src/**/*"],
+    "exclude": ["node_modules", "dist", "build"]
 }
