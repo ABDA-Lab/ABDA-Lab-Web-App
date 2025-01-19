@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -44,14 +45,17 @@ public class Post {
     @Column(name = "IsDeleted")
     private Boolean isDeleted;
 
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "postId")
+    private Collection<PostImage> postImages;
+
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
-        name = "post_categories",
+        name = "posts_postcategories",
         joinColumns = {
-            @JoinColumn(name = "PostId", referencedColumnName = "PostId")
+            @JoinColumn(name = "PostId")
         },
         inverseJoinColumns = {
-            @JoinColumn(name = "PostCategoryId", referencedColumnName = "PostCategoryId")
+            @JoinColumn(name = "PostCategoryId")
         }
     )
     private Collection<PostCategory> categories;
