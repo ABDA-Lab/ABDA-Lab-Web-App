@@ -16,7 +16,7 @@ namespace WebApi.Controllers
     {
         private readonly IMapper _mapper;
         private readonly ILogger<ResourceController> _logger;
-        public ResourceController(ILogger<ResourceController> logger,IMediator mediator, IMapper mapper) : base(mediator)
+        public ResourceController(ILogger<ResourceController> logger, IMediator mediator, IMapper mapper) : base(mediator)
         {
             _mapper = mapper;
             _logger = logger;
@@ -34,7 +34,19 @@ namespace WebApi.Controllers
             var result = await _mediator.Send(command, cancellationToken);
             if (result.IsFailure)
             {
-                return HandleFailure(result);;
+                return HandleFailure(result); ;
+            }
+
+            return Ok(result);
+        }
+
+        [HttpPost("generate-temporary-credentials")]
+        public async Task<IActionResult> GetTemporaryCredentials([FromBody] CreateTemporaryCredentialCommand command, CancellationToken cancellationToken)
+        {
+            var result = await _mediator.Send(command, cancellationToken);
+            if (result.IsFailure)
+            {
+                return HandleFailure(result); ;
             }
 
             return Ok(result);
