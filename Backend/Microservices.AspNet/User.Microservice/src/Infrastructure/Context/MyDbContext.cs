@@ -1,19 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 using Domain.Entities;
+using Infrastructure.Configs;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Context;
 
 public partial class MyDbContext : DbContext
 {
-    public MyDbContext()
-    {
-    }
+    private readonly EnvironmentConfig _config;
 
-    public MyDbContext(DbContextOptions<MyDbContext> options)
+    public MyDbContext(DbContextOptions<MyDbContext> options, EnvironmentConfig config)
         : base(options)
     {
+        _config = config;
     }
 
     public virtual DbSet<Role> Roles { get; set; }
@@ -21,7 +21,10 @@ public partial class MyDbContext : DbContext
     public virtual DbSet<User> Users { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseNpgsql("Name=DefaultConnection");
+    {
+        var connectionString = $"Host={_config.DatabaseHost};Port={_config.DatabasePort};Database={_config.DatabaseName};Username={_config.DatabaseUser};Password={_config.DatabasePassword}";
+        optionsBuilder.UseNpgsql(connectionString);
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

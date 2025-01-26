@@ -1,0 +1,18 @@
+FROM openjdk:23-jdk-slim AS build
+WORKDIR /app
+
+# Install Maven
+RUN apt-get update && \
+    apt-get install -y maven && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY pom.xml .
+COPY src ./src
+RUN mvn clean package -DskipTests
+
+FROM openjdk:23-jdk-slim
+WORKDIR /app
+COPY --from=build /app/target/interact-service-v1-0-0.jar interact-service-v1-0-0.jar
+# CMD ["java", "-jar", "interact-service-v1-0-0.jar"]
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+ENTRYPOINT ["java", "-jar", "interact-service-v1-0-0.jar"]
