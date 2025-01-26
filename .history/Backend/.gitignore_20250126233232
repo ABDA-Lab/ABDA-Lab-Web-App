@@ -3,6 +3,6 @@
 .env
 .fake
 docker-compose-production.yml
-.DS_Store
-.history/
+
+
 #docker-compose -f docker-compose-production.yml -p microservices up --build -d
