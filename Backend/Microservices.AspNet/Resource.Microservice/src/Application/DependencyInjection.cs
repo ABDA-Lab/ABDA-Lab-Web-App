@@ -36,8 +36,8 @@ namespace Application
                 var s3Config = new AmazonS3Config
                 {
                     RegionEndpoint = awsOptions.Region,
-                    ServiceURL = "https://s3.ap-southeast-1.wasabisys.com",
-                    ForcePathStyle = true
+                    ForcePathStyle = true,
+                    ServiceURL = "https://s3.ap-southeast-1.wasabisys.com"
                 };
 
                 return new AmazonS3Client(awsOptions.Credentials, s3Config);

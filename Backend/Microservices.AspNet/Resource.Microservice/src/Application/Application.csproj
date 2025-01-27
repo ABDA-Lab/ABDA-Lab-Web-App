@@ -12,6 +12,7 @@
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="12.0.1" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="12.0.1" />
+    <PackageReference Include="AWSSDK.CloudFront" Version="3.7.404.19" />
     <PackageReference Include="AWSSDK.Extensions.NETCore.Setup" Version="3.7.301" />
     <PackageReference Include="AWSSDK.S3" Version="3.7.412.1" />
     <PackageReference Include="AWSSDK.SecurityToken" Version="3.7.401.33" />
