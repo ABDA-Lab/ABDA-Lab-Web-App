@@ -1,58 +1,37 @@
-import { Input } from '@/components/ui/input';
 import { Metadata } from 'next';
-import { MailOpen } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { GalleryVerticalEnd } from 'lucide-react';
+import { LoginForm } from '@/components/Auth/login-form';
+import Logo from '@/components/Logo';
 import Link from 'next/link';
 
 export const metadata: Metadata = {
     title: 'Login',
     description: 'Login page',
 };
-
 export default function LoginPage() {
     return (
-        <div className="min-h-screen flex items-center justify-center">
-            <div className="max-w-md w-full space-y-4 p-4 bg-white rounded-lg shadow-md">
-                <div className="text-center">
-                    <h1 className="text-3xl font-bold text-gray-900">Sign in</h1>
-                    <p className="mt-2 text-sm text-gray-600">Sign in to your account</p>
-                    <p className="mt-2 text-sm text-gray-600">
-                        Don&apos;t have an account?{' '}
-                        <Link className="text-blue-500" href="/register">
-                            Register now
-                        </Link>
-                    </p>
+        <div className="grid min-h-svh lg:grid-cols-2">
+            <div className="flex flex-col gap-4 p-6 md:p-10">
+                <div className="flex justify-center gap-2 md:justify-start">
+                    <Link href="/" className="flex items-center gap-2 font-medium">
+                        <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
+                            <GalleryVerticalEnd className="size-4" />
+                        </div>
+                        <Logo />
+                    </Link>
                 </div>
-                <form className="mt-8 space-y-6">
-                    <div className="rounded-md shadow-sm space-y-4 flex flex-col gap-3">
-                        <div className="flex justify-center mb-5">
-                            <Button>
-                                <MailOpen /> Login with Google
-                            </Button>
-                        </div>
-                        <div>
-                            <Input type="text" placeholder="Enter your email" />
-                        </div>
-                        <div>
-                            <Input type="password" placeholder="Enter your password" />
-                        </div>
+                <div className="flex flex-1 items-center justify-center">
+                    <div className="w-full max-w-xs">
+                        <LoginForm />
                     </div>
-                    <div className="flex justify-center mt-5">
-                        <button
-                            type="submit"
-                            className="relative inline-flex w-[50%] h-12 overflow-hidden rounded-full p-[1px] focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50">
-                            <span className="absolute inset-[-1000%] animate-[spin_2s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#E2CBFF_0%,#393BB2_50%,#E2CBFF_100%)]" />
-                            <span className="inline-flex h-full w-full cursor-pointer items-center justify-center rounded-full bg-slate-950 px-3 py-1 text-sm font-medium text-white backdrop-blur-3xl">
-                                Sign in
-                            </span>
-                        </button>
-                    </div>
-                    <div className="text-center mt-2">
-                        <Link className="text-blue-500 text-sm" href="#">
-                            Forgot password
-                        </Link>
-                    </div>
-                </form>
+                </div>
+            </div>
+            <div className="relative hidden bg-muted lg:block">
+                <img
+                    src="https://images.unsplash.com/photo-1736117024365-c36ccb9f843d?q=80&w=1374&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                    alt="ImageLogin"
+                    className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+                />
             </div>
         </div>
     );
