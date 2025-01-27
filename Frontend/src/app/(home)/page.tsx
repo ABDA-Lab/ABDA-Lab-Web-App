@@ -1,8 +1,7 @@
-// import React from 'react';
+import React from 'react';
 import WelcomeMessage from '@/components/homepage/WelcomeMessage';
-import { Boxes } from '@/components/ui/background-boxes';
-import { cn } from '@/lib/utils';
 import { Metadata } from 'next';
+import Header from '@/components/Header';
 
 export const metadata: Metadata = {
     title: 'Homepage',
@@ -11,13 +10,16 @@ export const metadata: Metadata = {
 
 export default function Home() {
     return (
-        <main className="py-10">
-            <WelcomeMessage
-                title="Welcome to ABDA Lab"
-                description="Exploring cutting-edge AI algorithms and data structures through innovative research and experimentation. Join us in advancing the boundaries of artificial intelligence."
-                titleClassName="h-96 relative w-full overflow-hidden bg-slate-900 flex flex-col items-center justify-center rounded-lg z-0"
-                descriptionClassName="absolute inset-0 w-full h-full bg-slate-900 z-20 [mask-image:radial-gradient(transparent,white)] pointer-events-none"
-            />
-        </main>
+        <div className="">
+            <Header />
+            <main className="py-10">
+                <WelcomeMessage
+                    title="Welcome to ABDA Lab"
+                    description="Exploring cutting-edge AI algorithms and data structures through innovative research and experimentation. Join us in advancing the boundaries of artificial intelligence."
+                    titleClassName="h-96 relative w-full overflow-hidden bg-slate-900 flex flex-col items-center justify-center rounded-lg z-0"
+                    descriptionClassName="absolute inset-0 w-full h-full bg-slate-900 z-20 [mask-image:radial-gradient(transparent,white)] pointer-events-none"
+                />
+            </main>
+        </div>
     );
 }
