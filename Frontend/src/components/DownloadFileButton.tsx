@@ -31,30 +31,41 @@ export default function DownloadFileButton({
     try {
       const fileUrl = `${cloudFrontBaseUrl}/${filePath}`;
 
-      // Fetch the file
-      const response = await fetch(fileUrl, {
-        method: "GET",
-        credentials:  isPrivate ? "include" : "omit", // Ensures cookies are sent
+      // First check if we have access to the file
+      const checkResponse = await fetch(fileUrl, {
+        method: "HEAD", // Use HEAD request to check access without downloading
+        credentials: isPrivate ? "include" : "omit",
       });
 
-      if (!response.ok) {
+      if (!checkResponse.ok) {
         throw new Error("Unauthorized or file not found");
       }
 
-      // Convert response to a blob
-      const blob = await response.blob();
-      const blobUrl = window.URL.createObjectURL(blob);
+      // Create an iframe to handle the download
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      document.body.appendChild(iframe);
 
-      // Create an anchor element and trigger download
-      const link = document.createElement("a");
-      link.href = blobUrl;
-      link.setAttribute("download", filePath.split("/").pop() || "downloaded_file"); // Extract filename
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      // Create a form within the iframe
+      const form = iframe.contentDocument?.createElement('form');
+      if (form) {
+        form.method = 'GET';
+        form.action = fileUrl;
 
-      // Cleanup the blob URL to free memory
-      window.URL.revokeObjectURL(blobUrl);
+        // Add credentials if private
+        if (isPrivate) {
+          form.setAttribute('credentials', 'include');
+        }
+
+        iframe.contentDocument?.body.appendChild(form);
+        form.submit();
+      }
+
+      // Clean up the iframe after a short delay
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+      }, 2000);
+
     } catch (err) {
       console.error("Download error:", err);
       setError("Failed to download file. Check your access.");
@@ -71,7 +82,7 @@ export default function DownloadFileButton({
         className="px-4 py-2 bg-blue-500 text-white rounded-lg disabled:opacity-50"
       >
         {isDownloading
-          ? "Downloading..."
+          ? "Starting Download..."
           : isLoading
           ? "Loading Cookies..."
           : "Download File"}
