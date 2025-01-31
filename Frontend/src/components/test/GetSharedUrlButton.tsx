@@ -1,11 +1,8 @@
 "use client";
 import { useState } from "react";
 import { useSharedFileUrl } from "@/hooks/resources/useSharedFileUrl";
+import { GetSharedUrlButtonProps } from "@/types/resources/shared";
 
-interface GetSharedUrlButtonProps {
-  fileName: string;
-  expiryHour: number;
-}
 
 export default function GetSharedUrlButton({ fileName, expiryHour }: GetSharedUrlButtonProps) {
   const { getSharedUrl, sharedUrl, message } = useSharedFileUrl();

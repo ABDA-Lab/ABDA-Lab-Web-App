@@ -60,7 +60,7 @@ async function callCloudFrontSetCookie(cookiesData: Record<string, string>) {
   const auth      = encodeURIComponent(cookiesData['auth'] || '');
   const ts        = encodeURIComponent(cookiesData['ts'] || '');
 
-  const domain = 'https://d25xwknkj0zeof.cloudfront.net';
+  const domain = process.env.NEXT_PUBLIC_CLOUDFRONT_BASE_URL;
   const setCookieUrl = `${domain}/set-cookie?policy=${policy}&signature=${signature}&keypair=${keypair}&auth=${auth}&ts=${ts}`;
 
   console.log('Calling CloudFront /set-cookie URL:', setCookieUrl);
