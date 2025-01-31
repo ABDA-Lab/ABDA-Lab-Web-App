@@ -13,5 +13,7 @@ namespace Application.Configs
         public string CloudFrontKeyId => Environment.GetEnvironmentVariable("AWS_CLOUD_FRONT_KEY_ID") ?? "default";
         public string CloudFrontPrivateKey => Environment.GetEnvironmentVariable("AWS_CLOUD_FRONT_PRIVATE_KEY") ?? "default";
         public string CloudFrontDistributionDomain => Environment.GetEnvironmentVariable("AWS_CLOUD_FRONT_DISTRIBUTION_DOMAIN") ?? "default";
+
+        public string SetCookieEdgeFunctionSecret => Environment.GetEnvironmentVariable("LAMBDA_EDGE_SECRET") ?? "default";
     }
 }

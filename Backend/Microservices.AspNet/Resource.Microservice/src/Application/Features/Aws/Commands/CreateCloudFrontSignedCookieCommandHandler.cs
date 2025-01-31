@@ -1,10 +1,11 @@
-
 using Amazon.CloudFront;
 using Amazon.S3;
 using Amazon.SecurityToken;
 using Application.Configs;
 using SharedLibrary.Abstractions.Messaging;
 using SharedLibrary.ResponseModel;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Application.Features.Aws.Commands
 {
@@ -13,22 +14,26 @@ namespace Application.Features.Aws.Commands
         int ExpiryHour
     ) : ICommand<Dictionary<string, string>>;
 
-    internal sealed class CreateCloudFrontSignedCookieCommandHandler : ICommandHandler<CreateCloudFrontSignedCookieCommand, Dictionary<string, string>>
+    internal sealed class CreateCloudFrontSignedCookieCommandHandler
+        : ICommandHandler<CreateCloudFrontSignedCookieCommand, Dictionary<string, string>>
     {
         private readonly IAmazonS3 _s3Client;
-
         private readonly EnvironmentConfig _config;
-
         private readonly IAmazonSecurityTokenService _stsClient;
 
-        public CreateCloudFrontSignedCookieCommandHandler(EnvironmentConfig config, IAmazonS3 s3Client, IAmazonSecurityTokenService stsClient)
+        public CreateCloudFrontSignedCookieCommandHandler(
+            EnvironmentConfig config,
+            IAmazonS3 s3Client,
+            IAmazonSecurityTokenService stsClient)
         {
             _config = config;
             _s3Client = s3Client;
             _stsClient = stsClient;
         }
 
-        public async Task<Result<Dictionary<string, string>>> Handle(CreateCloudFrontSignedCookieCommand command, CancellationToken cancellationToken)
+        public async Task<Result<Dictionary<string, string>>> Handle(
+            CreateCloudFrontSignedCookieCommand command,
+            CancellationToken cancellationToken)
         {
             var cookies = AmazonCloudFrontCookieSigner.GetCookiesForCustomPolicy(
                 AmazonCloudFrontCookieSigner.Protocols.Https,
@@ -41,13 +46,31 @@ namespace Application.Features.Aws.Commands
                 "0.0.0.0/0"
             );
 
-            var cookieDictionary = new Dictionary<string, string>
+            var policyValue    = cookies.Policy.Value;
+            var signatureValue = cookies.Signature.Value;
+            var keyPairValue   = cookies.KeyPairId.Value;
+
+            var nowSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+
+            var dataToSign = $"{policyValue}:{signatureValue}:{keyPairValue}:{nowSeconds}";
+
+            string authValue;
+            using (var hmac = new HMACSHA256(Encoding.UTF8.GetBytes(_config.SetCookieEdgeFunctionSecret)))
             {
-                { cookies.Policy.Key, cookies.Policy.Value },    
-                { cookies.Signature.Key, cookies.Signature.Value }, 
-                { cookies.KeyPairId.Key, cookies.KeyPairId.Value }  
+                var hashBytes = hmac.ComputeHash(Encoding.UTF8.GetBytes(dataToSign));
+                authValue = BitConverter.ToString(hashBytes).Replace("-", "").ToLower();
+            }
+
+            var resultDict = new Dictionary<string, string>
+            {
+                { cookies.Policy.Key, policyValue },
+                { cookies.Signature.Key, signatureValue },
+                { cookies.KeyPairId.Key, keyPairValue },
+                { "auth", authValue },
+                { "ts", nowSeconds.ToString() }
             };
-            return cookieDictionary;
+
+            return resultDict;
         }
     }
 }
