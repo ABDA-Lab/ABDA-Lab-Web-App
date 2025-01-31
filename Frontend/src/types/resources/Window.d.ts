@@ -1,4 +1,4 @@
-export {}; // Ensure this file is treated as a module
+export {};
 
 declare global {
   interface Window {
