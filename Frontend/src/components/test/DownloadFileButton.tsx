@@ -15,7 +15,7 @@ export default function DownloadFileButton({
 }: DownloadFileProps) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const cloudFrontBaseUrl = "https://d25xwknkj0zeof.cloudfront.net";
+  const cloudFrontBaseUrl = process.env.NEXT_PUBLIC_CLOUDFRONT_BASE_URL || "";;
 
   // Call custom hook to ensure cookies are set
   const { isLoading, error: cookieError } = useSignedCookies(`/*`, expiryHour);

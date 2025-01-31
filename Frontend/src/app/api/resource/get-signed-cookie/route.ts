@@ -20,7 +20,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 1) Call your own backend for the signed cookies
-    const backendResponse = await fetch('http://localhost:2406/api/resource/generate-signed-cookie', {
+    const backendResponse = await fetch(`${process.env.BACKEND_BASE_URL}/api/resource/generate-signed-cookie`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ ResourceUrl, ExpiryHour }),

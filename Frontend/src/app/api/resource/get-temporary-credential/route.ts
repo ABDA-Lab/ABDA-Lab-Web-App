@@ -8,7 +8,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'Name and DurationSeconds are required and must be valid types.' }, { status: 400 });
     }
 
-    const backendResponse = await fetch('http://localhost:2406/api/resource/generate-temporary-credentials', {
+    const backendResponse = await fetch(`${process.env.BACKEND_BASE_URL}/api/resource/generate-temporary-credentials`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ Name, DurationSeconds }),

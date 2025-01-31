@@ -11,7 +11,7 @@ import useAwsSetup from "@/hooks/resources/useAwsSetup";
 
 interface UploadFileProps {
   filePath: string;
-  maxChunkSize?: number; // in bytes, default 5MB
+  maxChunkSize?: number; 
 }
 
 interface UploadProgress {
@@ -22,7 +22,7 @@ interface UploadProgress {
 
 export default function UploadFileButton({ 
   filePath, 
-  maxChunkSize = 5 * 1024 * 1024 // 5MB default chunk size
+  maxChunkSize = 5 * 1024 * 1024
 }: UploadFileProps) {
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +48,6 @@ export default function UploadFileButton({
       const partNumber = i + 1;
 
       try {
-        // Convert chunk to ArrayBuffer
         const chunkArrayBuffer = await chunk.arrayBuffer();
 
         const uploadPartCommand = new UploadPartCommand({
@@ -58,7 +57,7 @@ export default function UploadFileButton({
           PartNumber: partNumber,
           Body: new Uint8Array(chunkArrayBuffer),
           ContentLength: chunk.size,
-          ChecksumAlgorithm: "CRC32"  // Add CRC32 checksum algorithm
+          ChecksumAlgorithm: "CRC32"  
         });
 
         const response = await s3Client!.send(uploadPartCommand);
@@ -79,7 +78,6 @@ export default function UploadFileButton({
         }
       } catch (err: any) {
         console.error("Part upload error:", err);
-        // Abort the multipart upload if a part fails
         await s3Client!.send(new AbortMultipartUploadCommand({
           Bucket: bucket,
           Key: key,
@@ -106,17 +104,16 @@ export default function UploadFileButton({
     setSuccessMessage(null);
     setUploadProgress(null);
 
-    const bucket = "khangstorage"; // Replace with your actual bucket name
+    const bucket = process.env.NEXT_PUBLIC_WASABI_BUCKET_NAME as string;
     const key = `${filePath}${file.name}`;
 
     try {
-      // Initialize multipart upload with CRC32 checksum
       const multipartUpload = await s3Client.send(
         new CreateMultipartUploadCommand({
           Bucket: bucket,
           Key: key,
           ContentType: file.type,
-          ChecksumAlgorithm: "CRC32"  // Add CRC32 checksum algorithm
+          ChecksumAlgorithm: "CRC32"  
         })
       );
 
@@ -124,7 +121,7 @@ export default function UploadFileButton({
         throw new Error("Failed to initialize multipart upload");
       }
 
-      // Upload parts
+
       const uploadedParts = await uploadInChunks(
         file,
         multipartUpload.UploadId,
@@ -132,7 +129,7 @@ export default function UploadFileButton({
         key
       );
 
-      // Complete multipart upload
+
       await s3Client.send(
         new CompleteMultipartUploadCommand({
           Bucket: bucket,
