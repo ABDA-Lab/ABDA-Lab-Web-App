@@ -8,7 +8,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'Missing required parameters.' }, { status: 400 });
     }
 
-    const backendResponse = await fetch('http://localhost:2406/api/resource/generate-presigned-url', {
+    const backendResponse = await fetch(`${process.env.BACKEND_BASE_URL}/api/resource/generate-presigned-url`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ bucketName, objectKey, expiryDurationMinutes, httpVerb }),

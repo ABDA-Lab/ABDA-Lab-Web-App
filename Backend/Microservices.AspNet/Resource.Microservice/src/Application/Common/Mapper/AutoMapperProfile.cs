@@ -12,8 +12,8 @@ namespace Application.Common.Mapper
     {
         public AutoMapperProfile()
         {
-            CreateMap<GeneratePresignedUrlRequest, GeneratePresignedUrlCommand>()
-                .ConstructUsing(src => new GeneratePresignedUrlCommand(
+            CreateMap<CreatePresignedUrlRequest, CreatePresignedUrlCommand>()
+                .ConstructUsing(src => new CreatePresignedUrlCommand(
                     src.BucketName,
                     src.ObjectKey,
                     TimeSpan.FromMinutes(src.ExpiryDurationMinutes),

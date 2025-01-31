@@ -6,23 +6,23 @@ using System;
 
 namespace Application.Features.Aws.Commands
 {
-    public sealed record GeneratePresignedUrlCommand(
+    public sealed record CreatePresignedUrlCommand(
     string BucketName,
     string ObjectKey,
     TimeSpan ExpiryDuration,
     HttpVerb HttpVerb
-) : ICommand<string>;
+    ) : ICommand<string>;
 
-    internal sealed class GeneratePresignedUrlCommandHandler : ICommandHandler<GeneratePresignedUrlCommand, string>
+    internal sealed class CreatePresignedUrlCommandHandler : ICommandHandler<CreatePresignedUrlCommand, string>
     {
         private readonly IAmazonS3 _s3Client;
 
-        public GeneratePresignedUrlCommandHandler(IAmazonS3 s3Client)
+        public CreatePresignedUrlCommandHandler(IAmazonS3 s3Client)
         {
             _s3Client = s3Client;
         }
 
-        public Task<Result<string>> Handle(GeneratePresignedUrlCommand command, CancellationToken cancellationToken)
+        public Task<Result<string>> Handle(CreatePresignedUrlCommand command, CancellationToken cancellationToken)
         {
 
             var request = new GetPreSignedUrlRequest

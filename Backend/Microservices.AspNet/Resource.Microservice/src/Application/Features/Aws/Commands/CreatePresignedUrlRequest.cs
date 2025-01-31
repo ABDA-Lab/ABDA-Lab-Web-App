@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Application.Features.Aws.Commands
 {
-    public class GeneratePresignedUrlRequest
+    public class CreatePresignedUrlRequest
     {
         public string BucketName { get; set; } = null!;
         public string ObjectKey { get; set; } = null!;
