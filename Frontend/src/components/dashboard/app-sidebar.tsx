@@ -12,7 +12,6 @@ import {
     SidebarMenuItem,
     SidebarRail,
 } from '@/components/ui/sidebar';
-import { VersionSwitcher } from './version-switcher';
 import { SearchForm } from './search-form';
 import Logo from '../Logo';
 
@@ -104,7 +103,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     return (
         <Sidebar {...props}>
             <SidebarHeader>
-                {/* <VersionSwitcher versions={data.versions} defaultVersion={data.versions[0]} /> */}
                 <Logo />
                 <SearchForm />
             </SidebarHeader>
