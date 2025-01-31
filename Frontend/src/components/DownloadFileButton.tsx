@@ -18,10 +18,7 @@ export default function DownloadFileButton({
   const cloudFrontBaseUrl = "https://d25xwknkj0zeof.cloudfront.net";
 
   // Call custom hook to ensure cookies are set
-  const { isLoading, error: cookieError } = useSignedCookies(
-    `/*`,
-    expiryHour
-  );
+  const { isLoading, error: cookieError } = useSignedCookies(`/*`, expiryHour);
 
   const handleDownload = async () => {
     if (isLoading) return;
@@ -31,41 +28,53 @@ export default function DownloadFileButton({
     try {
       const fileUrl = `${cloudFrontBaseUrl}/${filePath}`;
 
-      // First check if we have access to the file
-      const checkResponse = await fetch(fileUrl, {
-        method: "HEAD", // Use HEAD request to check access without downloading
+      // First, check file size & access
+      const headResponse = await fetch(fileUrl, {
+        method: "HEAD",
         credentials: isPrivate ? "include" : "omit",
       });
 
-      if (!checkResponse.ok) {
+      if (!headResponse.ok) {
         throw new Error("Unauthorized or file not found");
       }
 
-      // Create an iframe to handle the download
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      document.body.appendChild(iframe);
+      const contentLength = headResponse.headers.get("content-length");
+      const fileSize = contentLength ? parseInt(contentLength, 10) : 0;
+      const fileName = filePath.split("/").pop() || "downloaded-file";
 
-      // Create a form within the iframe
-      const form = iframe.contentDocument?.createElement('form');
-      if (form) {
-        form.method = 'GET';
-        form.action = fileUrl;
+      if (fileSize > 5 * 1024 * 1024) {
+        // Large file: Use iframe approach
+        const iframe = document.createElement("iframe");
+        iframe.style.display = "none";
+        iframe.src = fileUrl;
+        document.body.appendChild(iframe);
 
-        // Add credentials if private
-        if (isPrivate) {
-          form.setAttribute('credentials', 'include');
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+        }, 5000);
+      } else {
+        // Small file: Fetch and download using blob
+        const response = await fetch(fileUrl, {
+          method: "GET",
+          credentials: isPrivate ? "include" : "omit",
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch the file.");
         }
 
-        iframe.contentDocument?.body.appendChild(form);
-        form.submit();
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.href = blobUrl;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+
+        // Cleanup
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(blobUrl);
       }
-
-      // Clean up the iframe after a short delay
-      setTimeout(() => {
-        document.body.removeChild(iframe);
-      }, 2000);
-
     } catch (err) {
       console.error("Download error:", err);
       setError("Failed to download file. Check your access.");

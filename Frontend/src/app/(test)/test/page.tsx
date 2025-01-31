@@ -14,10 +14,10 @@ export default function Test() {
       <DownloadFileButton filePath={"private/100MB.zip"} private={true}></DownloadFileButton>
       <br></br>
       <h1>Download public</h1>
-      <DownloadFileButton filePath={"public/test.jpg"} private={false}></DownloadFileButton>
+      <DownloadFileButton filePath={"public/100MB.zip"} private={false}></DownloadFileButton>
 
       <br></br>
-      <h1>Upload private</h1>
+      <h1>Upload</h1>
       <UploadFileButton filePath={"private/"}></UploadFileButton>
     </>
   );
