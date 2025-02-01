@@ -6,7 +6,7 @@ import Navigation from './Navigation';
 export default function Header() {
     return (
         <header className="z-50 relative">
-            <div className="w-full bg-white border-b">
+            {/* <div className="w-full"> */}
                 <div className="flex justify-between items-center px-6 py-4 max-w-7xl mx-auto">
                     <Link href="/" className="flex items-center space-x-4">
                         <Logo />
@@ -22,7 +22,7 @@ export default function Header() {
                             </span>
                         </Link>
                     </div>
-                </div>
+                {/* </div> */}
             </div>
         </header>
     );

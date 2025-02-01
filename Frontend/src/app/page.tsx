@@ -1,7 +1,6 @@
 import React from 'react';
 import WelcomeMessage from '@/components/homepage/WelcomeMessage';
 import { Metadata } from 'next';
-import Header from '@/components/Header';
 
 export const metadata: Metadata = {
     title: 'Homepage',
@@ -11,7 +10,7 @@ export const metadata: Metadata = {
 export default function Home() {
     return (
         <div className="">
-            <Header />
+    
             <main className="py-10">
                 <WelcomeMessage
                     title="Welcome to ABDA Lab"
