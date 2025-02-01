@@ -12,7 +12,7 @@ import {
     SidebarMenuItem,
     SidebarRail,
 } from '@/components/ui/sidebar';
-import { SearchForm } from './search-form';
+import { SearchForm } from './searchForm';
 import Logo from '../Logo';
 
 // This is sample data.

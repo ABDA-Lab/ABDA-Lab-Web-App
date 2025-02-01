@@ -1,6 +1,6 @@
 import { Metadata } from 'next';
 import { GalleryVerticalEnd } from 'lucide-react';
-import { LoginForm } from '@/components/Auth/login-form';
+import { LoginForm } from '@/components/authentication/login-form';
 import Logo from '@/components/Logo';
 import Link from 'next/link';
 

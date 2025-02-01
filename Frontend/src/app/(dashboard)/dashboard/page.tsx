@@ -1,6 +1,6 @@
 'use client';
 import CustomDropdown from '@/components/CustomDropdown';
-import { AppSidebar } from '@/components/dashboard/app-sidebar';
+import { AppSidebar } from '@/components/dashboard/appSidebar';
 import FileFolder from '@/components/resources/FileFolder';
 import FileFolderSharing from '@/components/resources/FileFolderSharing';
 import UploadFile from '@/components/resources/UploadFile';
