@@ -33,8 +33,6 @@ export function useSignedCookies(resourceUrl: string, defaultExpiryHour: number)
 
           const returnedExpiryHour = respData.expiryHour ?? defaultExpiryHour;
           const maxAgeSeconds = returnedExpiryHour * 3600;
-          
-
           document.cookie = `expiryHour=${returnedExpiryHour}; Path=/; Max-Age=${maxAgeSeconds}; Secure; SameSite=Lax`;
           
           await callCloudFrontSetCookie(respData.data);

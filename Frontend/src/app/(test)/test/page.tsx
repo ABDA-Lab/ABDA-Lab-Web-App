@@ -3,7 +3,7 @@
 import { useState } from "react";
 import DownloadFileButton from "@/components/test/DownloadFileButton";
 import UploadFileButton from "@/components/test/UploadFileButton";
-import GetSharedUrlButton from "@/components/test/GetSharedUrlButton"; // Updated to match naming conventions
+import GetSharedUrlButton from "@/components/test/GetSharedUrlButton";
  
 export default function Test() {
   const [fileName, setFileName] = useState("");

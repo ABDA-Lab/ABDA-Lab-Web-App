@@ -4,8 +4,8 @@ export interface DownloadFileProps {
     private?: boolean;
   }
   
-  export interface SignedCookiesState {
+export interface SignedCookiesState {
     isLoading: boolean;
     error: string | null;
-  }
+}
   
