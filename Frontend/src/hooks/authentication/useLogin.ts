@@ -18,34 +18,31 @@ export function useLogin() {
             const response = await login(username, password);
 
             // Validate the response format
-            if (!response || !response.value) {
+            if (!response || !response.value || !response.value.accessToken) {
                 throw new Error('Invalid response format from server.');
             }
 
-            // Save the token and redirect
-            localStorage.setItem('token', response.value);
+            // Save tokens to localStorage
+            localStorage.setItem('accessToken', response.value.accessToken);
+            localStorage.setItem('refreshToken', response.value.refreshToken);
+
+            // Show success toast and redirect
             toast.success('Login successful! Redirecting to homepage...');
             router.push('/');
-        } catch (err: any) {
+        } catch (err: unknown) {
             console.error('Login error:', err);
 
             let errorMessage = 'Login failed. Please try again.';
 
-            // Handle validation errors (422)
             if (err instanceof EntityError) {
+                // Handle validation errors (422)
                 errorMessage = err.payload?.message || 'Validation error.';
-            }
-            // Handle HTTP errors (e.g., 400, 401, 500)
-            else if (err instanceof HttpError) {
+            } else if (err instanceof HttpError) {
+                // Handle HTTP errors (e.g., 400, 401, 500)
                 errorMessage = err.payload?.message || err.payload?.detail || 'Invalid login credentials.';
-            }
-            // Handle unexpected network or other errors
-            else if (err.message) {
+            } else if (err instanceof Error) {
+                // Handle unexpected errors
                 errorMessage = err.message;
-            }
-            // Fallback for unknown errors
-            else {
-                errorMessage = 'An unexpected error occurred. Please try again later.';
             }
 
             setError(errorMessage);
