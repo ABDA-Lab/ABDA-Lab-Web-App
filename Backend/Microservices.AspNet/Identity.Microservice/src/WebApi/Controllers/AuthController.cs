@@ -19,6 +19,12 @@ namespace WebApi.Controllers
         {
         }
 
+        //POST api/auth/register
+        //Body
+        //  {
+        //    "username": "string",
+        //    "password": "string",
+        //  }
         [HttpPost("register")]
         public async Task<IActionResult> Create([FromBody] CreateIdentityCommand request, CancellationToken cancellationToken)
         {

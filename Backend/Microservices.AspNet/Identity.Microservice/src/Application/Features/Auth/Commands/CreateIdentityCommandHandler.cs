@@ -13,7 +13,8 @@ namespace Application.Features.Auth.Commands
 
     public sealed record CreateIdentityCommand(
     string Username,
-    string Password
+    string Password,
+    string ConfirmPassword
     ) : ICommand;
 
     internal sealed class CreateIdentityCommandHandler : ICommandHandler<CreateIdentityCommand>
