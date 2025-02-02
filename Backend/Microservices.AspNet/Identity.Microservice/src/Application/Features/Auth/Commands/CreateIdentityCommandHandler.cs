@@ -13,7 +13,8 @@ namespace Application.Features.Auth.Commands
 
     public sealed record CreateIdentityCommand(
     string Username,
-    string Password
+    string Password,
+    string ConfirmPassword
     ) : ICommand;
 
     internal sealed class CreateIdentityCommandHandler : ICommandHandler<CreateIdentityCommand>
@@ -22,6 +23,7 @@ namespace Application.Features.Auth.Commands
         private readonly RoleManager<Role> _roleManager;
         private readonly IMapper _mapper;
         private readonly IPublishEndpoint _publishEndpoint;
+        
 
         public CreateIdentityCommandHandler(RoleManager<Role> roleManager,UserManager<User> userManager, IMapper mapper, IPublishEndpoint publishEndpoint)
         {
@@ -49,9 +51,9 @@ namespace Application.Features.Auth.Commands
             }
             
             await _publishEndpoint.Publish(new IdentityUserCreatedEvent{
-               UserId = newUser.Id,
-               RoleId = role.Id,
-               Username = command.Username
+                UserId = newUser.Id,
+                RoleId = role.Id,
+                Username = command.Username
             });
             return Result.Success();
         }

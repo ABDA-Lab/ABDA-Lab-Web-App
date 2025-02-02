@@ -1,55 +1,34 @@
 import z from 'zod';
 
-export const RegisterBody = z
-    .object({
-        name: z.string().trim().min(2).max(256),
-        email: z.string().email(),
-        password: z.string().min(6).max(100),
-        confirmPassword: z.string().min(6).max(100),
-    })
-    .strict()
-    .superRefine(({ confirmPassword, password }, ctx) => {
-        if (confirmPassword !== password) {
-            ctx.addIssue({
-                code: 'custom',
-                message: 'Invalid confirmPassword',
-                path: ['confirmPassword'],
-            });
-        }
-    });
-
-export type RegisterBodyType = z.TypeOf<typeof RegisterBody>;
-
-export const RegisterRes = z.object({
-    data: z.object({
-        token: z.string(),
-        expiresAt: z.string(),
-        account: z.object({
-            id: z.number(),
-            name: z.string(),
-            email: z.string(),
-        }),
-    }),
-    message: z.string(),
-});
-
-export type RegisterResType = z.TypeOf<typeof RegisterRes>;
-
+// ✅ Define Request Body Schema for Login
 export const LoginBody = z
     .object({
-        email: z.string().email(),
-        password: z.string().min(6).max(100),
+        username: z.string().nonempty('Username is required'), // Username must be provided
+        password: z
+            .string()
+            .min(6, 'Password must be at least 6 characters long')
+            .max(100, 'Password must not exceed 100 characters'), // Password length validation
     })
     .strict();
 
-export type LoginBodyType = z.TypeOf<typeof LoginBody>;
+export type LoginBodyType = z.infer<typeof LoginBody>;
 
-export const LoginRes = RegisterRes;
+// ✅ Define Response Schema for Login (Success & Error handling)
+export const LoginRes = z.object({
+    value: z
+        .object({
+            accessToken: z.string(), // JWT Access Token
+            refreshToken: z.string(), // JWT Refresh Token
+        })
+        .optional(), // `value` is present only in success responses
+    isSuccess: z.boolean(), // Indicates if login was successful
+    isFailure: z.boolean(), // Indicates if login failed
+    error: z
+        .object({
+            code: z.string().nullable(), // Error code (if any)
+            description: z.string().nullable(), // Error description (if any)
+        })
+        .nullable(), // `error` can be null or undefined in success responses
+});
 
-export type LoginResType = z.TypeOf<typeof LoginRes>;
-export const SlideSessionBody = z.object({}).strict();
-
-export type SlideSessionBodyType = z.TypeOf<typeof SlideSessionBody>;
-export const SlideSessionRes = RegisterRes;
-
-export type SlideSessionResType = z.TypeOf<typeof SlideSessionRes>;
+export type LoginResType = z.infer<typeof LoginRes>;

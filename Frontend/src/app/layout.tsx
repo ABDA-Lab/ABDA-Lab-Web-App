@@ -1,7 +1,9 @@
 import type { Metadata } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
 import '@/styles/globals.css';
-import Headers from '@/components/Header';
+import HeaderWrapper from '@/components/HeaderWrapper';
+import { Toaster } from 'react-hot-toast';
+
 const jetBrainsMono = JetBrains_Mono({
     variable: '--font-jetbrains-mono',
     subsets: ['latin'],
@@ -18,9 +20,13 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <html lang="en" className={jetBrainsMono.variable}>
-            <body className={`${jetBrainsMono.style} antialiased`}>
-                <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 font-mono flex-col">{children}</div>
+        <html lang="en" className={`${jetBrainsMono.variable} light`}>
+            <body className={`${jetBrainsMono.style} font-mono antialiased bg-gray-100`}>
+                <HeaderWrapper />
+                <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col">
+                    <main>{children}</main>
+                </div>
+                <Toaster position="top-right" reverseOrder={false} />
             </body>
         </html>
     );
