@@ -17,9 +17,14 @@ export function useLogin() {
             // Call the login API
             const response = await login(username, password);
 
+            // Validate the response format
+            if (!response || !response.value) {
+                throw new Error('Invalid response format from server.');
+            }
+
             // Save the token and redirect
             localStorage.setItem('token', response.value);
-            toast.success('Login successful! Redirecting to dashboard...');
+            toast.success('Login successful! Redirecting to homepage...');
             router.push('/');
         } catch (err: any) {
             console.error('Login error:', err);
@@ -32,11 +37,15 @@ export function useLogin() {
             }
             // Handle HTTP errors (e.g., 400, 401, 500)
             else if (err instanceof HttpError) {
-                errorMessage = err.payload?.message || 'Invalid login credentials.';
+                errorMessage = err.payload?.message || err.payload?.detail || 'Invalid login credentials.';
             }
             // Handle unexpected network or other errors
             else if (err.message) {
                 errorMessage = err.message;
+            }
+            // Fallback for unknown errors
+            else {
+                errorMessage = 'An unexpected error occurred. Please try again later.';
             }
 
             setError(errorMessage);

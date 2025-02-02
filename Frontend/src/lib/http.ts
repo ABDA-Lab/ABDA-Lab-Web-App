@@ -4,7 +4,7 @@ import { LoginResType } from '@/schemaValidations/auth.schema';
 import { redirect } from 'next/navigation';
 
 type CustomOptions = Omit<RequestInit, 'method'> & {
-    baseUrl?: string;
+    baseUrl?: string | undefined;
 };
 
 const ENTITY_ERROR_STATUS = 422;
@@ -17,14 +17,15 @@ type EntityErrorPayload = {
 
 export class HttpError extends Error {
     status: number;
-    payload: { message: string; [key: string]: any };
+    payload: { message: string; detail?: string; [key: string]: any };
 
     constructor({ status, payload }: { status: number; payload: any }) {
-        super(payload.message || 'Http Error');
+        super(payload.detail || payload.message || 'Http Error');
         this.status = status;
         this.payload = payload;
     }
 }
+
 
 export class EntityError extends HttpError {
     status: 422;
@@ -38,6 +39,7 @@ export class EntityError extends HttpError {
 }
 
 let clientLogoutRequest: null | Promise<any> = null;
+
 export const isClient = () => typeof window !== 'undefined';
 
 const request = async <Response>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', url: string, options?: CustomOptions) => {
@@ -67,38 +69,86 @@ const request = async <Response>(method: 'GET' | 'POST' | 'PUT' | 'DELETE', url:
     try {
         const res = await fetch(fullUrl, {
             ...options,
-            headers: { ...baseHeaders, ...options?.headers } as any,
+            headers: { ...baseHeaders, ...options?.headers },
             body,
             method,
             credentials: 'include',
         });
 
         const contentType = res.headers.get('content-type');
+
         let payload;
 
         if (contentType && contentType.includes('application/json')) {
-            payload = await res.json();
+            try {
+                payload = await res.json();
+
+                // Kiểm tra nếu là `application/problem+json`
+                if (contentType.includes('application/problem+json')) {
+                    // Xử lý theo cấu trúc RFC 7807
+                    const problemMessage = payload.detail || payload.title || `HTTP Error ${res.status}`;
+                    throw new HttpError({
+                        status: res.status,
+                        payload: {
+                            message: problemMessage,
+                            raw: payload, // Lưu toàn bộ raw response để debug
+                        },
+                    });
+                }
+
+                // Nếu là JSON bình thường, xử lý như cũ
+                if (!res.ok) {
+                    const errorMessage = payload.detail || payload.message || `HTTP Error ${res.status}`;
+                    throw new HttpError({
+                        status: res.status,
+                        payload: {
+                            message: errorMessage,
+                            raw: payload, // Lưu raw payload để dễ debug
+                        },
+                    });
+                }
+            } catch (error) {
+                throw new HttpError({
+                    status: res.status,
+                    payload: {
+                        message: `Failed to parse JSON. Status: ${res.status}`,
+                        raw: error instanceof Error ? error.message : String(error),
+                    },
+                });
+            }
         } else {
             const text = await res.text();
             throw new HttpError({
                 status: res.status,
-                payload: { message: `Unexpected response format. Status: ${res.status}`, raw: text },
+                payload: {
+                    message: `Unexpected response format. Status: ${res.status}`,
+                    raw: text,
+                },
             });
         }
 
+
         if (!res.ok) {
-            if (payload && payload.detail) {
+            // Kiểm tra và xử lý lỗi với `detail` hoặc `message`
+            if (payload && (payload.detail || payload.message)) {
                 throw new HttpError({
                     status: res.status,
-                    payload: { message: payload.detail },
+                    payload: {
+                        message: payload.detail || payload.message,
+                        raw: payload,
+                    },
                 });
             }
 
             throw new HttpError({
                 status: res.status,
-                payload: payload || { message: `Unexpected response format. Status: ${res.status}` },
+                payload: {
+                    message: `HTTP error: ${res.status}`,
+                    raw: payload || 'Unexpected error format.',
+                },
             });
         }
+
 
         return payload;
     } catch (error) {
