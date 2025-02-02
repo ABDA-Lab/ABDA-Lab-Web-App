@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
 import '@/styles/globals.css';
 import HeaderWrapper from '@/components/HeaderWrapper';
+import { Toaster } from 'react-hot-toast';
 
 const jetBrainsMono = JetBrains_Mono({
     variable: '--font-jetbrains-mono',
@@ -25,6 +26,7 @@ export default function RootLayout({
                 <div className="w-full max-w-[1440px] mx-auto px-4 sm:px-6 lg:px-8 flex flex-col">
                     <main>{children}</main>
                 </div>
+                <Toaster position="top-right" reverseOrder={false} />
             </body>
         </html>
     );

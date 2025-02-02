@@ -5,7 +5,7 @@ import Header from '@/components/Header';
 
 export default function HeaderWrapper() {
     const pathname = usePathname();
-    const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/register');
+    const isAuthRoute = pathname.startsWith('/auth');
 
     if (isAuthRoute) return null;
 

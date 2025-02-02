@@ -1,55 +1,26 @@
 import z from 'zod';
 
-export const RegisterBody = z
-    .object({
-        name: z.string().trim().min(2).max(256),
-        email: z.string().email(),
-        password: z.string().min(6).max(100),
-        confirmPassword: z.string().min(6).max(100),
-    })
-    .strict()
-    .superRefine(({ confirmPassword, password }, ctx) => {
-        if (confirmPassword !== password) {
-            ctx.addIssue({
-                code: 'custom',
-                message: 'Invalid confirmPassword',
-                path: ['confirmPassword'],
-            });
-        }
-    });
-
-export type RegisterBodyType = z.TypeOf<typeof RegisterBody>;
-
-export const RegisterRes = z.object({
-    data: z.object({
-        token: z.string(),
-        expiresAt: z.string(),
-        account: z.object({
-            id: z.number(),
-            name: z.string(),
-            email: z.string(),
-        }),
-    }),
-    message: z.string(),
-});
-
-export type RegisterResType = z.TypeOf<typeof RegisterRes>;
-
+// ✅ Define Request Body Schema for Login
 export const LoginBody = z
     .object({
-        email: z.string().email(),
+        username: z.string(),
         password: z.string().min(6).max(100),
     })
     .strict();
 
 export type LoginBodyType = z.TypeOf<typeof LoginBody>;
 
-export const LoginRes = RegisterRes;
+// ✅ Define Response Schema for Login (Success & Error handling)
+export const LoginRes = z.object({
+    value: z.string(), // JWT Token returned from API
+    isSuccess: z.boolean(), // Indicates if login was successful
+    isFailure: z.boolean(), // Indicates if login failed
+    error: z
+        .object({
+            code: z.string().nullable().optional(), // Error code (if any)
+            description: z.string().nullable().optional(), // Error description (if any)
+        })
+        .optional(), // `error` field exists but might be empty in success responses
+});
 
 export type LoginResType = z.TypeOf<typeof LoginRes>;
-export const SlideSessionBody = z.object({}).strict();
-
-export type SlideSessionBodyType = z.TypeOf<typeof SlideSessionBody>;
-export const SlideSessionRes = RegisterRes;
-
-export type SlideSessionResType = z.TypeOf<typeof SlideSessionRes>;
