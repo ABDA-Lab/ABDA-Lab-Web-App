@@ -21,6 +21,11 @@ namespace Application.Common.Mapper
 
             CreateMap<CreateRoleCommand, Role>();
             CreateMap<Role, CreateRoleCommand>();
+
+            CreateMap<User, GetMeResponse>();
+            CreateMap<GetMeResponse, User>();
+
+            
         }
         
     }
