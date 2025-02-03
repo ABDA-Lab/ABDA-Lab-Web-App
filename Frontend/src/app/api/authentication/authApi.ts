@@ -8,16 +8,7 @@ export const login = async (username: string, password: string) => {
     return await http.post<LoginResType>('api/auth/login', parsedData);
 };
 
-// // Register API
-// export const register = async (name: string, email: string, password: string, confirmPassword: string) => {
-//     // Validate dữ liệu đầu vào bằng schema RegisterBody
-//     const parsedData = RegisterBody.parse({ name, email, password, confirmPassword });
-
-//     // Gửi request đến API
-//     return await http.post<RegisterResType>('/auth/register', parsedData);
-// };
-
-// // Get profile API
-// export const getProfile = async () => {
-//     return await http.get('/auth/profile');
-// };
+// Logout API
+export const logout = async () => {
+    return await http.post('api/auth/logout', {});
+};

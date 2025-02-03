@@ -1,7 +1,8 @@
 import envConfig from '@/config';
 import { normalizePath } from '@/lib/utils';
-import { LoginResType } from '@/schemaValidations/auth.schema';
-import { redirect } from 'next/navigation';
+import { store } from '@/store/store';
+import { clearProfile } from '@/store/slices/userSlice';
+import { updateTokens } from '@/store/slices/authSlice';
 
 type CustomOptions = Omit<RequestInit, 'method'> & {
     baseUrl?: string | undefined;
@@ -38,14 +39,83 @@ export class EntityError extends HttpError {
     }
 }
 
-const clientLogoutRequest: null | Promise<any> = null;
+// Kiểm tra môi trường client hay server
 export const isClient = () => typeof window !== 'undefined';
 
+// Lấy accessToken từ localStorage (chỉ chạy trên Client)
+const getAccessToken = (): string | null => {
+    if (isClient()) {
+        return localStorage.getItem('accessToken');
+    }
+    return null;
+};
+
+// Ghi log request để debug
+const logRequest = (method: string, url: string, options: CustomOptions | undefined) => {
+    console.log(`[HTTP ${method}] ${url}`, {
+        headers: options?.headers,
+        body: options?.body,
+        baseUrl: options?.baseUrl,
+    });
+};
+
+// Xử lý logout
+async function handleLogout() {
+    if (isClient()) {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        store.dispatch(clearProfile());
+        window.location.href = '/login';
+    }
+}
+
+// Xử lý refresh token
+async function handleAuthError() {
+    if (!isClient()) {
+        console.error('❌ handleAuthError() được gọi trên Server. Bỏ qua...');
+        return;
+    }
+
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (refreshToken) {
+        try {
+            const response = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/refresh`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ refreshToken }),
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.value) {
+                localStorage.setItem('accessToken', data.value.accessToken);
+                localStorage.setItem('refreshToken', data.value.refreshToken);
+
+                // Cập nhật Redux state
+                store.dispatch(updateTokens(data.value));
+            } else {
+                await handleLogout();
+            }
+        } catch (error) {
+            console.error('❌ Token refresh failed:', error);
+            await handleLogout();
+        }
+    } else {
+        await handleLogout();
+    }
+}
+
+// Hàm chuẩn hóa URL
+const normalizeUrl = (url: string) => (url.startsWith('/') ? url : `/${url}`);
+
+// Hàm chính để thực hiện request
 const request = async <Response>(
-    method: 'GET' | 'POST' | 'PUT' | 'DELETE',
+    method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
     url: string,
-    options?: CustomOptions | undefined
+    options?: CustomOptions
 ) => {
+    logRequest(method, url, options);
+
     let body: FormData | string | undefined = undefined;
     if (options?.body instanceof FormData) {
         body = options.body;
@@ -54,21 +124,21 @@ const request = async <Response>(
     }
 
     const baseHeaders: Record<string, string> = body instanceof FormData ? {} : { 'Content-Type': 'application/json' };
+    const accessToken = getAccessToken();
 
-    if (isClient()) {
-        const accessToken = localStorage.getItem('accessToken');
-        if (accessToken) {
-            baseHeaders.Authorization = `Bearer ${accessToken}`;
-        }
+    if (accessToken) {
+        baseHeaders.Authorization = `Bearer ${accessToken}`;
     }
 
     const baseUrl = options?.baseUrl === undefined ? envConfig.NEXT_PUBLIC_API_ENDPOINT : options.baseUrl;
 
     if (!baseUrl) {
-        throw new Error('API base URL is not defined. Check your environment configuration.');
+        throw new Error('❌ API base URL is not defined. Check your environment configuration.');
     }
 
-    const fullUrl = url.startsWith('/') ? `${baseUrl}${url}` : `${baseUrl}/${url}`;
+    const fullUrl = normalizeUrl(url).startsWith('/')
+        ? `${baseUrl}${normalizeUrl(url)}`
+        : `${baseUrl}/${normalizeUrl(url)}`;
 
     try {
         const res = await fetch(fullUrl, {
@@ -87,7 +157,7 @@ const request = async <Response>(
             const text = await res.text();
             throw new HttpError({
                 status: res.status,
-                payload: { message: `Unexpected response format. Status: ${res.status}`, raw: text },
+                payload: { message: `❌ Unexpected response format. Status: ${res.status}`, raw: text },
             });
         }
 
@@ -96,66 +166,25 @@ const request = async <Response>(
                 throw new EntityError({ status: ENTITY_ERROR_STATUS, payload: payload as EntityErrorPayload });
             } else if (res.status === AUTHENTICATION_ERROR_STATUS) {
                 await handleAuthError();
-                // Retry the request after token refresh
                 return await request<Response>(method, url, options);
             } else {
                 throw new HttpError({ status: res.status, payload });
             }
         }
 
-        if (isClient() && ['auth/login', 'auth/refresh'].some((item) => item === normalizePath(url))) {
-            const { value } = payload as unknown as { value: { accessToken: string; refreshToken: string } };
-            if (value) {
-                localStorage.setItem('accessToken', value.accessToken);
-                localStorage.setItem('refreshToken', value.refreshToken);
-            }
-        }
-
         return payload;
     } catch (error) {
-        console.error('HTTP Request Error:', error);
+        console.error('❌ HTTP Request Error:', error);
 
         if (error instanceof HttpError || error instanceof EntityError) {
             throw error;
         }
 
-        throw new Error('Unexpected network error. Please check your connection and try again.');
+        throw new Error('❌ Unexpected network error. Please check your connection and try again.');
     }
 };
 
-async function handleAuthError() {
-    const refreshToken = localStorage.getItem('refreshToken');
-    if (refreshToken) {
-        try {
-            const response = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/refresh`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ refreshToken }),
-            });
-
-            const data = await response.json();
-
-            if (response.ok && data.value) {
-                localStorage.setItem('accessToken', data.value.accessToken);
-                localStorage.setItem('refreshToken', data.value.refreshToken);
-            } else {
-                await handleLogout();
-            }
-        } catch (error) {
-            console.error('Token refresh failed:', error);
-            await handleLogout();
-        }
-    } else {
-        await handleLogout();
-    }
-}
-
-async function handleLogout() {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    window.location.href = '/login';
-}
-
+// Các phương thức HTTP
 const http = {
     get<Response>(url: string, options?: Omit<CustomOptions, 'body'>) {
         return request<Response>('GET', url, options);
@@ -165,6 +194,9 @@ const http = {
     },
     put<Response>(url: string, body: any, options?: Omit<CustomOptions, 'body'>) {
         return request<Response>('PUT', url, { ...options, body });
+    },
+    patch<Response>(url: string, body: any, options?: Omit<CustomOptions, 'body'>) {
+        return request<Response>('PATCH', url, { ...options, body });
     },
     delete<Response>(url: string, options?: Omit<CustomOptions, 'body'>) {
         return request<Response>('DELETE', url, options);
