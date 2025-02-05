@@ -1,5 +1,5 @@
 declare global {
-    interface RequestInit {
-      duplex?: 'half';
-    }
+  interface RequestInit {
+    duplex?: "half";
   }
+}

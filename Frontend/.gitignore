@@ -9,6 +9,7 @@
 !.yarn/plugins
 !.yarn/releases
 !.yarn/versions
+.history
 
 # testing
 /coverage
@@ -23,6 +24,8 @@
 # misc
 .DS_Store
 *.pem
+.history/
+.history
 
 # debug
 npm-debug.log*
