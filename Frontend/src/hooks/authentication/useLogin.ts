@@ -19,7 +19,6 @@ export function useLogin() {
             const resultAction = await dispatch(login({ username: username, password }));
 
             if (login.fulfilled.match(resultAction)) {
-                // Gọi API get-me sau khi login thành công
                 await dispatch(fetchUserProfile());
                 toast.success('Login successful!');
                 router.push('/');
