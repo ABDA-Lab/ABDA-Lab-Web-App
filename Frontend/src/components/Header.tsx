@@ -1,39 +1,42 @@
-'use client';
-import { useEffect } from 'react';
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { fetchUserProfile, clearProfile } from '@/store/slices/userSlice';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { useEffect, useState } from 'react';
 import Logo from './Logo';
 import Link from 'next/link';
 import Navigation from './Navigation';
+import UserPopover from './UserPopover';
+
+import { store } from '@/store/store';
 
 export default function Header() {
-    // const dispatch = useAppDispatch();
+    const [isReduxReady, setIsReduxReady] = useState(false);
+    const dispatch = useAppDispatch();
     const { profile, status } = useAppSelector((state) => state.user);
+    const { accessToken } = useAppSelector((state) => state.auth);
 
-    // Fetch user profile chỉ khi cần
-    // useEffect(() => {
-    //     if (!profile && status === 'idle') {
-    //         dispatch(fetchUserProfile());
-    //     }
-    // }, [profile, status, dispatch]);
+    // Kiểm tra Redux đã sẵn sàng trước khi gọi `dispatch`
+    useEffect(() => {
+        if (accessToken) {
+            setIsReduxReady(true);
+        }
+    }, [accessToken]);
+
+    // Fetch user profile
+    useEffect(() => {
+        if (isReduxReady && !profile && status === 'idle') {
+            dispatch(fetchUserProfile())
+                .unwrap()
+                .catch((error) => console.error('❌ Error fetching user profile:', error));
+        }
+    }, [isReduxReady, profile, status, dispatch]);
 
     const logout = () => {
-        // dispatch(clearProfile());
+        dispatch(clearProfile());
         if (typeof window !== 'undefined') {
             localStorage.removeItem('accessToken');
             localStorage.removeItem('refreshToken');
             window.location.href = '/auth/login';
         }
-    };
-
-    const getInitials = (name: string | null) => {
-        if (!name || typeof name !== 'string') return 'U';
-        return name
-            .split(' ')
-            .map((n) => n[0])
-            .join('')
-            .toUpperCase();
     };
 
     return (
@@ -46,16 +49,8 @@ export default function Header() {
                 <div className="flex items-center space-x-4">
                     {status === 'loading' ? (
                         <span>Loading...</span>
-                    ) : profile?.value ? (
-                        <div className="flex items-center space-x-4">
-                            <Avatar>
-                                <AvatarImage src={profile.value.avatar || ''} alt={profile.value.username || 'User'} />
-                                <AvatarFallback>{getInitials(profile.value.username || '')}</AvatarFallback>
-                            </Avatar>
-                            <button onClick={logout} className="bg-red-500 text-white px-4 py-2 rounded">
-                                Logout
-                            </button>
-                        </div>
+                    ) : profile ? (
+                        <UserPopover profile={profile} logout={logout} />
                     ) : (
                         <Link
                             href="/auth/login"

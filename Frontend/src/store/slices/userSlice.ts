@@ -1,9 +1,9 @@
 import { getMe } from '@/app/api/user/userApi';
-import { GetMeResType } from '@/schemaValidations/user.schema';
+import { GetMeResType, UserSchemaType } from '@/schemaValidations/user.schema';
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 
 interface UserState {
-    profile: GetMeResType | null;
+    profile: UserSchemaType | null;
     status: 'idle' | 'loading' | 'succeeded' | 'failed';
     error: string | null;
 }
@@ -43,7 +43,7 @@ const userSlice = createSlice({
             })
             .addCase(fetchUserProfile.fulfilled, (state, action: PayloadAction<GetMeResType>) => {
                 state.status = 'succeeded';
-                state.profile = action.payload;
+                state.profile = action.payload.data || null;
             })
             .addCase(fetchUserProfile.rejected, (state, action: PayloadAction<any>) => {
                 state.status = 'failed';

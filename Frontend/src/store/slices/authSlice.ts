@@ -9,19 +9,29 @@ interface AuthState {
     error: string | null;
 }
 
+// 📌 Hàm lấy lại token từ `localStorage` khi Redux khởi động
+const loadAuthState = () => {
+    if (typeof window !== 'undefined') {
+        return {
+            accessToken: localStorage.getItem('accessToken'),
+            refreshToken: localStorage.getItem('refreshToken'),
+        };
+    }
+    return { accessToken: null, refreshToken: null };
+};
+
 const initialState: AuthState = {
-    accessToken: null,
-    refreshToken: null,
+    ...loadAuthState(),
     status: 'idle',
     error: null,
 };
 
-// Thunk xử lý login
+// 📌 Thunk xử lý login
 export const login = createAsyncThunk(
     'auth/login',
-    async (credentials: { username: string; password: string }, { rejectWithValue }) => {
+    async (credentials: { username: string; password: string }, { dispatch, rejectWithValue }) => {
         try {
-            const response = await loginApi(credentials.username, credentials.password); // Gọi API login
+            const response = await loginApi(credentials.username, credentials.password);
             if (!response?.value) {
                 throw new Error('Invalid response from server');
             }
@@ -31,6 +41,8 @@ export const login = createAsyncThunk(
                 localStorage.setItem('refreshToken', response.value.refreshToken);
             }
 
+            dispatch(updateTokens(response.value));
+
             return response.value;
         } catch (error: any) {
             return rejectWithValue(error.payload?.message || 'Login failed');
@@ -38,7 +50,7 @@ export const login = createAsyncThunk(
     }
 );
 
-// Thunk xử lý logout
+// 📌 Thunk xử lý logout
 export const logout = createAsyncThunk('auth/logout', async (_, { dispatch }) => {
     try {
         await logoutApi(); // Gọi API logout
@@ -54,7 +66,7 @@ export const logout = createAsyncThunk('auth/logout', async (_, { dispatch }) =>
     }
 });
 
-// Thunk xử lý refresh token
+// 📌 Thunk xử lý refresh token
 export const refreshTokens = createAsyncThunk('auth/refreshTokens', async (_, { rejectWithValue }) => {
     const refreshToken = typeof window !== 'undefined' ? localStorage.getItem('refreshToken') : null;
 
