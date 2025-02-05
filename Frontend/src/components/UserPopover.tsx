@@ -47,7 +47,7 @@ export default function UserPopover({ profile, logout }: { profile: any; logout:
                     </div>
                 </PopoverContent>
             </Popover>
-            <p className="text-sm text-b">{profile.nickname || 'Nickname'}</p>
+            <p className="text-sm text-b">{profile.nickname || profile.username}</p>
         </div>
     );
 }
