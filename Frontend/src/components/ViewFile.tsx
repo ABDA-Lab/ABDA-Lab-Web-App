@@ -7,7 +7,7 @@ type ViewFileProps = {
   size?: string;
 };
 
-const ViewFile: React.FC<ViewFileProps> = ({ name, date, type, size }) => {
+export default function ViewFile({ name, date, type, size }: ViewFileProps) {
   const getIcon = (type: string) => {
     const fileType = type.toLowerCase();
     if (fileType.includes("file folder")) {
@@ -74,5 +74,3 @@ const ViewFile: React.FC<ViewFileProps> = ({ name, date, type, size }) => {
     </div>
   );
 };
-
-export default ViewFile;
