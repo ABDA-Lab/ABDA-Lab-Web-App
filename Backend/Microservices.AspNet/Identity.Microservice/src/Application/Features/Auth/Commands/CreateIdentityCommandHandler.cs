@@ -49,7 +49,7 @@ namespace Application.Features.Auth.Commands
                 var roleErrors = string.Join(", ", roleAssignResult.Errors.Select(e => e.Description));
                 return Result.Failure(new Error("AssignRole", $"Failed to assign role '{nameof(RoleEnum.User)}' to user: {roleErrors}"));
             }
-
+            
             await _publishEndpoint.Publish(new IdentityUserCreatedEvent{
                 UserId = newUser.Id,
                 RoleId = role.Id,
