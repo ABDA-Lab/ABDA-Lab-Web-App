@@ -7,6 +7,7 @@ export const metadata: Metadata = {
     description: 'Login page',
 };
 
+
 export default function LoginPage() {
     return (
         <div className="grid h-screen lg:grid-cols-2 overflow-hidden">

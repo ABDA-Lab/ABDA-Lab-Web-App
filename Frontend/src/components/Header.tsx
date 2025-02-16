@@ -1,4 +1,3 @@
-
 import { useAppSelector, useAppDispatch } from '@/store/hooks';
 import { fetchUserProfile, clearProfile } from '@/store/slices/userSlice';
 import { useEffect, useState } from 'react';
