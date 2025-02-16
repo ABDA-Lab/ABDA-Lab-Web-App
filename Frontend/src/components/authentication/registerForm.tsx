@@ -1,12 +1,32 @@
+'use client';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import Link from 'next/link';
+import { useRegister } from '@/hooks/authentication/useRegister';
+import { RegisterBody, RegisterBodyType } from '@/schemaValidations/auth.schema';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 export function RegisterForm({ className, ...props }: React.ComponentPropsWithoutRef<'form'>) {
+    const { handleRegister, loading, error } = useRegister();
+
+    const {
+        register,
+        handleSubmit,
+        watch,
+        formState: { errors },
+    } = useForm<RegisterBodyType>({
+        resolver: zodResolver(RegisterBody),
+        mode: 'onBlur',
+    });
+
+    const onSubmit = (data: RegisterBodyType) => {
+        handleRegister(data.username, data.password, data.confirmPassword);
+    };
     return (
-        <form className={cn('flex flex-col gap-6', className)} {...props}>
+        <form className={cn('flex flex-col gap-6', className)} {...props} onSubmit={handleSubmit(onSubmit)}>
             <div className="flex flex-col items-center gap-2 text-center">
                 <h1 className="text-2xl font-bold">Create an account</h1>
                 <p className="text-balance text-sm text-muted-foreground">
@@ -15,23 +35,28 @@ export function RegisterForm({ className, ...props }: React.ComponentPropsWithou
             </div>
             <div className="grid gap-6">
                 <div className="grid gap-2">
-                    <Label htmlFor="name">Full Name</Label>
-                    <Input id="name" type="text" placeholder="John Doe" required />
+                    <Label htmlFor="username">Username</Label>
+                    <Input id="username" type="text" placeholder="Enter your username" {...register('username')} />
                 </div>
-                <div className="grid gap-2">
+                {/* <div className="grid gap-2">
                     <Label htmlFor="email">Email</Label>
                     <Input id="email" type="email" placeholder="m@example.com" required />
-                </div>
+                </div> */}
                 <div className="grid gap-2">
                     <Label htmlFor="password">Password</Label>
-                    <Input id="password" type="password" required />
+                    <Input id="password" type="password" {...register('password')} />
                 </div>
                 <div className="grid gap-2">
                     <Label htmlFor="confirmPassword">Confirm Password</Label>
-                    <Input id="confirmPassword" type="password" required />
+                    <Input id="confirmPassword" type="password" {...register('confirmPassword')} />
+                    <div className="min-h-10">
+                        {errors.confirmPassword && (
+                            <p className="text-red-500 text-sm">{errors.confirmPassword.message}</p>
+                        )}
+                    </div>
                 </div>
-                <Button type="submit" className="w-full">
-                    Register
+                <Button type="submit" className="w-full" disabled={loading}>
+                    {loading ? 'Registering...' : 'Register'}
                 </Button>
                 <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
                     <span className="relative z-10 bg-background px-2 text-muted-foreground">Or continue with</span>

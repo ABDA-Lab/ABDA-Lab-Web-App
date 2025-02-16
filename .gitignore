@@ -1,0 +1,4 @@
+.history
+.history/
+.fake
+docker-compose-production.yml

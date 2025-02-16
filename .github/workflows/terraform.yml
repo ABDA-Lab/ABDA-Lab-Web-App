@@ -1,0 +1,56 @@
+name: Terraform Deployment
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  terraform:
+    name: "Terraform Plan and Apply"
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.3.6"
+
+      - name: Terraform Init
+        working-directory: Terraform
+        run: terraform init
+
+      - name: Terraform Format Check
+        working-directory: Terraform
+        run: terraform fmt -check
+
+      - name: Terraform Plan
+        working-directory: Terraform
+        env:
+          ORIGIN_DOMAIN_NAME: ${{ secrets.ORIGIN_DOMAIN_NAME }}
+          ORIGIN_PATH: ${{ secrets.ORIGIN_PATH }}
+          ABDA_LAB_PUBLIC_KEY_GROUP: ${{ secrets.ABDA_LAB_PUBLIC_KEY_GROUP }}
+          LAMBDA_EDGE_SECRET: ${{ secrets.LAMBDA_EDGE_SECRET }}
+        run: |
+          terraform plan \
+            -var="origin_domain_name=${ORIGIN_DOMAIN_NAME}" \
+            -var="origin_path=${ORIGIN_PATH}" \
+            -var="abda_lab_public_key_group=${ABDA_LAB_PUBLIC_KEY_GROUP}" \
+            -var="lambda_edge_secret=${LAMBDA_EDGE_SECRET}" \
+            -out=tfplan
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        working-directory: Terraform
+        env:
+          ORIGIN_DOMAIN_NAME: ${{ secrets.ORIGIN_DOMAIN_NAME }}
+          ORIGIN_PATH: ${{ secrets.ORIGIN_PATH }}
+          ABDA_LAB_PUBLIC_KEY_GROUP: ${{ secrets.ABDA_LAB_PUBLIC_KEY_GROUP }}
+          LAMBDA_EDGE_SECRET: ${{ secrets.LAMBDA_EDGE_SECRET }}
+        run: |
+          terraform apply -auto-approve tfplan

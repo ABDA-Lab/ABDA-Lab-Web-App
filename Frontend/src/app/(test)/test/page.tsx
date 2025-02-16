@@ -10,25 +10,22 @@ export default function Test() {
 
   return (
     <div className="p-6 max-w-xl mx-auto space-y-6">
-      {/* Download Private File */}
+      Download Private File
       <div>
         <h1 className="text-lg font-semibold">Download Private File</h1>
         <DownloadFileButton filePath="private/100MB.zip" private={true} />
       </div>
 
-      {/* Download Public File */}
       <div>
         <h1 className="text-lg font-semibold">Download Public File</h1>
         <DownloadFileButton filePath="public/100MB.zip" private={false} />
       </div>
 
-      {/* Upload File */}
       <div>
         <h1 className="text-lg font-semibold">Upload File</h1>
         <UploadFileButton filePath="private/" />
       </div>
 
-      {/* Get Shared URL */}
       <div>
         <h1 className="text-lg font-semibold">Get Shared URL</h1>
         <input

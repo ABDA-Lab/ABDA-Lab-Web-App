@@ -1,52 +1,33 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'react-hot-toast';
-import { login } from '@/app/api/authentication/authApi';
-import { HttpError, EntityError } from '@/lib/http';
+import { useAppDispatch } from '@/store/hooks';
+import { login } from '@/store/slices/authSlice';
+import { fetchUserProfile } from '@/store/slices/userSlice';
 
 export function useLogin() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const router = useRouter();
+    const dispatch = useAppDispatch();
 
     const handleLogin = async (username: string, password: string) => {
         setLoading(true);
         setError(null);
 
         try {
-            // Call the login API
-            const response = await login(username, password);
+            const resultAction = await dispatch(login({ username: username, password }));
 
-            // Validate the response format
-            if (!response || !response.value || !response.value.accessToken) {
-                throw new Error('Invalid response format from server.');
+            if (login.fulfilled.match(resultAction)) {
+                await dispatch(fetchUserProfile());
+                toast.success('Login successful!');
+                router.push('/');
+            } else if (login.rejected.match(resultAction)) {
+                throw new Error('Invalid login credentials');
             }
-
-            // Save tokens to localStorage
-            localStorage.setItem('accessToken', response.value.accessToken);
-            localStorage.setItem('refreshToken', response.value.refreshToken);
-
-            // Show success toast and redirect
-            toast.success('Login successful! Redirecting to homepage...');
-            router.push('/');
         } catch (err: unknown) {
-            console.error('Login error:', err);
-
-            let errorMessage = 'Login failed. Please try again.';
-
-            if (err instanceof EntityError) {
-                // Handle validation errors (422)
-                errorMessage = err.payload?.message || 'Validation error.';
-            } else if (err instanceof HttpError) {
-                // Handle HTTP errors (e.g., 400, 401, 500)
-                errorMessage = err.payload?.message || err.payload?.detail || 'Invalid login credentials.';
-            } else if (err instanceof Error) {
-                // Handle unexpected errors
-                errorMessage = err.message;
-            }
-
-            setError(errorMessage);
-            toast.error(errorMessage);
+            setError(err instanceof Error ? err.message : 'Unexpected error');
+            toast.error(err instanceof Error ? err.message : 'Unexpected error');
         } finally {
             setLoading(false);
         }

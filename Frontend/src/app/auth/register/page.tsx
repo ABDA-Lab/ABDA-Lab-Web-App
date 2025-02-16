@@ -3,7 +3,7 @@ import Logo from '@/components/Logo';
 import { GalleryVerticalEnd } from 'lucide-react';
 import { Metadata } from 'next';
 import Link from 'next/link';
-
+import Image from 'next/image';
 export const metadata: Metadata = {
     title: 'Register',
     description: 'Register page',
@@ -20,7 +20,7 @@ export default function RegisterPage() {
                 </div>
             </div>
             <div className="relative hidden bg-muted lg:block">
-                <img
+                <Image
                     src="https://images.unsplash.com/photo-1737117752650-06205a6394c4?q=80&w=2670&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                     alt="ImageLogin"
                     className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
