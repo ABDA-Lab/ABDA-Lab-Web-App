@@ -7,7 +7,7 @@ variable "origin_domain_name" {
 variable "origin_path" {
   description = "The origin path to append to the domain name"
   type        = string
-  default     = "/khangstorage"
+  default     = ""
 }
 
 variable "abda_lab_public_key_group" {
@@ -22,8 +22,3 @@ variable "lambda_edge_secret" {
   default     = ""
 }
 
-variable "terraform_user" {
-  description = "AWS profile name to use"
-  type        = string
-  default     = ""
-}
