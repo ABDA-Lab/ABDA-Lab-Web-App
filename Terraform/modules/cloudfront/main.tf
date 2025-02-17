@@ -15,13 +15,13 @@ resource "aws_cloudfront_distribution" "this" {
 
     custom_header {
       name  = "Referer"
-      value = "0Kg04Ct10!"
+      value = var.bucket_secret_referer
     }
   }
 
   enabled             = true
   is_ipv6_enabled     = true
-  comment             = "CloudFront distribution using Wasabi with origin /khangstorage"
+  comment             = "CloudFront distribution using Wasabi"
   default_root_object = "index.html"
 
   # Default behavior (applied to all requests not matching another path pattern)

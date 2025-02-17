@@ -17,3 +17,8 @@ variable "abda_lab_public_key_group" {
   description = "Public key group for ABDA Lab inform of Pem"
   type = string
 }
+
+variable "bucket_secret_referer" {
+  description = "Custom header referer for the bucket"
+  type = string
+}
