@@ -145,6 +145,7 @@ jobs:
             -var="origin_path=${ORIGIN_PATH}" \
             -var="abda_lab_public_key_group=${ABDA_LAB_PUBLIC_KEY_GROUP}" \
             -var="lambda_edge_secret=${LAMBDA_EDGE_SECRET}" \
+            -var="bucket_secret_referer=${BUCKET_SECRET_REFERRER}" \
             -out=tfplan
 
       - name: Terraform Apply
