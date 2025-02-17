@@ -48,8 +48,9 @@ jobs:
       - name: Bootstrap S3 Backend Bucket with CORS & Policy
         env:
           REFERRER: ${{ secrets.BUCKET_SECRET_REFERRER }}
+          ORIGIN_PATH: ${{ secrets.ORIGIN_PATH }}
         run: |
-          BUCKET="khangstoragetest"
+          BUCKET=$(echo "$ORIGIN_PATH" | sed 's|^/||')
           REGION="ap-southeast-1"
           ENDPOINT="https://s3.ap-southeast-1.wasabisys.com"
           PROFILE="wasabi-user"
@@ -113,8 +114,8 @@ jobs:
                 ]
               }'
 
-            echo "Waiting 2 minutes for bucket to be fully provisioned..."
-            sleep 120
+            echo "Waiting 1 minutes for bucket to be fully provisioned..."
+            sleep 60
           fi
 
       - name: Setup Terraform
