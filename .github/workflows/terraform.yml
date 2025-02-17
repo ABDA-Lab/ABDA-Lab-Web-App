@@ -134,6 +134,7 @@ jobs:
       - name: Terraform Plan
         working-directory: Terraform
         env:
+          BUCKET_SECRET_REFERRER: ${{ secrets.BUCKET_SECRET_REFERRER }}
           ORIGIN_DOMAIN_NAME: ${{ secrets.ORIGIN_DOMAIN_NAME }}
           ORIGIN_PATH: ${{ secrets.ORIGIN_PATH }}
           ABDA_LAB_PUBLIC_KEY_GROUP: ${{ secrets.ABDA_LAB_PUBLIC_KEY_GROUP }}
@@ -150,6 +151,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         working-directory: Terraform
         env:
+          BUCKET_SECRET_REFERRER: ${{ secrets.BUCKET_SECRET_REFERRER }}
           ORIGIN_DOMAIN_NAME: ${{ secrets.ORIGIN_DOMAIN_NAME }}
           ORIGIN_PATH: ${{ secrets.ORIGIN_PATH }}
           ABDA_LAB_PUBLIC_KEY_GROUP: ${{ secrets.ABDA_LAB_PUBLIC_KEY_GROUP }}
