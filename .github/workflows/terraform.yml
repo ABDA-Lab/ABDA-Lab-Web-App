@@ -70,6 +70,18 @@ jobs:
             sleep 120
           fi
 
+          echo "Disabling public access block..."
+          aws s3api put-public-access-block \
+            --bucket "$BUCKET" \
+            --profile "$PROFILE" \
+            --endpoint-url "$ENDPOINT" \
+            --public-access-block-configuration '{
+              "BlockPublicAcls": false,
+              "IgnorePublicAcls": false,
+              "BlockPublicPolicy": false,
+              "RestrictPublicBuckets": false
+            }'
+            
           # Apply CORS configuration
           echo "Applying CORS configuration..."
           aws s3api put-bucket-cors \
@@ -120,7 +132,7 @@ jobs:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "5.87"
+          terraform_version: "1.6.7"
 
       - name: Terraform Init
         working-directory: Terraform
