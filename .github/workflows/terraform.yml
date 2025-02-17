@@ -1,4 +1,4 @@
-name: Terraform Deployment
+name: AWS Terraform Plan and Apply
 
 on:
   push:
@@ -11,18 +11,106 @@ jobs:
   terraform:
     name: "Terraform Plan and Apply"
     runs-on: ubuntu-latest
-    env:
-      TERRAFORM_USER: ${{ secrets.TERRAFORM_USER }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Setup AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v2
+      - name: Configure AWS Credentials for terraform-user
+        run: |
+          mkdir -p ~/.aws
+          echo "[profile terraform-user]" >> ~/.aws/credentials
+          echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID_TERRAFORM_USER }}" >> ~/.aws/credentials
+          echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY_TERRAFORM_USER }}" >> ~/.aws/credentials
+      
+      - name: Configure AWS Credentials for wasabi-user
+        run: |
+          mkdir -p ~/.aws
+          echo "[profile wasabi-user]" >> ~/.aws/credentials
+          echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID_WASABI_USER }}" >> ~/.aws/credentials
+          echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY_WASABI_USER }}" >> ~/.aws/credentials
+
+      - name: Validate AWS Credentials for terraform-user
+        run: aws sts get-caller-identity --profile terraform-user
+      - name: Validate AWS Credentials for wasabi-user
+        run: aws sts get-caller-identity --profile wasabi-user
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: us-east-1
+          node-version: '22'
+  
+      - name: Install Lambda Edge Dependencies
+        working-directory: Terraform/modules/lambda_edge
+        run: npm ci
+
+      - name: Bootstrap S3 Backend Bucket with CORS & Policy
+        env:
+          REFERRER: ${{ secrets.BUCKET_SECRET_REFERRER }}
+        run: |
+          BUCKET="khangstoragetest"
+          REGION="ap-southeast-1"
+          ENDPOINT="https://s3.ap-southeast-1.wasabisys.com"
+          PROFILE="wasabi-user"
+
+          # Check if bucket exists
+          if aws s3api head-bucket --bucket "$BUCKET" --region "$REGION" --profile "$PROFILE" --endpoint-url "$ENDPOINT" 2>/dev/null; then
+            echo "Bucket '$BUCKET' already exists."
+          else
+            echo "Bucket '$BUCKET' does not exist. Creating..."
+            aws s3api create-bucket \
+              --bucket "$BUCKET" \
+              --region "$REGION" \
+              --profile "$PROFILE" \
+              --endpoint-url "$ENDPOINT" \
+              --create-bucket-configuration LocationConstraint="$REGION"
+          fi
+
+          # Apply CORS configuration
+          echo "Applying CORS configuration..."
+          aws s3api put-bucket-cors \
+            --bucket "$BUCKET" \
+            --profile "$PROFILE" \
+            --endpoint-url "$ENDPOINT" \
+            --cors-configuration '{
+              "CORSRules": [
+                {
+                  "AllowedHeaders": ["*"],
+                  "AllowedMethods": ["GET", "POST", "PUT", "DELETE", "HEAD"],
+                  "AllowedOrigins": ["*"],
+                  "ExposeHeaders": ["ETag", "x-amz-meta-custom-header", "Location"],
+                  "MaxAgeSeconds": 3000
+                }
+              ]
+            }'
+
+          # Apply bucket policy using the REFERRER env var
+          echo "Applying bucket policy..."
+          aws s3api put-bucket-policy \
+            --bucket "$BUCKET" \
+            --profile "$PROFILE" \
+            --endpoint-url "$ENDPOINT" \
+            --policy '{
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Sid": "AllowPublicAccessToPublicFolder",
+                  "Effect": "Allow",
+                  "Principal": {"AWS": "*"},
+                  "Action": "s3:GetObject",
+                  "Resource": "arn:aws:s3:::'"$BUCKET"'/public/*"
+                },
+                {
+                  "Sid": "PrivateAccess",
+                  "Effect": "Allow",
+                  "Principal": {"AWS": "*"},
+                  "Action": "*",
+                  "Resource": "arn:aws:s3:::'"$BUCKET"'/private/*",
+                  "Condition": {
+                    "StringLike": {"aws:Referer": "'"$REFERRER"'"}
+                  }
+                }
+              ]
+            }'
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -60,5 +148,4 @@ jobs:
           ORIGIN_PATH: ${{ secrets.ORIGIN_PATH }}
           ABDA_LAB_PUBLIC_KEY_GROUP: ${{ secrets.ABDA_LAB_PUBLIC_KEY_GROUP }}
           LAMBDA_EDGE_SECRET: ${{ secrets.LAMBDA_EDGE_SECRET }}
-        run: |
-          terraform apply -auto-approve tfplan
+        run: terraform apply -auto-approve tfplan

@@ -22,8 +22,3 @@ variable "lambda_edge_secret" {
   default     = ""
 }
 
-variable "terraform_user" {
-  description = "AWS profile name to use"
-  type        = string
-  default     = ""
-}
