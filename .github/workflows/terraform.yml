@@ -35,8 +35,6 @@ jobs:
 
       - name: Validate AWS Credentials for terraform-user
         run: aws sts get-caller-identity --profile terraform-user
-      - name: Validate AWS Credentials for wasabi-user
-        run: aws sts get-caller-identity --profile wasabi-user
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
