@@ -2,9 +2,9 @@ name: AWS Terraform Plan and Apply
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 
 jobs:
@@ -23,7 +23,7 @@ jobs:
           echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY_TERRAFORM_USER }}" >> ~/.aws/credentials
           echo "[profile terraform-user]" >> ~/.aws/config
           echo "region = us-east-1" >> ~/.aws/config
-      
+
       - name: Configure AWS Credentials for wasabi-user
         run: |
           mkdir -p ~/.aws
@@ -39,8 +39,8 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '22'
-  
+          node-version: "22"
+
       - name: Install Lambda Edge Dependencies
         working-directory: Terraform/modules/lambda_edge
         run: npm ci
@@ -66,62 +66,61 @@ jobs:
               --endpoint-url "$ENDPOINT" \
               --acl public-read \
               --create-bucket-configuration LocationConstraint="$REGION"
-          fi
-          
-          # Apply CORS configuration
-          echo "Applying CORS configuration..."
-          aws s3api put-bucket-cors \
-            --bucket "$BUCKET" \
-            --profile "$PROFILE" \
-            --endpoint-url "$ENDPOINT" \
-            --cors-configuration '{
-              "CORSRules": [
-                {
-                  "AllowedHeaders": ["*"],
-                  "AllowedMethods": ["GET", "POST", "PUT", "DELETE", "HEAD"],
-                  "AllowedOrigins": ["*"],
-                  "ExposeHeaders": ["ETag", "x-amz-meta-custom-header", "Location"],
-                  "MaxAgeSeconds": 3000
-                }
-              ]
-            }'
-
-          # Apply bucket policy using the REFERRER env var
-          echo "Applying bucket policy..."
-          aws s3api put-bucket-policy \
-            --bucket "$BUCKET" \
-            --profile "$PROFILE" \
-            --endpoint-url "$ENDPOINT" \
-            --policy '{
-              "Version": "2012-10-17",
-              "Statement": [
-                {
-                  "Sid": "AllowPublicAccessToPublicFolder",
-                  "Effect": "Allow",
-                  "Principal": {"AWS": "*"},
-                  "Action": "s3:GetObject",
-                  "Resource": "arn:aws:s3:::'"$BUCKET"'/public/*"
-                },
-                {
-                  "Sid": "PrivateAccess",
-                  "Effect": "Allow",
-                  "Principal": {"AWS": "*"},
-                  "Action": "*",
-                  "Resource": "arn:aws:s3:::'"$BUCKET"'/private/*",
-                  "Condition": {
-                    "StringLike": {"aws:Referer": "'"$REFERRER"'"}
+              # Apply CORS configuration
+            echo "Applying CORS configuration..."
+            aws s3api put-bucket-cors \
+              --bucket "$BUCKET" \
+              --profile "$PROFILE" \
+              --endpoint-url "$ENDPOINT" \
+              --cors-configuration '{
+                "CORSRules": [
+                  {
+                    "AllowedHeaders": ["*"],
+                    "AllowedMethods": ["GET", "POST", "PUT", "DELETE", "HEAD"],
+                    "AllowedOrigins": ["*"],
+                    "ExposeHeaders": ["ETag", "x-amz-meta-custom-header", "Location"],
+                    "MaxAgeSeconds": 3000
                   }
-                }
-              ]
-            }'
+                ]
+              }'
 
-          echo "Waiting 2 minutes for bucket to be fully provisioned..."
-          sleep 120
+            # Apply bucket policy using the REFERRER env var
+            echo "Applying bucket policy..."
+            aws s3api put-bucket-policy \
+              --bucket "$BUCKET" \
+              --profile "$PROFILE" \
+              --endpoint-url "$ENDPOINT" \
+              --policy '{
+                "Version": "2012-10-17",
+                "Statement": [
+                  {
+                    "Sid": "AllowPublicAccessToPublicFolder",
+                    "Effect": "Allow",
+                    "Principal": {"AWS": "*"},
+                    "Action": "s3:GetObject",
+                    "Resource": "arn:aws:s3:::'"$BUCKET"'/public/*"
+                  },
+                  {
+                    "Sid": "PrivateAccess",
+                    "Effect": "Allow",
+                    "Principal": {"AWS": "*"},
+                    "Action": "*",
+                    "Resource": "arn:aws:s3:::'"$BUCKET"'/private/*",
+                    "Condition": {
+                      "StringLike": {"aws:Referer": "'"$REFERRER"'"}
+                    }
+                  }
+                ]
+              }'
+
+            echo "Waiting 2 minutes for bucket to be fully provisioned..."
+            sleep 120
+          fi
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.6.7"
+          terraform_version: "1.10.5"
 
       - name: Terraform Init
         working-directory: Terraform
