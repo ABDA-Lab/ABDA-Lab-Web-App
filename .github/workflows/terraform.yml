@@ -64,7 +64,10 @@ jobs:
               --region "$REGION" \
               --profile "$PROFILE" \
               --endpoint-url "$ENDPOINT" \
+              --acl public-read \
               --create-bucket-configuration LocationConstraint="$REGION"
+            echo "Waiting 2 minutes for bucket to be fully provisioned..."
+            sleep 120
           fi
 
           # Apply CORS configuration
@@ -115,9 +118,9 @@ jobs:
             }'
 
       - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: "1.3.6"
+          terraform_version: "5.87"
 
       - name: Terraform Init
         working-directory: Terraform
