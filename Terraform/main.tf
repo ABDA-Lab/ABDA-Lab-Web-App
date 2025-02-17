@@ -8,6 +8,7 @@ module "cloudfront" {
   origin_path               = var.origin_path
   set_cookie_lambda_arn     = module.lambda_edge.lambda_function_qualified_arn
   abda_lab_public_key_group = var.abda_lab_public_key_group
+  bucket_secret_referer     = var.bucket_secret_referer
 }
 
 module "key_vault_cloudfront_public_key_id" {
