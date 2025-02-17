@@ -18,16 +18,20 @@ jobs:
       - name: Configure AWS Credentials for terraform-user
         run: |
           mkdir -p ~/.aws
-          echo "[profile terraform-user]" >> ~/.aws/credentials
+          echo "[terraform-user]" >> ~/.aws/credentials
           echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID_TERRAFORM_USER }}" >> ~/.aws/credentials
           echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY_TERRAFORM_USER }}" >> ~/.aws/credentials
+          echo "[profile terraform-user]" >> ~/.aws/config
+          echo "region = us-east-1" >> ~/.aws/config
       
       - name: Configure AWS Credentials for wasabi-user
         run: |
           mkdir -p ~/.aws
-          echo "[profile wasabi-user]" >> ~/.aws/credentials
+          echo "[wasabi-user]" >> ~/.aws/credentials
           echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID_WASABI_USER }}" >> ~/.aws/credentials
           echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY_WASABI_USER }}" >> ~/.aws/credentials
+          echo "[profile wasabi-user]" >> ~/.aws/config
+          echo "region = us-east-1" >> ~/.aws/config
 
       - name: Validate AWS Credentials for terraform-user
         run: aws sts get-caller-identity --profile terraform-user
