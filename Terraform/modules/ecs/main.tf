@@ -29,14 +29,14 @@ resource "aws_iam_instance_profile" "ecs_instance_profile" {
 # Create a Security Group for ECS Container Instances
 resource "aws_security_group" "ecs_instance_sg" {
   name        = "${var.cluster_name}-ecs-instance-sg"
-  description = "Security group for ECS container instances"
+  description = "Security group for ECS container instances, allowing traffic only from the ALB"
   vpc_id      = var.vpc_id
 
   ingress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port       = var.container_port  # Only allow the specific port your container uses
+    to_port         = var.container_port
+    protocol        = "tcp"
+    security_groups = [var.alb_security_group_id]  # We'll pass in the ALB SG ID from the root module
   }
 
   egress {

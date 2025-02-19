@@ -48,14 +48,26 @@ module "subnet2" {
   name              = "subnet-2"
 }
 
+module "alb" {
+  source             = "./modules/alb"
+  load_balancer_name = var.alb_name
+  subnet_ids         = [module.subnet1.subnet_id, module.subnet2.subnet_id]
+  vpc_id             = module.vpc.vpc_id
+  target_port        = var.target_port
+  listener_port      = var.listener_port
+  health_check_path  = var.health_check_path
+}
+
 module "ecs" {
-  source           = "./modules/ecs"
-  cluster_name     = var.cluster_name
-  vpc_id           = module.vpc.vpc_id
-  ecs_ami_id       = var.ecs_ami_id
-  instance_type    = var.instance_type
-  subnet_ids       = [module.subnet1.subnet_id, module.subnet2.subnet_id]
-  desired_capacity = var.desired_capacity
-  max_size         = var.max_size
-  min_size         = var.min_size
+  source                = "./modules/ecs"
+  cluster_name          = var.cluster_name
+  vpc_id                = module.vpc.vpc_id
+  ecs_ami_id            = var.ecs_ami_id
+  instance_type         = var.instance_type
+  subnet_ids            = [module.subnet1.subnet_id, module.subnet2.subnet_id]
+  desired_capacity      = var.desired_capacity
+  max_size              = var.max_size
+  min_size              = var.min_size
+  container_port        = var.container_port
+  alb_security_group_id = module.alb.alb_sg_id 
 }
