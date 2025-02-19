@@ -29,11 +29,3 @@ resource "aws_route_table" "public" {
   }
 }
 
-output "vpc_id" {
-  value = aws_vpc.this.id
-}
-
-output "public_rt_id" {
-  description = "ID of the public route table"
-  value       = aws_route_table.public.id
-}
