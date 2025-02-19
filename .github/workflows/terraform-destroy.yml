@@ -39,9 +39,11 @@ jobs:
           terraform_version: "1.10.5"
 
       - name: Terraform Init
+        working-directory: Terraform
         run: terraform init
 
       - name: Terraform Destroy
+        working-directory: Terraform
         env:
           BUCKET_SECRET_REFERRER: ${{ secrets.BUCKET_SECRET_REFERRER }}
           ORIGIN_DOMAIN_NAME: ${{ secrets.ORIGIN_DOMAIN_NAME }}
