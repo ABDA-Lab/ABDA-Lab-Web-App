@@ -23,3 +23,69 @@ variable "bucket_secret_referer" {
   type        = string
 }
 
+variable "region" {
+  description = "AWS region to deploy resources"
+  type        = string
+  default     = "us-east-1"
+}
+
+
+variable "availability_zone_1" {
+  description = "First Availability Zone"
+  type        = string
+  default     = "us-east-1a"
+}
+
+variable "availability_zone_2" {
+  description = "Second Availability Zone"
+  type        = string
+  default     = "us-east-1b"
+}
+
+variable "vpc_cidr" {
+  description = "CIDR block for the VPC"
+  type        = string
+  default     = "10.0.0.0/16"
+}
+
+variable "vpc_name" {
+  description = "Name tag for the VPC"
+  type        = string
+  default     = "khang-vpc"
+}
+
+variable "cluster_name" {
+  description = "Name of the ECS cluster"
+  type        = string
+  default     = "ecs-cluster"
+}
+
+variable "ecs_ami_id" {
+  description = "AMI ID for an ECS-optimized instance (EC2 launch type). For us-east-1, a common default is ami-0de53d8956e8dcf80. Adjust for your region."
+  type        = string
+  default     = "ami-0de53d8956e8dcf80"
+}
+
+variable "instance_type" {
+  description = "EC2 instance type for ECS container instances. 't2.micro' is free tier eligible."
+  type        = string
+  default     = "t2.micro"
+}
+
+variable "desired_capacity" {
+  description = "Desired number of ECS container instances"
+  type        = number
+  default     = 2
+}
+
+variable "max_size" {
+  description = "Maximum number of ECS container instances in the ASG. This is the upper limit for scaling. If you have many container tasks (for example, 10 containers) and each task requires a lot of resources, you might need to increase max_size. However, if each instance can run multiple lightweight tasks, the default may be sufficient."
+  type        = number
+  default     = 3
+}
+
+variable "min_size" {
+  description = "Minimum number of ECS container instances in the ASG"
+  type        = number
+  default     = 1
+}
