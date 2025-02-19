@@ -1,7 +1,7 @@
 name: Terraform Destroy
 
 on:
-  workflow_dispatch:  # Manual trigger
+  workflow_dispatch: # Manual trigger
 
 jobs:
   terraform-destroy:
@@ -12,6 +12,27 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Configure AWS Credentials for terraform-user
+        run: |
+          mkdir -p ~/.aws
+          echo "[terraform-user]" >> ~/.aws/credentials
+          echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID_TERRAFORM_USER }}" >> ~/.aws/credentials
+          echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY_TERRAFORM_USER }}" >> ~/.aws/credentials
+          echo "[profile terraform-user]" >> ~/.aws/config
+          echo "region = us-east-1" >> ~/.aws/config
+
+      - name: Configure AWS Credentials for wasabi-user
+        run: |
+          mkdir -p ~/.aws
+          echo "[wasabi-user]" >> ~/.aws/credentials
+          echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID_WASABI_USER }}" >> ~/.aws/credentials
+          echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY_WASABI_USER }}" >> ~/.aws/credentials
+          echo "[profile wasabi-user]" >> ~/.aws/config
+          echo "region = us-east-1" >> ~/.aws/config
+
+      - name: Validate AWS Credentials for terraform-user
+        run: aws sts get-caller-identity --profile terraform-user
+
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
@@ -21,4 +42,10 @@ jobs:
         run: terraform init
 
       - name: Terraform Destroy
+        env:
+          BUCKET_SECRET_REFERRER: ${{ secrets.BUCKET_SECRET_REFERRER }}
+          ORIGIN_DOMAIN_NAME: ${{ secrets.ORIGIN_DOMAIN_NAME }}
+          ORIGIN_PATH: ${{ secrets.ORIGIN_PATH }}
+          ABDA_LAB_PUBLIC_KEY_GROUP: ${{ secrets.ABDA_LAB_PUBLIC_KEY_GROUP }}
+          LAMBDA_EDGE_SECRET: ${{ secrets.LAMBDA_EDGE_SECRET }}
         run: terraform destroy -auto-approve
