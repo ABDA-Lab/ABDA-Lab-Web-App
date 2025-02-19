@@ -48,6 +48,12 @@ module "subnet2" {
   name              = "subnet-2"
 }
 
+resource "aws_route_table_association" "subnet_association" {
+  for_each      = toset([module.subnet1.subnet_id, module.subnet2.subnet_id])
+  subnet_id     = each.value
+  route_table_id = module.vpc.public_rt_id
+}
+
 module "alb" {
   source             = "./modules/alb"
   load_balancer_name = var.alb_name
