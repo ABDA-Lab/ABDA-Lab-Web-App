@@ -69,5 +69,5 @@ module "ecs" {
   max_size              = var.max_size
   min_size              = var.min_size
   container_port        = var.container_port
-  alb_security_group_id = module.alb.alb_sg_id 
+  alb_security_group_id = module.alb.alb_sg_id
 }
