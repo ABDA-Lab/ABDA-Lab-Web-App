@@ -51,37 +51,42 @@ resource "aws_security_group" "ecs_instance_sg" {
   }
 }
 
-# Launch Configuration for ECS Container Instances
-resource "aws_launch_configuration" "ecs_instance" {
-  name_prefix          = "${var.cluster_name}-instance-"
-  image_id             = var.ecs_ami_id
-  instance_type        = var.instance_type
-  security_groups      = [aws_security_group.ecs_instance_sg.id]
-  iam_instance_profile = aws_iam_instance_profile.ecs_instance_profile.name
+resource "aws_launch_template" "ecs_instance" {
+  name_prefix   = "${var.cluster_name}-instance-"
+  image_id      = var.ecs_ami_id
+  instance_type = var.instance_type
 
-  user_data = <<EOF
+  # Use the security group created in the ECS module
+  vpc_security_group_ids = [aws_security_group.ecs_instance_sg.id]
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ecs_instance_profile.name
+  }
+
+  user_data = base64encode(<<EOF
 #!/bin/bash
 echo ECS_CLUSTER=${aws_ecs_cluster.this.name} >> /etc/ecs/ecs.config
 EOF
-
-  lifecycle {
-    create_before_destroy = true
-  }
+  )
 }
 
-# Auto Scaling Group for ECS Container Instances
+# Auto Scaling Group for ECS Container Instances (using Launch Template)
 resource "aws_autoscaling_group" "ecs_asg" {
-  name                 = "${var.cluster_name}-asg"
-  launch_configuration = aws_launch_configuration.ecs_instance.id
-  vpc_zone_identifier  = var.subnet_ids
-  desired_capacity     = var.desired_capacity
-  max_size             = var.max_size
-  min_size             = var.min_size
-  health_check_type    = "EC2"
+  name                = "${var.cluster_name}-asg"
+  vpc_zone_identifier = var.subnet_ids
+  desired_capacity    = var.desired_capacity
+  max_size            = var.max_size
+  min_size            = var.min_size
+  health_check_type   = "EC2"
 
   tag {
     key                 = "Name"
     value               = "${var.cluster_name}-instance"
     propagate_at_launch = true
+  }
+
+  launch_template {
+    id      = aws_launch_template.ecs_instance.id
+    version = "$Latest"
   }
 }
