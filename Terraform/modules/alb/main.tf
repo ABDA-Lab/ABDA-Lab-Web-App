@@ -22,6 +22,7 @@ resource "aws_security_group" "alb_sg" {
   }
 }
 
+
 resource "aws_lb" "this" {
   name               = var.load_balancer_name
   load_balancer_type = "application"
@@ -32,7 +33,6 @@ resource "aws_lb" "this" {
     Name = var.load_balancer_name
   }
 }
-
 resource "aws_lb_target_group" "this" {
   name     = "${var.load_balancer_name}-tg"
   port     = var.target_port
