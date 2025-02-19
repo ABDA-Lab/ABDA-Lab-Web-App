@@ -48,10 +48,5 @@ jobs:
           ORIGIN_PATH: ${{ secrets.ORIGIN_PATH }}
           ABDA_LAB_PUBLIC_KEY_GROUP: ${{ secrets.ABDA_LAB_PUBLIC_KEY_GROUP }}
           LAMBDA_EDGE_SECRET: ${{ secrets.LAMBDA_EDGE_SECRET }}
-        run: terraform destroy \
-          -var="origin_domain_name=${ORIGIN_DOMAIN_NAME}" \
-          -var="origin_path=${ORIGIN_PATH}" \
-          -var="abda_lab_public_key_group=${ABDA_LAB_PUBLIC_KEY_GROUP}" \
-          -var="lambda_edge_secret=${LAMBDA_EDGE_SECRET}" \
-          -var="bucket_secret_referer=${BUCKET_SECRET_REFERRER}" \
-          -auto-approve
+        run: |
+          terraform destroy -var="origin_domain_name=${ORIGIN_DOMAIN_NAME}" -var="origin_path=${ORIGIN_PATH}" -var="abda_lab_public_key_group=${ABDA_LAB_PUBLIC_KEY_GROUP}" -var="lambda_edge_secret=${LAMBDA_EDGE_SECRET}" -var="bucket_secret_referer=${BUCKET_SECRET_REFERRER}" -auto-approve
