@@ -89,3 +89,34 @@ variable "min_size" {
   type        = number
   default     = 1
 }
+
+variable "alb_name" {
+  description = "Name for the Application Load Balancer"
+  type        = string
+  default     = "khang-alb"
+}
+
+
+variable "target_port" {
+  description = "Port for the target group where the registered targets are expected to serve content"
+  type        = number
+  default     = 80
+}
+
+variable "listener_port" {
+  description = "Port for the ALB listener"
+  type        = number
+  default     = 80
+}
+
+variable "health_check_path" {
+  description = "Path used for ALB health checks"
+  type        = string
+  default     = "/"
+}
+
+variable "container_port" {
+  description = "Port on which the container listens (used in ECS instance SG ingress rule)"
+  type        = number
+  default     = 3000
+}
