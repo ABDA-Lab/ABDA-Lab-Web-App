@@ -48,9 +48,13 @@ module "subnet2" {
   name              = "subnet-2"
 }
 
-resource "aws_route_table_association" "subnet_association" {
-  for_each       = toset([module.subnet1.subnet_id, module.subnet2.subnet_id])
-  subnet_id      = each.value
+resource "aws_route_table_association" "subnet1_association" {
+  subnet_id      = module.subnet1.subnet_id
+  route_table_id = module.vpc.public_rt_id
+}
+
+resource "aws_route_table_association" "subnet2_association" {
+  subnet_id      = module.subnet2.subnet_id
   route_table_id = module.vpc.public_rt_id
 }
 
