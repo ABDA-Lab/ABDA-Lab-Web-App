@@ -29,3 +29,11 @@ resource "aws_route_table" "public" {
   }
 }
 
+# Private route table (no direct internet route; use NAT if outbound access is needed)
+resource "aws_route_table" "private" {
+  vpc_id = aws_vpc.this.id
+
+  tags = {
+    Name = "${var.name}-private-rt"
+  }
+}

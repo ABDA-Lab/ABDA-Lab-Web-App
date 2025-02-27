@@ -29,7 +29,6 @@ variable "region" {
   default     = "us-east-1"
 }
 
-
 variable "availability_zone_1" {
   description = "First Availability Zone"
   type        = string
@@ -61,7 +60,7 @@ variable "cluster_name" {
 }
 
 variable "ecs_ami_id" {
-  description = "AMI ID for an ECS-optimized instance (EC2 launch type). For us-east-1, a common default is ami-05b10e08d247fb927. Adjust for your region."
+  description = "AMI ID for an ECS-optimized instance. For us-east-1, a common default is ami-05b10e08d247fb927."
   type        = string
   default     = "ami-05b10e08d247fb927"
 }
@@ -79,7 +78,7 @@ variable "desired_capacity" {
 }
 
 variable "max_size" {
-  description = "Maximum number of ECS container instances in the ASG. This is the upper limit for scaling. If you have many container tasks (for example, 10 containers) and each task requires a lot of resources, you might need to increase max_size. However, if each instance can run multiple lightweight tasks, the default may be sufficient."
+  description = "Maximum number of ECS container instances in the ASG"
   type        = number
   default     = 3
 }
@@ -96,9 +95,8 @@ variable "alb_name" {
   default     = "khang-alb"
 }
 
-
 variable "target_port" {
-  description = "Port for the target group where the registered targets are expected to serve content"
+  description = "Port for the target group where the registered targets serve content"
   type        = number
   default     = 80
 }
@@ -119,4 +117,10 @@ variable "container_port" {
   description = "Port on which the container listens (used in ECS instance SG ingress rule)"
   type        = number
   default     = 80
+}
+
+variable "certificate_arn" {
+  description = "ARN of the ACM certificate for the ALB HTTPS listener. Leave empty for HTTP-only mode."
+  type        = string
+  default     = ""
 }
