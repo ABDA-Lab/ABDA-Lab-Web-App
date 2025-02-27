@@ -118,5 +118,5 @@ variable "health_check_path" {
 variable "container_port" {
   description = "Port on which the container listens (used in ECS instance SG ingress rule)"
   type        = number
-  default     = 3000
+  default     = 80
 }
