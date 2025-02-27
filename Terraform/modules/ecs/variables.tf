@@ -53,3 +53,8 @@ variable "alb_security_group_id" {
   description = "The ALB security group ID that is allowed to reach the ECS instances"
   type        = string
 }
+
+variable "alb_target_group_arn" {
+  type        = string
+  description = "The ARN of the target group from the ALB module"
+}
