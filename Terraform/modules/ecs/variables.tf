@@ -45,7 +45,7 @@ variable "min_size" {
 variable "container_port" {
   description = "Port on which the container listens (used in the ECS instance SG ingress rule)"
   type        = number
-  default     = 3000
+  default     = 80
 }
 
 # Instead of accepting instance_security_group as a variable, we now accept the ALB security group ID
