@@ -2,7 +2,9 @@ name: AWS Terraform Plan and Apply
 
 on:
   push:
-    branches: ["main"]
+    branches: 
+      - main
+      - vkev
   workflow_dispatch:
 
 jobs:
