@@ -2,7 +2,7 @@ resource "aws_ecs_service" "nginx_service" {
   name            = "${var.cluster_name}-nginx-service"
   cluster         = aws_ecs_cluster.this.id
   task_definition = aws_ecs_task_definition.nginx_task.arn
-  desired_count   = 1
+  desired_count   = 2
   launch_type     = "EC2"
 
 
