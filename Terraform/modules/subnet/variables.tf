@@ -9,11 +9,22 @@ variable "cidr_block" {
 }
 
 variable "availability_zone" {
-  description = "The availability zone for the subnet"
+  description = "Availability zone for the subnet"
   type        = string
 }
 
 variable "name" {
   description = "Name tag for the subnet"
+  type        = string
+}
+
+variable "map_public_ip_on_launch" {
+  description = "Whether to automatically assign public IP addresses"
+  type        = bool
+  default     = false
+}
+
+variable "route_table_id" {
+  description = "Route table ID to associate with the subnet"
   type        = string
 }

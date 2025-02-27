@@ -31,41 +31,57 @@ module "vpc" {
   name       = var.vpc_name
 }
 
-
-module "subnet1" {
-  source            = "./modules/subnet"
-  vpc_id            = module.vpc.vpc_id
-  cidr_block        = "10.0.1.0/24"
-  availability_zone = var.availability_zone_1
-  name              = "subnet-1"
+# Create Public Subnets for the ALB
+module "public_subnet1" {
+  source                  = "./modules/subnet"
+  vpc_id                  = module.vpc.vpc_id
+  cidr_block              = "10.0.1.0/24"
+  availability_zone       = var.availability_zone_1
+  name                    = "public-subnet-1"
+  map_public_ip_on_launch = true
+  route_table_id          = module.vpc.public_rt_id
 }
 
-module "subnet2" {
-  source            = "./modules/subnet"
-  vpc_id            = module.vpc.vpc_id
-  cidr_block        = "10.0.2.0/24"
-  availability_zone = var.availability_zone_2
-  name              = "subnet-2"
+module "public_subnet2" {
+  source                  = "./modules/subnet"
+  vpc_id                  = module.vpc.vpc_id
+  cidr_block              = "10.0.2.0/24"
+  availability_zone       = var.availability_zone_2
+  name                    = "public-subnet-2"
+  map_public_ip_on_launch = true
+  route_table_id          = module.vpc.public_rt_id
 }
 
-resource "aws_route_table_association" "subnet1_association" {
-  subnet_id      = module.subnet1.subnet_id
-  route_table_id = module.vpc.public_rt_id
+# Create Private Subnets for ECS container instances
+module "private_subnet1" {
+  source                  = "./modules/subnet"
+  vpc_id                  = module.vpc.vpc_id
+  cidr_block              = "10.0.101.0/24"
+  availability_zone       = var.availability_zone_1
+  name                    = "private-subnet-1"
+  map_public_ip_on_launch = false
+  route_table_id          = module.vpc.private_rt_id
 }
 
-resource "aws_route_table_association" "subnet2_association" {
-  subnet_id      = module.subnet2.subnet_id
-  route_table_id = module.vpc.public_rt_id
+module "private_subnet2" {
+  source                  = "./modules/subnet"
+  vpc_id                  = module.vpc.vpc_id
+  cidr_block              = "10.0.102.0/24"
+  availability_zone       = var.availability_zone_2
+  name                    = "private-subnet-2"
+  map_public_ip_on_launch = false
+  route_table_id          = module.vpc.private_rt_id
 }
 
 module "alb" {
   source             = "./modules/alb"
   load_balancer_name = var.alb_name
-  subnet_ids         = [module.subnet1.subnet_id, module.subnet2.subnet_id]
+  subnet_ids         = [module.public_subnet1.subnet_id, module.public_subnet2.subnet_id]
   vpc_id             = module.vpc.vpc_id
   target_port        = var.target_port
   listener_port      = var.listener_port
   health_check_path  = var.health_check_path
+  certificate_arn    = var.certificate_arn # Supply certificate ARN for HTTPS; leave empty for HTTP-only
 }
 
 module "ecs" {
@@ -74,7 +90,7 @@ module "ecs" {
   vpc_id                = module.vpc.vpc_id
   ecs_ami_id            = var.ecs_ami_id
   instance_type         = var.instance_type
-  subnet_ids            = [module.subnet1.subnet_id, module.subnet2.subnet_id]
+  subnet_ids            = [module.private_subnet1.subnet_id, module.private_subnet2.subnet_id]
   desired_capacity      = var.desired_capacity
   max_size              = var.max_size
   min_size              = var.min_size

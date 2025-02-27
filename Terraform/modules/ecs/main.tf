@@ -26,17 +26,17 @@ resource "aws_iam_instance_profile" "ecs_instance_profile" {
   role = aws_iam_role.ecs_instance_role.name
 }
 
-# Create a Security Group for ECS Container Instances
+# Security Group for ECS Instances: Only allow inbound traffic on the container port from the ALB SG
 resource "aws_security_group" "ecs_instance_sg" {
   name        = "${var.cluster_name}-ecs-instance-sg"
   description = "Security group for ECS container instances, allowing traffic only from the ALB"
   vpc_id      = var.vpc_id
 
   ingress {
-    from_port       = var.container_port  # Only allow the specific port your container uses
+    from_port       = var.container_port
     to_port         = var.container_port
     protocol        = "tcp"
-    security_groups = [var.alb_security_group_id]  # We'll pass in the ALB SG ID from the root module
+    security_groups = [var.alb_security_group_id]
   }
 
   egress {
@@ -56,7 +56,6 @@ resource "aws_launch_template" "ecs_instance" {
   image_id      = var.ecs_ami_id
   instance_type = var.instance_type
 
-  # Use the security group created in the ECS module
   vpc_security_group_ids = [aws_security_group.ecs_instance_sg.id]
 
   iam_instance_profile {
@@ -70,7 +69,6 @@ EOF
   )
 }
 
-# Auto Scaling Group for ECS Container Instances (using Launch Template)
 resource "aws_autoscaling_group" "ecs_asg" {
   name                = "${var.cluster_name}-asg"
   vpc_zone_identifier = var.subnet_ids
@@ -90,6 +88,3 @@ resource "aws_autoscaling_group" "ecs_asg" {
     version = "$Latest"
   }
 }
-
-
-
