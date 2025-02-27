@@ -31,7 +31,7 @@ module "vpc" {
   name       = var.vpc_name
 }
 
-# Create Public Subnets for the ALB
+# Create Public Subnets for the ALB (and NAT Gateway)
 module "public_subnet1" {
   source                  = "./modules/subnet"
   vpc_id                  = module.vpc.vpc_id
@@ -73,6 +73,25 @@ module "private_subnet2" {
   route_table_id          = module.vpc.private_rt_id
 }
 
+# Create NAT Gateway for private subnets outbound access
+resource "aws_eip" "nat" {
+  associate_with_private_ip = true
+}
+
+resource "aws_nat_gateway" "this" {
+  allocation_id = aws_eip.nat.id
+  subnet_id     = module.public_subnet1.subnet_id
+
+  depends_on = [module.public_subnet1]
+}
+
+# Update the Private Route Table to use the NAT Gateway
+resource "aws_route" "private_nat" {
+  route_table_id         = module.vpc.private_rt_id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.this.id
+}
+
 module "alb" {
   source             = "./modules/alb"
   load_balancer_name = var.alb_name
@@ -85,11 +104,12 @@ module "alb" {
 }
 
 module "ecs" {
-  source                = "./modules/ecs"
-  cluster_name          = var.cluster_name
-  vpc_id                = module.vpc.vpc_id
-  ecs_ami_id            = var.ecs_ami_id
-  instance_type         = var.instance_type
+  source        = "./modules/ecs"
+  cluster_name  = var.cluster_name
+  vpc_id        = module.vpc.vpc_id
+  ecs_ami_id    = var.ecs_ami_id
+  instance_type = var.instance_type
+  # Use the private subnets for ECS tasks
   subnet_ids            = [module.private_subnet1.subnet_id, module.private_subnet2.subnet_id]
   desired_capacity      = var.desired_capacity
   max_size              = var.max_size

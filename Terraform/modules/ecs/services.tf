@@ -40,11 +40,10 @@ resource "aws_ecs_service" "nginx" {
   deployment_maximum_percent         = 200
 
   network_configuration {
-    subnets          = var.subnet_ids
-    security_groups  = [aws_security_group.ecs_instance_sg.id]
+    subnets         = var.subnet_ids
+    security_groups = [aws_security_group.ecs_instance_sg.id]
     assign_public_ip = false
   }
 
-  # Ensure the service waits until the ECS instances are available
   depends_on = [aws_autoscaling_group.ecs_asg]
 }
