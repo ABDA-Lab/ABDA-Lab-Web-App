@@ -149,7 +149,7 @@ jobs:
             -out=tfplan
 
       - name: Terraform Apply
-        if: github.ref == 'refs/heads/main'
+        if:  github.ref == 'refs/heads/main' || github.ref == 'refs/heads/vkev'
         working-directory: Terraform
         env:
           BUCKET_SECRET_REFERRER: ${{ secrets.BUCKET_SECRET_REFERRER }}
