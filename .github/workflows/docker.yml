@@ -33,7 +33,13 @@ jobs:
       - name: Tag and Push All Service Images
         run: |
           for service in $SERVICES; do
-            echo "Tagging and pushing image for service: $service"
+            echo "Checking if repository '$service' exists..."
+            if ! aws ecr describe-repositories --repository-names "$service" --profile terraform-user --region $AWS_REGION > /dev/null 2>&1; then
+              echo "Repository '$service' does not exist. Creating repository..."
+              aws ecr create-repository --repository-name "$service" --profile terraform-user --region $AWS_REGION
+            fi
+            echo "Tagging image for service: $service"
             docker tag ${service}:latest ${ECR_REGISTRY}/${service}:latest
+            echo "Pushing image for service: $service"
             docker push ${ECR_REGISTRY}/${service}:latest
           done
