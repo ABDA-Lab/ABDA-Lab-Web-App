@@ -22,7 +22,6 @@ resource "aws_ecs_task_definition" "nginx" {
   ])
 }
 
-# ECS Service for the nginx task
 resource "aws_ecs_service" "nginx" {
   name            = "${var.cluster_name}-nginx-service"
   cluster         = aws_ecs_cluster.this.id
