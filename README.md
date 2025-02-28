@@ -18,3 +18,5 @@ vpc_id = "vpc-0cff56eb85a526f72"
 
 
 aws ssm get-parameter --name /aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id --region us-east-1 --query "Parameter.Value" --output text --profile terraform-user
+
+SERVICES=service-name-in-docker-compose-1 next-service-name next-service

@@ -1,4 +1,4 @@
-name: Build and Push Docker Image To ECR
+name: Build and Push Docker Images To ECR
 
 on:
   push:
@@ -9,7 +9,10 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
+    env:
+      AWS_REGION: us-east-1
+      ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+      SERVICES: ${{ secrets.SERVICES }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
@@ -19,7 +22,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID_TERRAFORM_USER }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY_TERRAFORM_USER }}
-          aws-region: us-east-1
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
@@ -27,10 +30,10 @@ jobs:
       - name: Build Docker Compose Services
         run: docker compose build
 
-      - name: Tag Docker Image
+      - name: Tag and Push All Service Images
         run: |
-          docker tag my-app:latest ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/my-app:latest
-
-      - name: Push Docker Image to Amazon ECR
-        run: |
-          docker push ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com/my-app:latest
+          for service in $SERVICES; do
+            echo "Tagging and pushing image for service: $service"
+            docker tag ${service}:latest ${ECR_REGISTRY}/${service}:latest
+            docker push ${ECR_REGISTRY}/${service}:latest
+          done

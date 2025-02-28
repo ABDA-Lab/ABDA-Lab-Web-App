@@ -76,3 +76,23 @@ jobs:
             -var="certificate_arn=${CERTIFICATE_ARN}" \
             -var="ecs_ami_id=${ECS_AMI_ID}" \
             -auto-approve
+
+
+      - name: Delete All Images from ECR Repositories
+        run: |
+          for service in $SERVICES; do
+            echo "Deleting images from repository: $service"
+            while true; do
+              aws ecr list-images --repository-name "$service" --profile terraform-user --query 'imageIds[*]' --output json > image_ids.json
+              IMAGE_COUNT=$(jq length image_ids.json)
+              if [ "$IMAGE_COUNT" -eq 0 ]; then
+                echo "No more images found in repository $service"
+                break
+              fi
+              echo "Deleting $IMAGE_COUNT images from repository $service"
+              aws ecr batch-delete-image --repository-name "$service" --profile terraform-user --image-ids file://image_ids.json
+            done
+          done
+        env:
+          AWS_DEFAULT_REGION: us-east-1
+          SERVICES: ${{ secrets.SERVICES }}

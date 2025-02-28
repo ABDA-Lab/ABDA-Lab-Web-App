@@ -1,7 +1,12 @@
 version: '3.8'
 
 services:
-  nginx:
+  my-app:
     image: nginx:latest
     ports:
       - "80:80"
+
+  my-app2:
+    image: nginx:latest
+    ports:
+      - "90:80"
