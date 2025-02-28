@@ -25,7 +25,7 @@ jobs:
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build Docker Compose Services
-        run: docker-compose build
+        run: docker compose build
 
       - name: Tag Docker Image
         run: |
