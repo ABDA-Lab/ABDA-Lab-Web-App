@@ -2,11 +2,17 @@ version: '3.8'
 
 services:
   my-app:
-    image: nginx:latest
+    build:
+      context: ./Services/my-app-1
+      dockerfile: Dockerfile
+    image: my-app:latest
     ports:
       - "80:80"
 
   my-app2:
-    image: nginx:latest
+    build:
+      context: ./Services/my-app-2
+      dockerfile: Dockerfile
+    image: my-app2:latest
     ports:
       - "90:80"
