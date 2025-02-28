@@ -1,0 +1,51 @@
+name: Build and Push Docker Images To ECR
+
+on:
+  push:
+    branches:
+      - main
+      - vkev
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: us-east-1
+      ECR_REGISTRY: ${{ secrets.AWS_ACCOUNT_ID }}.dkr.ecr.us-east-1.amazonaws.com
+      SERVICES: ${{ secrets.SERVICES }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3
+
+      - name: Configure AWS Credentials for terraform-user
+        run: |
+          mkdir -p ~/.aws
+          echo "[terraform-user]" >> ~/.aws/credentials
+          echo "aws_access_key_id=${{ secrets.AWS_ACCESS_KEY_ID_TERRAFORM_USER }}" >> ~/.aws/credentials
+          echo "aws_secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY_TERRAFORM_USER }}" >> ~/.aws/credentials
+          echo "[profile terraform-user]" >> ~/.aws/config
+          echo "region = us-east-1" >> ~/.aws/config
+
+      - name: Login to Amazon ECR
+        env:
+          AWS_PROFILE: terraform-user
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Docker Compose Services
+        run: docker compose build
+
+      - name: Tag and Push All Service Images
+        run: |
+          for service in $SERVICES; do
+            echo "Checking if repository '$service' exists..."
+            if ! aws ecr describe-repositories --repository-names "$service" --profile terraform-user --region $AWS_REGION > /dev/null 2>&1; then
+              echo "Repository '$service' does not exist. Creating repository..."
+              aws ecr create-repository --repository-name "$service" --profile terraform-user --region $AWS_REGION
+            fi
+            echo "Tagging image for service: $service"
+            docker tag ${service}:latest ${ECR_REGISTRY}/${service}:latest
+            echo "Pushing image for service: $service"
+            docker push ${ECR_REGISTRY}/${service}:latest
+          done
+    
+        

@@ -1,4 +1,8 @@
-# ECS Task Definition for nginx using awsvpc network mode
+# Fetch the existing ECR repository "my-app"
+data "aws_ecr_repository" "my_app" {
+  name = "my-app"
+}
+
 resource "aws_ecs_task_definition" "nginx" {
   family                   = "${var.cluster_name}-nginx"
   network_mode             = "awsvpc"
@@ -9,7 +13,7 @@ resource "aws_ecs_task_definition" "nginx" {
   container_definitions = jsonencode([
     {
       name      = "nginx"
-      image     = "nginx:latest"
+      image     = "${data.aws_ecr_repository.my_app.repository_url}:latest"
       essential = true
       portMappings = [
         {
@@ -22,7 +26,6 @@ resource "aws_ecs_task_definition" "nginx" {
   ])
 }
 
-# ECS Service for the nginx task
 resource "aws_ecs_service" "nginx" {
   name            = "${var.cluster_name}-nginx-service"
   cluster         = aws_ecs_cluster.this.id

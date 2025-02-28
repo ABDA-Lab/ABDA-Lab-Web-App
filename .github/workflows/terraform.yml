@@ -1,14 +1,14 @@
 name: AWS Terraform Plan and Apply
 
 on:
-  push:
-    branches: 
-      - main
-      - vkev
-  workflow_dispatch:
+  workflow_run:
+    workflows: ["Build and Push Docker Images To ECR"] 
+    types:
+      - completed
 
 jobs:
   terraform:
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
     name: "Terraform Plan and Apply"
     runs-on: ubuntu-latest
     steps:
@@ -139,6 +139,15 @@ jobs:
           ORIGIN_PATH: ${{ secrets.ORIGIN_PATH }}
           ABDA_LAB_PUBLIC_KEY_GROUP: ${{ secrets.ABDA_LAB_PUBLIC_KEY_GROUP }}
           LAMBDA_EDGE_SECRET: ${{ secrets.LAMBDA_EDGE_SECRET }}
+          INSTANCE_TYPE: ${{ secrets.INSTANCE_TYPE }}
+          DESIRED_CAPACITY: ${{ secrets.DESIRED_CAPACITY }}
+          MAX_SIZE: ${{ secrets.MAX_SIZE }}
+          MIN_SIZE: ${{ secrets.MIN_SIZE }}
+          TARGET_PORT: ${{ secrets.TARGET_PORT }}
+          LISTENER_PORT: ${{ secrets.LISTENER_PORT }}
+          CONTAINER_PORT: ${{ secrets.CONTAINER_PORT }}
+          CERTIFICATE_ARN: ${{ secrets.CERTIFICATE_ARN }}
+          ECS_AMI_ID: ${{ secrets.ECS_AMI_ID }}
         run: |
           terraform plan \
             -var="origin_domain_name=${ORIGIN_DOMAIN_NAME}" \
@@ -146,10 +155,19 @@ jobs:
             -var="abda_lab_public_key_group=${ABDA_LAB_PUBLIC_KEY_GROUP}" \
             -var="lambda_edge_secret=${LAMBDA_EDGE_SECRET}" \
             -var="bucket_secret_referer=${BUCKET_SECRET_REFERRER}" \
+            -var="instance_type=${INSTANCE_TYPE}" \
+            -var="desired_capacity=${DESIRED_CAPACITY}" \
+            -var="max_size=${MAX_SIZE}" \
+            -var="min_size=${MIN_SIZE}" \
+            -var="target_port=${TARGET_PORT}" \
+            -var="listener_port=${LISTENER_PORT}" \
+            -var="container_port=${CONTAINER_PORT}" \
+            -var="certificate_arn=${CERTIFICATE_ARN}" \
+            -var="ecs_ami_id=${ECS_AMI_ID}" \
             -out=tfplan
-
+      
       - name: Terraform Apply
-        if:  github.ref == 'refs/heads/main' || github.ref == 'refs/heads/vkev'
+        if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/vkev'
         working-directory: Terraform
         env:
           BUCKET_SECRET_REFERRER: ${{ secrets.BUCKET_SECRET_REFERRER }}
@@ -157,4 +175,13 @@ jobs:
           ORIGIN_PATH: ${{ secrets.ORIGIN_PATH }}
           ABDA_LAB_PUBLIC_KEY_GROUP: ${{ secrets.ABDA_LAB_PUBLIC_KEY_GROUP }}
           LAMBDA_EDGE_SECRET: ${{ secrets.LAMBDA_EDGE_SECRET }}
+          INSTANCE_TYPE: ${{ secrets.INSTANCE_TYPE }}
+          DESIRED_CAPACITY: ${{ secrets.DESIRED_CAPACITY }}
+          MAX_SIZE: ${{ secrets.MAX_SIZE }}
+          MIN_SIZE: ${{ secrets.MIN_SIZE }}
+          TARGET_PORT: ${{ secrets.TARGET_PORT }}
+          LISTENER_PORT: ${{ secrets.LISTENER_PORT }}
+          CONTAINER_PORT: ${{ secrets.CONTAINER_PORT }}
+          CERTIFICATE_ARN: ${{ secrets.CERTIFICATE_ARN }}
+          ECS_AMI_ID: ${{ secrets.ECS_AMI_ID }}
         run: terraform apply -auto-approve tfplan

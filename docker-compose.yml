@@ -1,125 +1,18 @@
+version: '3.8'
+
 services:
-  identity-microservice:
+  my-app:
     build:
-      context: ./Microservices.AspNet
-      dockerfile: ./Identity.Microservice/Dockerfile
-      args:
-        SERVICE_NAME: Identity.Microservice
-    image: identity-microservice
-    container_name: identity-microservice
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      DATABASE_HOST: YOUR_HOST
-      DATABASE_PORT: YOUR_PORT
-      DATABASE_NAME: IdentityService
-      DATABASE_USERNAME: YOUR_USERNAME
-      DATABASE_PASSWORD: YOUR_PASSWORD
-      ASPNETCORE_URLS: http://+:5001
-      RABBITMQ_HOST: rabbit-mq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USERNAME: YOUR_USERNAME
-      RABBITMQ_PASSWORD: YOUR_PASSWORD
-      REDIS_HOST: redis
-      REDIS_PASSWORD: YOUR_PASSWORD
-      REDIS_PORT: 6379
-    depends_on:
-      rabbit-mq:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    networks:
-      - app-network
-
-  user-microservice:
-    build:
-      context: ./Microservices.AspNet
-      dockerfile: ./User.Microservice/Dockerfile
-      args:
-        SERVICE_NAME: User.Microservice
-    image: user-microservice
-    container_name: user-microservice
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      DATABASE_HOST: YOUR_HOST
-      DATABASE_PORT: YOUR_PORT
-      DATABASE_NAME: UserService
-      DATABASE_USERNAME: YOUR_USERNAME
-      DATABASE_PASSWORD: YOUR_PASSWORD
-      ASPNETCORE_URLS: http://+:5002
-      RABBITMQ_HOST: rabbit-mq
-      RABBITMQ_PORT: 5672
-      RABBITMQ_USERNAME: YOUR_USERNAME
-      RABBITMQ_PASSWORD: YOUR_PASSWORD
-      REDIS_HOST: redis
-      REDIS_PASSWORD: YOUR_PASSWORD
-      REDIS_PORT: 6379
-    depends_on:
-      rabbit-mq:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      identity-microservice:
-        condition: service_healthy
-    networks:
-      - app-network
-
-  api-gateway:
-    build:
-      context: ./ApiGateway
+      context: ./Services/my-app-1
       dockerfile: Dockerfile
-    image: api-gateway
-    container_name: api-gateway
+    image: my-app:latest
     ports:
-      - "2406:8080"
-    environment:
-      ASPNETCORE_ENVIRONMENT: Production
-      ASPNETCORE_URLS: http://+:8080
-      USER_MICROSERVICE_HOST: user-microservice
-      USER_MICROSERVICE_PORT: 5002
-      IDENTITY_MICROSERVICE_HOST: identity-microservice
-      IDENTITY_MICROSERVICE_PORT: 5001
-    networks:
-      - app-network
+      - "80:80"
 
-  rabbit-mq:
-    image: rabbitmq:3-management
-    container_name: rabbit-mq
+  my-app2:
+    build:
+      context: ./Services/my-app-2
+      dockerfile: Dockerfile
+    image: my-app2:latest
     ports:
-      - "5672:5672" # RabbitMQ message broker port
-      - "15672:15672" # RabbitMQ management console
-    environment:
-      RABBITMQ_DEFAULT_USER: admin
-      RABBITMQ_DEFAULT_PASS: 0Kg04Rq08!
-    volumes:
-      - rabbitmq-data:/var/lib/rabbitmq
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD", "rabbitmqctl", "status"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  redis:
-    image: redis:alpine
-    container_name: redis
-    command: ["redis-server", "--requirepass", "0Kg04Rs05!"]
-    volumes:
-      - redis-data:/data
-    ports:
-      - "6379:6379"
-    networks:
-      - app-network
-    healthcheck:
-      test: ["CMD", "redis-cli","-a", "0Kg04Rs05!", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-networks:
-  app-network:
-    driver: bridge
-
-volumes:
-  rabbitmq-data:
-  redis-data:
+      - "90:80"
