@@ -21,6 +21,11 @@ resource "aws_iam_role_policy_attachment" "ecs_instance_policy" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"
 }
 
+resource "aws_iam_role_policy_attachment" "ssm_policy" {
+  role       = aws_iam_role.ecs_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}
+
 resource "aws_iam_instance_profile" "ecs_instance_profile" {
   name = "${var.cluster_name}-instance-profile"
   role = aws_iam_role.ecs_instance_role.name
@@ -64,7 +69,7 @@ resource "aws_launch_template" "ecs_instance" {
 
   user_data = base64encode(<<EOF
 #!/bin/bash
-echo ECS_CLUSTER=${aws_ecs_cluster.this.name} > /etc/ecs/ecs.config
+echo ECS_CLUSTER=${aws_ecs_cluster.this.name} >> /etc/ecs/ecs.config
 EOF
   )
 }
@@ -88,3 +93,4 @@ resource "aws_autoscaling_group" "ecs_asg" {
     version = "$Latest"
   }
 }
+
