@@ -1,8 +1,10 @@
 name: AWS Terraform Plan and Apply
 
 on:
-  repository_dispatch:
-    types: [docker_complete]
+  workflow_run:
+    workflows: ["Build and Push Docker Images To ECR"] 
+    types:
+      - completed
 
 jobs:
   terraform:
