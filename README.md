@@ -15,3 +15,6 @@ cloudfront_domain_name = "d3uzwbw4hoxv37.cloudfront.net"
 ecs_asg_id = "ecs-cluster-asg"
 ecs_cluster_id = "arn:aws:ecs:us-east-1:242201290212:cluster/ecs-cluster"
 vpc_id = "vpc-0cff56eb85a526f72"
+
+
+aws ssm get-parameter --name /aws/service/ecs/optimized-ami/amazon-linux-2/recommended/image_id --region us-east-1 --query "Parameter.Value" --output text --profile terraform-user

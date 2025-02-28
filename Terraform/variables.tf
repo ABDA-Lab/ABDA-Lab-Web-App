@@ -60,9 +60,9 @@ variable "cluster_name" {
 }
 
 variable "ecs_ami_id" {
-  description = "AMI ID for an ECS-optimized instance. For us-east-1, a common default is ami-02a53b0d62d37a757."
+  description = "AMI ID for an ECS-optimized instance. For us-east-1, a common default is ami-0238889b768139d9b."
   type        = string
-  default     = "ami-02a53b0d62d37a757"
+  default     = "ami-0238889b768139d9b"
 }
 
 variable "instance_type" {
