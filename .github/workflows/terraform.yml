@@ -12,8 +12,13 @@ jobs:
     name: "Terraform Plan and Apply"
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - name: Set Branch Name
+        run: echo "BRANCH_NAME=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
+
+      - name: Checkout the correct branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.BRANCH_NAME }}
 
       - name: Configure AWS Credentials for terraform-user
         run: |
