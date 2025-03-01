@@ -6,7 +6,7 @@ module "ecs_service" {
   cpu                 = 256
   memory              = 512
   desired_count       = 2
-  container_port      = 80
+  container_port      = 80 
   expose_port         = true
   ecs_cluster_id      = aws_ecs_cluster.this.id
   alb_target_group_arn = var.alb_target_group_arn
