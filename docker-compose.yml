@@ -1,18 +1,7 @@
-version: '3.8'
-
 services:
-  my-app:
+  nginx:
     build:
-      context: ./Services/my-app-1
+      context: ./Services/nginx
       dockerfile: Dockerfile
-    image: my-app:latest
-    ports:
-      - "80:80"
-
-  my-app2:
-    build:
-      context: ./Services/my-app-2
-      dockerfile: Dockerfile
-    image: my-app2:latest
-    ports:
-      - "90:80"
+    image: nginx
+    container_name: nginx
