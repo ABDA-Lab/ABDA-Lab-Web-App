@@ -1,13 +1,6 @@
-# Variables (add this to your existing variables.tf or within the module)
-variable "use_dockerhub" {
-  description = "Set to true to pull the image from Docker Hub instead of ECR"
-  type        = bool
-  default     = false
-}
-
 # Ensure ECR repository exists (only if not using Docker Hub)
 data "aws_ecr_repository" "app" {
-  count = var.use_dockerhub ? 0 : 1  # Only fetch ECR repo if not using Docker Hub
+  count = var.use_dockerhub ? 0 : 1
   name  = var.ecr_repository_name
 }
 
@@ -42,7 +35,7 @@ resource "aws_ssm_association" "run_ensure_volumes" {
   name = aws_ssm_document.ensure_volumes.name
   targets {
     key    = "tag:Name"
-    values = ["${var.ecs_instance_tag}"]
+    values = [var.ecs_instance_tag]
   }
 }
 
@@ -64,29 +57,39 @@ resource "aws_ecs_task_definition" "this" {
   dynamic "volume" {
     for_each = var.volumes
     content {
-      name      = volume.value["name"]
-      host_path = lookup(volume.value, "host_path", null)
+      name      = volume.value.name
+      host_path = volume.value.host_path
     }
   }
 
   container_definitions = jsonencode([
     {
-      name      = var.name
-      container_name =  var.ecr_repository_name
-      # Dynamically set the image based on use_dockerhub variable
-      image     = var.use_dockerhub ? "${var.name}:${var.image_tag}" : "${data.aws_ecr_repository.app[0].repository_url}:${var.image_tag}"
-      essential = true
+      name            = var.name
+      container_name  = var.ecr_repository_name
+      image           = var.use_dockerhub ? "${var.name}:${var.image_tag}" : "${data.aws_ecr_repository.app[0].repository_url}:${var.image_tag}"
+      essential       = true
+
+      # Optionally override the default container command
+      command         = var.command
 
       # Environment variables
-      environment = [for key, value in var.env_vars : { name = key, value = value }]
+      environment = [
+        for key, value in var.env_vars : {
+          name  = key
+          value = value
+        }
+      ] 
 
       # Volume mounts
-      mountPoints = [for volume in var.volumes : {
-        sourceVolume  = volume.name
-        containerPath = volume.container_path
-        readOnly      = lookup(volume, "read_only", false)
-      }]
+      mountPoints = [
+        for volume in var.volumes : {
+          sourceVolume  = volume.name
+          containerPath = volume.container_path
+          readOnly      = coalescelist([volume.read_only], [false])[0]
+        }
+      ]
 
+      # Port mappings
       portMappings = var.expose_port ? [
         {
           containerPort = var.container_port
@@ -103,6 +106,15 @@ resource "aws_ecs_task_definition" "this" {
           awslogs-region        = var.region
           awslogs-stream-prefix = "ecs"
         }
+      }
+
+      # Optional container health check
+      healthCheck = var.health_check == null ? null : {
+        command     = var.health_check.command
+        interval    = var.health_check.interval
+        timeout     = var.health_check.timeout
+        retries     = var.health_check.retries
+        startPeriod = var.health_check.startPeriod
       }
     }
   ])
