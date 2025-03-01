@@ -19,8 +19,8 @@ resource "aws_ssm_document" "ensure_volumes" {
           runCommand = flatten([
             for volume in var.volumes : [
               "mkdir -p ${volume.host_path}",
-              "chown ec2-user:ec2-user ${volume.host_path}",
-              "chmod 755 ${volume.host_path}"
+              "chown -R 1000:1000 ${volume.host_path}",
+              "chmod -R 777 ${volume.host_path}" 
             ] if volume.host_path != null
           ])
         }
@@ -28,6 +28,7 @@ resource "aws_ssm_document" "ensure_volumes" {
     ]
   })
 }
+
 
 # Run the SSM command to create the directories on all ECS instances
 resource "aws_ssm_association" "run_ensure_volumes" {
