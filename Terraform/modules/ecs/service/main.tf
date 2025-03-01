@@ -104,11 +104,12 @@ resource "aws_ecs_task_definition" "this" {
 
 locals {
   base_dependencies  = [
-    aws_autoscaling_group.example,
+    var.autoscaling_group_id,
     aws_ssm_association.run_ensure_volumes
   ]
   merged_dependencies = concat(local.base_dependencies, var.health_check_dependency)
 }
+
 resource "aws_ecs_service" "this" {
   name            = "${var.ecr_repository_name}-service"
   cluster         = var.ecs_cluster_id
