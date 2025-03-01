@@ -133,7 +133,7 @@ resource "aws_ecs_service" "this" {
     delete = "30m"
   }
 }
-
+data "aws_caller_identity" "current" {}
 # IAM Policy for ECS Task Execution Role (Allows logging to CloudWatch)
 resource "aws_iam_policy" "ecs_logging_policy" {
   name        = "ECS_Task_Logging_Policy"
