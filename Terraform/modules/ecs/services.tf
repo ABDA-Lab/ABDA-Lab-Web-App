@@ -7,9 +7,9 @@ module "api_gateway_service" {
   name                         = local.services_list[0]
   ecr_repository_name          = local.services_list[0]
   image_tag                    = "latest"
-  cpu                          = 256
-  memory                       = 512
-  desired_count                = 2
+  cpu                          = 128
+  memory                       = 256
+  desired_count                = 1
   container_port               = 8080
   expose_port                  = true
   ecs_cluster_id               = aws_ecs_cluster.this.id
@@ -59,9 +59,9 @@ module "user_service" {
   name                         = local.services_list[1]
   ecr_repository_name          = local.services_list[1]
   image_tag                    = "latest"
-  cpu                          = 256
-  memory                       = 512
-  desired_count                = 2
+  cpu                          = 128
+  memory                       = 256
+  desired_count                = 1
   container_port               = 5002
   expose_port                  = false
   ecs_cluster_id               = aws_ecs_cluster.this.id
@@ -91,6 +91,7 @@ module "user_service" {
   }
 
   volumes = []
+  health_check_dependency = [module.rabbitmq_service.ecs_service_dependency, module.redis_service.ecs_service_dependency]
 }
 
 module "rabbitmq_service" {
@@ -99,11 +100,11 @@ module "rabbitmq_service" {
   ecr_repository_name          = "rabbit-mq"
   use_dockerhub                = true
   image_tag                    = "3-management"
-  cpu                          = 256
-  memory                       = 512
+  cpu                          = 128
+  memory                       = 256
   desired_count                = 1
   container_port               = 5672
-  expose_port                  = true
+  expose_port                  = false
   ecs_cluster_id               = aws_ecs_cluster.this.id
   alb_target_group_arn         = var.alb_target_group_arn
   subnet_ids                   = var.subnet_ids
@@ -140,11 +141,11 @@ module "redis_service" {
   ecr_repository_name = "redis"
   use_dockerhub       = true
   image_tag           = "alpine"
-  cpu                 = 256
-  memory              = 512
+  cpu                 = 128
+  memory              = 256
   desired_count       = 1
   container_port       = 6379
-  expose_port          = true
+  expose_port          = false
   alb_target_group_arn = var.alb_target_group_arn
   ecs_cluster_id    = aws_ecs_cluster.this.id
   subnet_ids        = var.subnet_ids

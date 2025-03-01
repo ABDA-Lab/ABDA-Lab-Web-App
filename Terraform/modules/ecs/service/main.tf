@@ -1,10 +1,8 @@
-# Ensure ECR repository exists (only if not using Docker Hub)
 data "aws_ecr_repository" "app" {
   count = var.use_dockerhub ? 0 : 1
   name  = var.ecr_repository_name
 }
 
-# Ensure all volume directories exist using AWS SSM
 resource "aws_ssm_document" "ensure_volumes" {
   name          = "${var.ecr_repository_name}-ensure-volumes"
   document_type = "Command"
@@ -30,7 +28,6 @@ resource "aws_ssm_document" "ensure_volumes" {
   })
 }
 
-# Run the SSM command to create the directories on all ECS instances
 resource "aws_ssm_association" "run_ensure_volumes" {
   name = aws_ssm_document.ensure_volumes.name
   targets {
@@ -39,13 +36,11 @@ resource "aws_ssm_association" "run_ensure_volumes" {
   }
 }
 
-# Create CloudWatch Log Group for ECS Task
 resource "aws_cloudwatch_log_group" "ecs_logs" {
   name              = "/ecs/${var.ecr_repository_name}-logs"
   retention_in_days = 7
 }
 
-# ECS Task Definition
 resource "aws_ecs_task_definition" "this" {
   family                   = "${var.ecr_repository_name}-task"
   network_mode             = "awsvpc"
@@ -53,7 +48,6 @@ resource "aws_ecs_task_definition" "this" {
   cpu                      = var.cpu
   memory                   = var.memory
 
-  # Define volumes if provided
   dynamic "volume" {
     for_each = var.volumes
     content {
@@ -64,23 +58,17 @@ resource "aws_ecs_task_definition" "this" {
 
   container_definitions = jsonencode([
     {
-      name            = var.ecr_repository_name
-      container_name  = var.ecr_repository_name
-      image           = var.use_dockerhub ? "${var.name}:${var.image_tag}" : "${data.aws_ecr_repository.app[0].repository_url}:${var.image_tag}"
-      essential       = true
-
-      # Optionally override the default container command
-      command         = var.command
-
-      # Environment variables
+      name           = var.ecr_repository_name
+      container_name = var.ecr_repository_name
+      image          = var.use_dockerhub ? "${var.name}:${var.image_tag}" : "${data.aws_ecr_repository.app[0].repository_url}:${var.image_tag}"
+      essential      = true
+      command        = var.command
       environment = [
         for key, value in var.env_vars : {
           name  = key
           value = value
         }
-      ] 
-
-      # Volume mounts
+      ]
       mountPoints = [
         for volume in var.volumes : {
           sourceVolume  = volume.name
@@ -88,8 +76,6 @@ resource "aws_ecs_task_definition" "this" {
           readOnly      = coalescelist([volume.read_only], [false])[0]
         }
       ]
-
-      # Port mappings
       portMappings = var.expose_port ? [
         {
           containerPort = var.container_port
@@ -97,8 +83,6 @@ resource "aws_ecs_task_definition" "this" {
           protocol      = "tcp"
         }
       ] : []
-
-      # Enable CloudWatch Logging
       logConfiguration = {
         logDriver = "awslogs"
         options = {
@@ -107,8 +91,6 @@ resource "aws_ecs_task_definition" "this" {
           awslogs-stream-prefix = "ecs"
         }
       }
-
-      # Optional container health check
       healthCheck = var.health_check == null ? null : {
         command     = var.health_check.command
         interval    = var.health_check.interval
@@ -120,7 +102,6 @@ resource "aws_ecs_task_definition" "this" {
   ])
 }
 
-# ECS Service
 resource "aws_ecs_service" "this" {
   name            = "${var.ecr_repository_name}-service"
   cluster         = var.ecs_cluster_id
@@ -149,15 +130,15 @@ resource "aws_ecs_service" "this" {
   depends_on = [
     var.autoscaling_group_id,
     aws_ssm_association.run_ensure_volumes
-  ]
+  ] + var.health_check_dependency # added
 
   timeouts {
     delete = "30m"
   }
 }
+
 data "aws_caller_identity" "current" {}
 
-# IAM Policy for ECS Task Execution Role (Allows logging to CloudWatch)
 resource "aws_iam_policy" "ecs_logging_policy" {
   name        = "${var.ecr_repository_name}-ecs-logging-policy"
   description = "Allows ECS tasks to write logs to CloudWatch"
@@ -176,7 +157,6 @@ resource "aws_iam_policy" "ecs_logging_policy" {
   })
 }
 
-# Attach Policy to ECS Task Execution Role
 resource "aws_iam_role_policy_attachment" "ecs_logging_attachment" {
   role       = var.ecs_task_execution_role_name
   policy_arn = aws_iam_policy.ecs_logging_policy.arn
