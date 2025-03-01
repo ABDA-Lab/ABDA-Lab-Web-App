@@ -90,3 +90,36 @@ variable "ecs_instance_tag" {
   description = "The instance tag for ECS instances"
   type        = string
 }
+
+variable "region" {
+  description = "The AWS region where the ECS cluster is deployed"
+  type        = string
+}
+
+variable "ecs_task_execution_role_name" {
+  description = "The name of the IAM role used by ECS task execution"
+  type        = string
+}
+
+variable "use_dockerhub" {
+  type    = bool
+  default = false
+}
+
+variable "command" {
+  description = "Optional command override for the container. Example: [\"redis-server\", \"--requirepass\", \"password\"]"
+  type        = list(string)
+  default     = null
+}
+
+variable "health_check" {
+  description = "Optional health check configuration. Example: { command = [\"CMD-SHELL\", \"redis-cli -a password ping\"], interval = 5, timeout = 3, retries = 5, startPeriod = 30 }"
+  type = object({
+    command     = list(string)
+    interval    = number
+    timeout     = number
+    retries     = number
+    startPeriod = number
+  })
+  default = null
+}

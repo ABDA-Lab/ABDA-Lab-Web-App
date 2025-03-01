@@ -110,6 +110,7 @@ module "ecs" {
   ecs_ami_id    = var.ecs_ami_id
   instance_type = var.instance_type
   # Use the private subnets for ECS tasks
+  region                = var.region
   subnet_ids            = [module.private_subnet1.subnet_id, module.private_subnet2.subnet_id]
   desired_capacity      = var.desired_capacity
   max_size              = var.max_size
@@ -118,4 +119,12 @@ module "ecs" {
   alb_security_group_id = module.alb.alb_sg_id
   alb_target_group_arn  = module.alb.target_group_arn
   services              = var.services
+  database_host         = var.database_host
+  database_name         = var.database_name
+  database_username     = var.database_username
+  database_password     = var.database_password
+  database_port         = var.database_port
+  redis_password        = var.redis_password
+  rabbitmq_password     = var.rabbitmq_password
+  rabbitmq_username     = var.rabbitmq_username
 }

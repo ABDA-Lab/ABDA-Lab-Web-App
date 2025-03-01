@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+  ${services_0}:
+    build:
+      context: ./Backend/ApiGateway
+      dockerfile: Dockerfile
+    image: ${services_0}
+    container_name: ${services_0}
+
+  ${services_1}:
+    build:
+      context: ./Backend/Microservices.AspNet
+      dockerfile: ./User.Microservice/Dockerfile
+      args:
+        SERVICE_NAME: User.Microservice
+    image: ${services_1}
+    container_name: ${services_1}

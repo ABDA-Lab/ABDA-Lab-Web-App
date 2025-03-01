@@ -30,7 +30,23 @@ jobs:
         env:
           AWS_PROFILE: terraform-user
         uses: aws-actions/amazon-ecr-login@v2
-
+      
+      - name: Split SERVICES into individual env variables
+        run: |
+          IFS=' ' read -r -a services_array <<< "$SERVICES"
+          for i in "${!services_array[@]}"; do
+            echo "services_${i}=${services_array[i]}" >> $GITHUB_ENV
+          done
+          for i in "${!services_array[@]}"; do
+            echo "services_${i} = ${services_array[i]}"
+          done
+        env:
+          SERVICES: ${{ secrets.SERVICES }}
+      
+      - name: Templating docker-compose file
+        run: |
+          envsubst < docker-compose.template.yml > docker-compose.yml
+        
       - name: Build Docker Compose Services
         run: docker compose build
 

@@ -98,13 +98,13 @@ variable "alb_name" {
 variable "target_port" {
   description = "Port for the target group where the registered targets serve content"
   type        = number
-  default     = 80
+  default     = 8080
 }
 
 variable "listener_port" {
   description = "Port for the ALB listener"
   type        = number
-  default     = 80
+  default     = 2406
 }
 
 variable "health_check_path" {
@@ -116,7 +116,7 @@ variable "health_check_path" {
 variable "container_port" {
   description = "Port on which the container listens (used in ECS instance SG ingress rule)"
   type        = number
-  default     = 80
+  default     = 8080
 }
 
 variable "certificate_arn" {
@@ -128,4 +128,61 @@ variable "certificate_arn" {
 variable "services" {
   description = "Space-separated list of service names"
   type        = string
+}
+
+
+# ===============================
+# Database Configuration
+# ===============================
+
+variable "database_host" {
+  description = "Database host address"
+  type        = string
+}
+
+variable "database_port" {
+  description = "Database port"
+  type        = string
+  default     = "5432"
+}
+
+variable "database_name" {
+  description = "Database name"
+  type        = string
+}
+
+variable "database_username" {
+  description = "Database username"
+  type        = string
+}
+
+variable "database_password" {
+  description = "Database password"
+  type        = string
+  sensitive   = true
+}
+
+# ===============================
+# RabbitMQ Configuration
+# ===============================
+
+variable "rabbitmq_username" {
+  description = "RabbitMQ username"
+  type        = string
+}
+
+variable "rabbitmq_password" {
+  description = "RabbitMQ password"
+  type        = string
+  sensitive   = true
+}
+
+# ===============================
+# Redis Configuration
+# ===============================
+
+variable "redis_password" {
+  description = "Redis password"
+  type        = string
+  sensitive   = true
 }
