@@ -158,6 +158,7 @@ jobs:
           CONTAINER_PORT: ${{ secrets.CONTAINER_PORT }}
           CERTIFICATE_ARN: ${{ secrets.CERTIFICATE_ARN }}
           ECS_AMI_ID: ${{ secrets.ECS_AMI_ID }}
+          SERVICES: ${{ secrets.SERVICES }}
         run: |
           terraform plan \
             -var="origin_domain_name=${ORIGIN_DOMAIN_NAME}" \
@@ -174,6 +175,7 @@ jobs:
             -var="container_port=${CONTAINER_PORT}" \
             -var="certificate_arn=${CERTIFICATE_ARN}" \
             -var="ecs_ami_id=${ECS_AMI_ID}" \
+            -var="services=${SERVICES}" \
             -out=tfplan
       
       - name: Terraform Apply
@@ -194,4 +196,5 @@ jobs:
           CONTAINER_PORT: ${{ secrets.CONTAINER_PORT }}
           CERTIFICATE_ARN: ${{ secrets.CERTIFICATE_ARN }}
           ECS_AMI_ID: ${{ secrets.ECS_AMI_ID }}
+          SERVICES: ${{ secrets.SERVICES }}
         run: terraform apply -auto-approve tfplan

@@ -117,4 +117,5 @@ module "ecs" {
   container_port        = var.container_port
   alb_security_group_id = module.alb.alb_sg_id
   alb_target_group_arn  = module.alb.target_group_arn
+  services              = var.services
 }
