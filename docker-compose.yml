@@ -1,7 +1,8 @@
+version: "3.8"
 services:
-  nginx:
+  ${services_0}:
     build:
       context: ./Services/nginx
       dockerfile: Dockerfile
-    image: nginx
-    container_name: nginx
+    image: ${services_0}
+    container_name: ${services_0}
