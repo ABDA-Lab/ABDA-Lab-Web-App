@@ -13,7 +13,7 @@ module "ecs_service" {
   subnet_ids          = var.subnet_ids
   security_group_id   = aws_security_group.ecs_instance_sg.id
   autoscaling_group_id = aws_autoscaling_group.ecs_asg.id
-
+  ecs_instance_tag = "${var.cluster_name}-instance"
   env_vars = {
     "APP_VERSION" = "1.0.0"
   }
