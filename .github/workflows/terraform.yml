@@ -8,10 +8,15 @@ on:
  
 jobs:
   terraform:
-    if: contains(fromJson('["refs/heads/main", "refs/heads/vkev"]'), github.event.workflow_run.head_branch)
+    if: contains(fromJson('["main", "vkev"]'), github.event.workflow_run.head_branch)
     name: "Terraform Plan and Apply"
     runs-on: ubuntu-latest
     steps:
+      - name: Debug GitHub Context
+        run: |
+          echo "Workflow Run ID: ${{ github.event.workflow_run.id }}"
+          echo "Triggered by branch: ${{ github.event.workflow_run.head_branch }}"
+
       - name: Set Branch Name
         run: echo "BRANCH_NAME=${{ github.event.workflow_run.head_branch }}" >> $GITHUB_ENV
 
