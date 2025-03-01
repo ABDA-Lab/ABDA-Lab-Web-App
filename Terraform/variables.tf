@@ -98,13 +98,13 @@ variable "alb_name" {
 variable "target_port" {
   description = "Port for the target group where the registered targets serve content"
   type        = number
-  default     = 80
+  default     = 8080
 }
 
 variable "listener_port" {
   description = "Port for the ALB listener"
   type        = number
-  default     = 80
+  default     = 2406
 }
 
 variable "health_check_path" {
@@ -116,7 +116,7 @@ variable "health_check_path" {
 variable "container_port" {
   description = "Port on which the container listens (used in ECS instance SG ingress rule)"
   type        = number
-  default     = 80
+  default     = 8080
 }
 
 variable "certificate_arn" {
