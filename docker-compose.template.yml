@@ -6,4 +6,12 @@ services:
       dockerfile: Dockerfile
     image: ${services_0}
     container_name: ${services_0}
-    
+
+  ${services_1}:
+    build:
+      context: ./Backend/Microservices.AspNet
+      dockerfile: ./User.Microservice/Dockerfile
+      args:
+        SERVICE_NAME: User.Microservice
+    image: ${services_1}
+    container_name: ${services_1}
