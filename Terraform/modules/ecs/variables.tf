@@ -58,3 +58,8 @@ variable "services" {
   type        = string
   default     = ""
 }
+
+variable "region" {
+  description = "The AWS region where the ECS cluster is deployed"
+  type        = string
+}

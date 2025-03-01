@@ -90,3 +90,13 @@ variable "ecs_instance_tag" {
   description = "The instance tag for ECS instances"
   type        = string
 }
+
+variable "region" {
+  description = "The AWS region where the ECS cluster is deployed"
+  type        = string
+}
+
+variable "ecs_task_execution_role_name" {
+  description = "The name of the IAM role used by ECS task execution"
+  type        = string
+}

@@ -18,6 +18,8 @@ module "ecs_service" {
   security_group_id    = aws_security_group.ecs_instance_sg.id
   autoscaling_group_id = aws_autoscaling_group.ecs_asg.id
   ecs_instance_tag     = "${var.cluster_name}-instance"
+  ecs_task_execution_role_name = aws_iam_role.ecs_instance_role.name
+  region = var.region
   env_vars = {
     ASPNETCORE_ENVIRONMENT = "Production"
     ASPNETCORE_URLS        = "http://+:8080"

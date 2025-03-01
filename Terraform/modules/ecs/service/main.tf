@@ -31,11 +31,17 @@ resource "aws_ssm_document" "ensure_volumes" {
 
 # Run the SSM command to create the directories on all ECS instances
 resource "aws_ssm_association" "run_ensure_volumes" {
-  name             = aws_ssm_document.ensure_volumes.name
+  name = aws_ssm_document.ensure_volumes.name
   targets {
     key    = "tag:Name"
     values = ["${var.ecs_instance_tag}"]  # Replace with your EC2 instance tag
   }
+}
+
+# Create CloudWatch Log Group for ECS Task
+resource "aws_cloudwatch_log_group" "ecs_logs" {
+  name              = "/ecs/${var.name}-logs"
+  retention_in_days = 7
 }
 
 # ECS Task Definition
@@ -78,6 +84,16 @@ resource "aws_ecs_task_definition" "this" {
           protocol      = "tcp"
         }
       ] : []
+
+      # Enable CloudWatch Logging
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.ecs_logs.name
+          awslogs-region        = var.region
+          awslogs-stream-prefix = "ecs"
+        }
+      }
     }
   ])
 }
@@ -116,4 +132,29 @@ resource "aws_ecs_service" "this" {
   timeouts {
     delete = "30m"
   }
+}
+
+# IAM Policy for ECS Task Execution Role (Allows logging to CloudWatch)
+resource "aws_iam_policy" "ecs_logging_policy" {
+  name        = "ECS_Task_Logging_Policy"
+  description = "Allows ECS tasks to write logs to CloudWatch"
+  policy      = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "logs:CreateLogStream",
+          "logs:PutLogEvents"
+        ]
+        Resource = "arn:aws:logs:${var.region}:${data.aws_caller_identity.current.account_id}:log-group:/ecs/${var.name}-logs:*"
+      }
+    ]
+  })
+}
+
+# Attach Policy to ECS Task Execution Role
+resource "aws_iam_role_policy_attachment" "ecs_logging_attachment" {
+  role       = var.ecs_task_execution_role_name
+  policy_arn = aws_iam_policy.ecs_logging_policy.arn
 }
