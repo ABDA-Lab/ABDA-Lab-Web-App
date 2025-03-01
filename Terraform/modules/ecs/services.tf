@@ -1,52 +1,16 @@
-# Fetch the existing ECR repository "my-app"
-data "aws_ecr_repository" "my_app" {
-  name = "my-app"
-}
-
-resource "aws_ecs_task_definition" "nginx" {
-  family                   = "${var.cluster_name}-nginx"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["EC2"]
-  cpu                      = "256"
-  memory                   = "512"
-
-  container_definitions = jsonencode([
-    {
-      name      = "nginx"
-      image     = "${data.aws_ecr_repository.my_app.repository_url}:latest"
-      essential = true
-      portMappings = [
-        {
-          containerPort = 80,
-          hostPort      = 80,
-          protocol      = "tcp"
-        }
-      ]
-    }
-  ])
-}
-
-resource "aws_ecs_service" "nginx" {
-  name            = "${var.cluster_name}-nginx-service"
-  cluster         = aws_ecs_cluster.this.id
-  task_definition = aws_ecs_task_definition.nginx.arn
-  desired_count   = 1
-  launch_type     = "EC2"
-
-  load_balancer {
-    target_group_arn = var.alb_target_group_arn
-    container_name   = "nginx"
-    container_port   = 80
-  }
-
-  deployment_minimum_healthy_percent = 50
-  deployment_maximum_percent         = 200
-
-  network_configuration {
-    subnets         = var.subnet_ids
-    security_groups = [aws_security_group.ecs_instance_sg.id]
-    assign_public_ip = false
-  }
-
-  depends_on = [aws_autoscaling_group.ecs_asg]
+module "nginx-service" {
+  source = "./service"
+  name               = "nginx"
+  ecr_repository_name = "my-app"
+  image_tag          = "latest"
+  cpu               = 256
+  memory            = 512
+  desired_count     = 2
+  container_port    = 80
+  expose_port       = true
+  ecs_cluster_id    = aws_ecs_cluster.this.id
+  alb_target_group_arn = var.alb_target_group_arn
+  subnet_ids        = var.subnet_ids
+  security_group_id = aws_security_group.ecs_instance_sg.id
+  autoscaling_group_id = aws_autoscaling_group.ecs_asg.id
 }
