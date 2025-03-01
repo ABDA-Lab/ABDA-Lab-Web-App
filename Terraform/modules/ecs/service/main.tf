@@ -102,6 +102,11 @@ resource "aws_ecs_task_definition" "this" {
   ])
 }
 
+locals {
+  base_dependencies  = [var.autoscaling_group_id,aws_ssm_association.run_ensure_volumes]
+  merged_dependencies = concat(local.base_dependencies, var.health_check_dependency)
+}
+
 resource "aws_ecs_service" "this" {
   name            = "${var.ecr_repository_name}-service"
   cluster         = var.ecs_cluster_id
@@ -127,10 +132,7 @@ resource "aws_ecs_service" "this" {
     assign_public_ip = false
   }
 
-  depends_on = concat([
-    var.autoscaling_group_id,
-    aws_ssm_association.run_ensure_volumes
-  ], var.health_check_dependency) # added
+  depends_on = local.merged_dependencies
 
   timeouts {
     delete = "30m"
