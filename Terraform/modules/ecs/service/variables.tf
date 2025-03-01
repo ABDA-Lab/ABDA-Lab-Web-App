@@ -68,3 +68,20 @@ variable "autoscaling_group_id" {
   description = "Autoscaling group ID that ECS service depends on"
   type        = string
 }
+
+variable "env_vars" {
+  description = "Map of environment variables for the container"
+  type        = map(string)
+  default     = {}
+}
+
+variable "volumes" {
+  description = "List of volumes for the container"
+  type = list(object({
+    name           = string
+    container_path = string
+    host_path      = optional(string)
+    read_only      = optional(bool, false)
+  }))
+  default = []
+}

@@ -10,11 +10,31 @@ resource "aws_ecs_task_definition" "this" {
   cpu                      = var.cpu
   memory                   = var.memory
 
+  # Define volumes if provided
+  dynamic "volume" {
+    for_each = var.volumes
+    content {
+      name = volume.value["name"]
+      host_path = lookup(volume.value, "host_path", null)
+    }
+  }
+
   container_definitions = jsonencode([
     {
       name      = var.name
       image     = "${data.aws_ecr_repository.app.repository_url}:${var.image_tag}"
       essential = true
+
+      # Environment variables
+      environment = [for key, value in var.env_vars : { name = key, value = value }]
+
+      # Volume mounts
+      mountPoints = [for volume in var.volumes : {
+        sourceVolume = volume.name
+        containerPath = volume.container_path
+        readOnly = lookup(volume, "read_only", false)
+      }]
+
       portMappings = var.expose_port ? [
         {
           containerPort = var.container_port
