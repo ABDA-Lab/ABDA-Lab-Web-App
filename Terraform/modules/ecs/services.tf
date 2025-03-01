@@ -19,11 +19,11 @@ module "ecs_service" {
   }
 
   volumes = [
-    {
-      name           = "nginx"
-      container_path = "/usr/share/nginx/html"
-      host_path      = "/mnt/data"
-      read_only      = false
-    }
+    # {
+    #   name           = "nginx"
+    #   container_path = "/usr/share/nginx/html"
+    #   host_path      = "/mnt/data"
+    #   read_only      = false
+    # }
   ]
 }
