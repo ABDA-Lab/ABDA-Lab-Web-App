@@ -6,7 +6,7 @@ data "aws_ecr_repository" "app" {
 
 # Ensure all volume directories exist using AWS SSM
 resource "aws_ssm_document" "ensure_volumes" {
-  name          = "EnsureVolumeDirectories"
+  name          = var.ecr_repository_name
   document_type = "Command"
 
   content = jsonencode({
@@ -155,12 +155,11 @@ resource "aws_ecs_service" "this" {
     delete = "30m"
   }
 }
-
 data "aws_caller_identity" "current" {}
 
 # IAM Policy for ECS Task Execution Role (Allows logging to CloudWatch)
 resource "aws_iam_policy" "ecs_logging_policy" {
-  name        = "ECS_Task_Logging_Policy"
+  name        = var.ecr_repository_name
   description = "Allows ECS tasks to write logs to CloudWatch"
   policy      = jsonencode({
     Version = "2012-10-17"
