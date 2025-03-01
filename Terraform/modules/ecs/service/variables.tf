@@ -85,3 +85,8 @@ variable "volumes" {
   }))
   default = []
 }
+
+variable "ecs_instance_tag" {
+  description = "The instance tag for ECS instances"
+  type        = string
+}

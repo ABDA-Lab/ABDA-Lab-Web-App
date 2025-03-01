@@ -52,3 +52,9 @@ variable "alb_target_group_arn" {
   description = "Target Group ARN from the ALB module"
   type        = string
 }
+
+variable "services" {
+  description = "Space-separated list of service names"
+  type        = string
+  default     = ""
+}

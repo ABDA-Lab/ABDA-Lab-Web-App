@@ -1,5 +1,41 @@
+# Ensure ECR repository exists
 data "aws_ecr_repository" "app" {
   name = var.ecr_repository_name
+}
+
+# Ensure all volume directories exist using AWS SSM
+resource "aws_ssm_document" "ensure_volumes" {
+  name          = "EnsureVolumeDirectories"
+  document_type = "Command"
+
+  content = jsonencode({
+    schemaVersion = "2.2"
+    description   = "Ensure all required volume directories exist before starting ECS tasks."
+    mainSteps = [
+      {
+        action = "aws:runShellScript"
+        name   = "EnsureDirectoriesExist"
+        inputs = {
+          runCommand = flatten([
+            for volume in var.volumes : [
+              "mkdir -p ${volume.host_path}",
+              "chown ec2-user:ec2-user ${volume.host_path}",
+              "chmod 755 ${volume.host_path}"
+            ] if volume.host_path != null
+          ])
+        }
+      }
+    ]
+  })
+}
+
+# Run the SSM command to create the directories on all ECS instances
+resource "aws_ssm_association" "run_ensure_volumes" {
+  name             = aws_ssm_document.ensure_volumes.name
+  targets {
+    key    = "tag:Name"
+    values = ["${var.ecs_instance_tag}"]  # Replace with your EC2 instance tag
+  }
 }
 
 # ECS Task Definition
@@ -14,7 +50,7 @@ resource "aws_ecs_task_definition" "this" {
   dynamic "volume" {
     for_each = var.volumes
     content {
-      name = volume.value["name"]
+      name      = volume.value["name"]
       host_path = lookup(volume.value, "host_path", null)
     }
   }
@@ -30,9 +66,9 @@ resource "aws_ecs_task_definition" "this" {
 
       # Volume mounts
       mountPoints = [for volume in var.volumes : {
-        sourceVolume = volume.name
+        sourceVolume  = volume.name
         containerPath = volume.container_path
-        readOnly = lookup(volume, "read_only", false)
+        readOnly      = lookup(volume, "read_only", false)
       }]
 
       portMappings = var.expose_port ? [
@@ -72,7 +108,10 @@ resource "aws_ecs_service" "this" {
     assign_public_ip = false
   }
 
-  depends_on = [var.autoscaling_group_id]
+  depends_on = [
+    var.autoscaling_group_id,
+    aws_ssm_association.run_ensure_volumes  # Ensure volume directories exist before ECS starts
+  ]
 
   timeouts {
     delete = "30m"
