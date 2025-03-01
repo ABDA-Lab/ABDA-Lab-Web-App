@@ -42,7 +42,11 @@ jobs:
           done
         env:
           SERVICES: ${{ secrets.SERVICES }}
-
+      
+      - name: Templating docker-compose file
+        run: |
+          envsubst < docker-compose.template.yml > docker-compose.yml
+        
       - name: Build Docker Compose Services
         run: docker compose build
 
