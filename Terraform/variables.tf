@@ -128,5 +128,4 @@ variable "certificate_arn" {
 variable "services" {
   description = "Space-separated list of service names"
   type        = string
-  default     = ""
 }
