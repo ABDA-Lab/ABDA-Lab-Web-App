@@ -127,10 +127,10 @@ resource "aws_ecs_service" "this" {
     assign_public_ip = false
   }
 
-  depends_on = [
+  depends_on = concat([
     var.autoscaling_group_id,
     aws_ssm_association.run_ensure_volumes
-  ] + var.health_check_dependency # added
+  ], var.health_check_dependency) # added
 
   timeouts {
     delete = "30m"
