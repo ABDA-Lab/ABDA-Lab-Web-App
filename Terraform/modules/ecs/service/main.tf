@@ -110,7 +110,7 @@ resource "aws_ecs_task_definition" "this" {
       portMappings = container.expose_port ? [
         {
           containerPort = container.container_port
-          hostPort      = container.container_port
+          hostPort      = lookup(container, "host_port", container.container_port)
           protocol      = "tcp"
         }
       ] : []

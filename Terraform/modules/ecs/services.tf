@@ -17,18 +17,18 @@ module "microservice" {
   ecs_task_execution_role_name = aws_iam_role.ecs_instance_role.name
   region                       = var.region
 
-  container_definitions = [ 
+  container_definitions = [
     {
-      container_name       = local.services_list[0]
-      name                 = local.services_list[0]    # Image name
-      use_dockerhub        = false
-      ecr_repository_name  = local.services_list[0]
-      image_tag            = "latest"
-      command              = []  # No override command
+      container_name      = local.services_list[0]
+      name                = local.services_list[0] # Image name
+      use_dockerhub       = false
+      ecr_repository_name = local.services_list[0]
+      image_tag           = "latest"
+      command             = [] # No override command
       env_vars = {
-        ASPNETCORE_ENVIRONMENT = "Production"
-        ASPNETCORE_URLS        = "http://+:8080"
-        OCELOT_BASE_URL        = "http://localhost:8080"
+        ASPNETCORE_ENVIRONMENT   = "Production"
+        ASPNETCORE_URLS          = "http://+:8080"
+        OCELOT_BASE_URL          = "http://localhost:8080"
         ROUTE_1_UPSTREAM_PATH    = "/api/user/{everything}"
         ROUTE_1_UPSTREAM_METHODS = "Get,Post,Put,Delete"
         ROUTE_1_DOWNSTREAM_HOST  = "user-microservice"
@@ -50,18 +50,25 @@ module "microservice" {
         ROUTE_4_DOWNSTREAM_PORT  = "8091"
         ROUTE_4_DOWNSTREAM_PATH  = "/api/v1/posts/{everything}"
       }
-      mount_points  = []
-      expose_port   = true
+      mount_points   = []
+      expose_port    = true
       container_port = 8080
-      health_check  = null
+      host_port = 2406
+      health_check = {
+        command : ["CMD", "curl", "-f", "http://localhost:8080/health"]
+        interval    = 5
+        timeout     = 3
+        retries     = 5
+        startPeriod = 0
+      }
     },
     {
-      container_name       = local.services_list[1]
-      name                 = local.services_list[1]
-      use_dockerhub        = false
-      ecr_repository_name  = local.services_list[1]
-      image_tag            = "latest"
-      command              = [] 
+      container_name      = local.services_list[1]
+      name                = local.services_list[1]
+      use_dockerhub       = false
+      ecr_repository_name = local.services_list[1]
+      image_tag           = "latest"
+      command             = []
       env_vars = {
         ASPNETCORE_ENVIRONMENT = "Production"
         ASPNETCORE_URLS        = "http://+:5002"
@@ -78,10 +85,16 @@ module "microservice" {
         REDIS_PORT             = "6379"
         REDIS_PASSWORD         = var.redis_password
       }
-      mount_points  = []
-      expose_port   = false
+      mount_points   = []
+      expose_port    = false
       container_port = 5002
-      health_check  = null
+      health_check = {
+        command : ["CMD", "curl", "-f", "http://localhost:5002/api/user/health"]
+        interval    = 5
+        timeout     = 3
+        retries     = 5
+        startPeriod = 0
+      }
     }
   ]
 }
@@ -90,11 +103,11 @@ module "microservice" {
 module "utility_service" {
   source                       = "./service"
   name                         = "utility-service"
-  cpu                          = 512      # Combined CPU for both containers
-  memory                       = 512      # Combined memory for both containers
+  cpu                          = 512 # Combined CPU for both containers
+  memory                       = 512 # Combined memory for both containers
   desired_count                = 1
   ecs_cluster_id               = aws_ecs_cluster.this.id
-  alb_target_group_arn         = var.alb_target_group_arn  # Not used if no container exposes a port
+  alb_target_group_arn         = var.alb_target_group_arn # Not used if no container exposes a port
   subnet_ids                   = var.subnet_ids
   security_group_id            = aws_security_group.ecs_instance_sg.id
   autoscaling_group_id         = aws_autoscaling_group.ecs_asg.id
@@ -104,19 +117,20 @@ module "utility_service" {
 
   container_definitions = [
     {
-      container_name       = "rabbit-mq"
-      name                 = "rabbitmq"
-      use_dockerhub        = true
-      ecr_repository_name  = "rabbit-mq"  # Not used when using Docker Hub
-      image_tag            = "3-management"
-      command              = [] 
+      container_name      = "rabbit-mq"
+      name                = "rabbitmq"
+      use_dockerhub       = true
+      ecr_repository_name = "rabbit-mq" # Not used when using Docker Hub
+      image_tag           = "3-management"
+      command             = []
       env_vars = {
         RABBITMQ_DEFAULT_USER = var.rabbitmq_username
         RABBITMQ_DEFAULT_PASS = var.rabbitmq_password
       }
-      mount_points  = []  # You can define container-level mount points if needed
-      expose_port   = false
+      mount_points   = [] # You can define container-level mount points if needed
+      expose_port    = true
       container_port = 5672
+      host_port = 5672
       health_check = {
         command     = ["CMD", "rabbitmqctl", "status"]
         interval    = 5
@@ -126,13 +140,13 @@ module "utility_service" {
       }
     },
     {
-      container_name       = "redis"
-      name                 = "redis"
-      use_dockerhub        = true
-      ecr_repository_name  = "redis"
-      image_tag            = "alpine"
-      command              = ["redis-server", "--requirepass", var.redis_password]
-      env_vars             = {}
+      container_name      = "redis"
+      name                = "redis"
+      use_dockerhub       = true
+      ecr_repository_name = "redis"
+      image_tag           = "alpine"
+      command             = ["redis-server", "--requirepass", var.redis_password]
+      env_vars            = {}
       mount_points = [
         {
           name           = "redis-data"
@@ -140,8 +154,9 @@ module "utility_service" {
           read_only      = false
         }
       ]
-      expose_port   = false
+      expose_port    = true
       container_port = 6379
+      host_port = 6379
       health_check = {
         command     = ["CMD", "redis-cli", "-a", var.redis_password, "ping"]
         interval    = 5

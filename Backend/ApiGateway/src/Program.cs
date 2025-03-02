@@ -106,7 +106,7 @@ var app = builder.Build();
 
 // Use CORS before Ocelot middleware
 app.UseCors(corsPolicy);
-
+app.MapGet("/health", () => Results.Ok(new { status = "Healthy" }));
 // Log CORS activation
 Console.WriteLine("CORS policy applied.");
 
