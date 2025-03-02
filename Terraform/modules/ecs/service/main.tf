@@ -2,9 +2,9 @@ locals {
   # Flatten all mount points from all container definitions where host_path is set.
   container_volumes = flatten([
     for container in var.container_definitions : [
-      for mount in container.mount_points : mount.host_path != null ? {
+      for mount in container.mount_points : lookup(mount, "host_path", null) != null ? {
         name      = mount.name
-        host_path = mount.host_path
+        host_path = lookup(mount, "host_path", "")
       } : []
     ]
   ])
@@ -33,10 +33,10 @@ resource "aws_ssm_document" "ensure_volumes" {
         inputs = {
           runCommand = flatten([
             for container in var.container_definitions : [
-              for mount in container.mount_points : mount.host_path != null ? [
-                "mkdir -p ${mount.host_path}",
-                "chown ec2-user:ec2-user ${mount.host_path}",
-                "chmod 755 ${mount.host_path}"
+              for mount in container.mount_points : lookup(mount, "host_path", null) != null ? [
+                "mkdir -p ${lookup(mount, "host_path", "")}",
+                "chown ec2-user:ec2-user ${lookup(mount, "host_path", "")}",
+                "chmod 755 ${lookup(mount, "host_path", "")}"
               ] : []
             ]
           ])
