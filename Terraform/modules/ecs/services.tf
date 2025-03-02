@@ -91,7 +91,7 @@ module "user_service" {
   }
 
   volumes = []
-  health_check_dependency = [module.rabbitmq_service.ecs_service_dependency, module.redis_service.ecs_service_dependency]
+  health_check_dependency = [module.rabbitmq_service.ecs_container_name, module.redis_service.ecs_container_name]
 }
 
 module "rabbitmq_service" {

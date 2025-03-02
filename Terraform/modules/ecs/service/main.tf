@@ -1,3 +1,4 @@
+
 data "aws_ecr_repository" "app" {
   count = var.use_dockerhub ? 0 : 1
   name  = var.ecr_repository_name
@@ -91,6 +92,14 @@ resource "aws_ecs_task_definition" "this" {
           awslogs-stream-prefix = "ecs"
         }
       }
+      
+      dependsOn = [
+        for dep in var.health_check_dependency : {
+          containerName = dep
+          condition     = "HEALTHY"
+        }
+      ]
+
       healthCheck = var.health_check == null ? null : {
         command     = var.health_check.command
         interval    = var.health_check.interval
@@ -98,16 +107,9 @@ resource "aws_ecs_task_definition" "this" {
         retries     = var.health_check.retries
         startPeriod = var.health_check.startPeriod
       }
+
     }
   ])
-}
-
-locals {
-  base_dependencies  = [
-    var.autoscaling_group_id,
-    aws_ssm_association.run_ensure_volumes
-  ]
-  merged_dependencies = concat(local.base_dependencies, var.health_check_dependency)
 }
 
 resource "aws_ecs_service" "this" {
@@ -135,7 +137,10 @@ resource "aws_ecs_service" "this" {
     assign_public_ip = false
   }
 
-  depends_on = local.merged_dependencies
+  depends_on = [
+    var.autoscaling_group_id,
+    aws_ssm_association.run_ensure_volumes
+  ]
 
   timeouts {
     delete = "30m"

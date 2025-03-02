@@ -8,6 +8,6 @@ output "task_definition_arn" {
   value       = aws_ecs_task_definition.this.arn
 }
 
-output "ecs_service_dependency" {
-  value = aws_ecs_service.this
+output "ecs_container_name" {
+  value = var.ecr_repository_name
 }
