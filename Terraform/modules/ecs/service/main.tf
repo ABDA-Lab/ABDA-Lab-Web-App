@@ -1,20 +1,23 @@
 locals {
-  # Flatten all mount points from all container definitions where host_path is set.
+  # Flatten all container mount points.
   container_volumes = flatten([
     for container in var.container_definitions : [
-      for mount in container.mount_points : lookup(mount, "host_path", null) != null ? [
+      for mount in container.mount_points : [
         {
           name      = mount.name
           host_path = lookup(mount, "host_path", "")
         }
-      ] : []
+      ]
     ]
   ])
 
+  flat_volumes = flatten(local.container_volumes)
+
   # Deduplicate volumes by their name.
-  volumes_from_containers = { for vol in local.container_volumes : vol.name => vol }
+  volumes_from_containers = { for vol in local.flat_volumes : vol.name => vol }
   unique_volumes = values(local.volumes_from_containers)
 }
+
 
 data "aws_ecr_repository" "app" {
   for_each = { for container in var.container_definitions : container.ecr_repository_name => container if container.use_dockerhub == false }
@@ -75,12 +78,7 @@ resource "aws_ecs_task_definition" "this" {
     for_each = local.unique_volumes
     content {
       name = volume.value.name
-      dynamic "host" {
-        for_each = volume.value.host_path != "" ? [volume.value] : []
-        content {
-          sourcePath = volume.value.host_path
-        }
-      }
+      host_path = volume.value.host_path != "" ? volume.value.host_path : null
     }
   }
 
