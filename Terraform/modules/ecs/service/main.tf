@@ -74,8 +74,13 @@ resource "aws_ecs_task_definition" "this" {
   dynamic "volume" {
     for_each = local.unique_volumes
     content {
-      name      = volume.value.name
-      host_path = volume.value.host_path
+      name = volume.value.name
+      dynamic "host" {
+        for_each = volume.value.host_path != "" ? [volume.value] : []
+        content {
+          sourcePath = volume.value.host_path
+        }
+      }
     }
   }
 
