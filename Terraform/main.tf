@@ -35,7 +35,7 @@ module "vpc" {
 module "public_subnet1" {
   source                  = "./modules/subnet"
   vpc_id                  = module.vpc.vpc_id
-  cidr_block              = "10.0.1.0/24"
+  cidr_block              = "10.0.1.0/22"
   availability_zone       = var.availability_zone_1
   name                    = "public-subnet-1"
   map_public_ip_on_launch = true
@@ -45,7 +45,7 @@ module "public_subnet1" {
 module "public_subnet2" {
   source                  = "./modules/subnet"
   vpc_id                  = module.vpc.vpc_id
-  cidr_block              = "10.0.2.0/24"
+  cidr_block              = "10.0.2.0/22"
   availability_zone       = var.availability_zone_2
   name                    = "public-subnet-2"
   map_public_ip_on_launch = true
@@ -56,7 +56,7 @@ module "public_subnet2" {
 module "private_subnet1" {
   source                  = "./modules/subnet"
   vpc_id                  = module.vpc.vpc_id
-  cidr_block              = "10.0.101.0/24"
+  cidr_block              = "10.0.101.0/22"
   availability_zone       = var.availability_zone_1
   name                    = "private-subnet-1"
   map_public_ip_on_launch = false
@@ -66,7 +66,7 @@ module "private_subnet1" {
 module "private_subnet2" {
   source                  = "./modules/subnet"
   vpc_id                  = module.vpc.vpc_id
-  cidr_block              = "10.0.102.0/24"
+  cidr_block              = "10.0.102.0/22"
   availability_zone       = var.availability_zone_2
   name                    = "private-subnet-2"
   map_public_ip_on_launch = false
