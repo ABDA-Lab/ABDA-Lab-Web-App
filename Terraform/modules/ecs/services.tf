@@ -130,7 +130,7 @@ module "utility_service" {
         RABBITMQ_DEFAULT_PASS = var.rabbitmq_password
       }
       mount_points   = [] # You can define container-level mount points if needed
-      expose_port    = false
+      expose_port    = true
       container_port = 5672
       health_check = {
         command     = ["CMD", "rabbitmqctl", "status"]
@@ -155,7 +155,7 @@ module "utility_service" {
           read_only      = false
         }
       ]
-      expose_port    = false
+      expose_port    = true
       container_port = 6379
       health_check = {
         command     = ["CMD", "redis-cli", "-a", var.redis_password, "ping"]
