@@ -69,7 +69,7 @@ jobs:
           RABBITMQ_PASSWORD: ${{ secrets.RABBITMQ_PASSWORD }}
           REDIS_PASSWORD: ${{ secrets.REDIS_PASSWORD }}
         run: |
-          terraform plan \
+          terraform destroy \
             -var="origin_domain_name=${ORIGIN_DOMAIN_NAME}" \
             -var="origin_path=${ORIGIN_PATH}" \
             -var="abda_lab_public_key_group=${ABDA_LAB_PUBLIC_KEY_GROUP}" \
