@@ -31,24 +31,25 @@ module "microservice" {
         OCELOT_BASE_URL          = "http://localhost:8080"
         ROUTE_1_UPSTREAM_PATH    = "/api/user/{everything}"
         ROUTE_1_UPSTREAM_METHODS = "Get,Post,Put,Delete"
-        ROUTE_1_DOWNSTREAM_HOST  = "user-microservice"
+        ROUTE_1_DOWNSTREAM_HOST  = "localhost" #user-microservice
         ROUTE_1_DOWNSTREAM_PORT  = "5002"
         ROUTE_1_DOWNSTREAM_PATH  = "/api/user/{everything}"
         ROUTE_2_UPSTREAM_PATH    = "/api/auth/{everything}"
         ROUTE_2_UPSTREAM_METHODS = "Get,Post,Put,Delete"
-        ROUTE_2_DOWNSTREAM_HOST  = "identity-microservice"
+        ROUTE_2_DOWNSTREAM_HOST  = "localhost" #identity-microservice"
         ROUTE_2_DOWNSTREAM_PORT  = "5001"
         ROUTE_2_DOWNSTREAM_PATH  = "/api/auth/{everything}"
         ROUTE_3_UPSTREAM_PATH    = "/api/resource/{everything}"
         ROUTE_3_UPSTREAM_METHODS = "Get,Post,Put,Delete"
-        ROUTE_3_DOWNSTREAM_HOST  = "resource-microservice"
+        ROUTE_3_DOWNSTREAM_HOST  = "localhost" #resource-microservice"
         ROUTE_3_DOWNSTREAM_PORT  = "5003"
         ROUTE_3_DOWNSTREAM_PATH  = "/api/resource/{everything}"
         ROUTE_4_UPSTREAM_PATH    = "/api/post/{everything}"
         ROUTE_4_UPSTREAM_METHODS = "Get,Post,Put,Delete"
-        ROUTE_4_DOWNSTREAM_HOST  = "post-microservice"
+        ROUTE_4_DOWNSTREAM_HOST  = "localhost" #post-microservice"
         ROUTE_4_DOWNSTREAM_PORT  = "8091"
         ROUTE_4_DOWNSTREAM_PATH  = "/api/v1/posts/{everything}"
+
       }
       mount_points   = []
       expose_port    = true
