@@ -96,10 +96,7 @@ variable "region" {
   type        = string
 }
 
-variable "health_check_dependency" { # added
-  type    = list(any) # added
-  default = [] # added
-}
+
 
 variable "ecs_task_execution_role_name" {
   description = "The name of the IAM role used by ECS task execution"

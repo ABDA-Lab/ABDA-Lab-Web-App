@@ -92,13 +92,7 @@ resource "aws_ecs_task_definition" "this" {
           awslogs-stream-prefix = "ecs"
         }
       }
-      
-      dependsOn = [
-        for dep in var.health_check_dependency : {
-          containerName = dep
-          condition     = "HEALTHY"
-        }
-      ]
+
 
       healthCheck = var.health_check == null ? null : {
         command     = var.health_check.command

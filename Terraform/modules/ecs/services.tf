@@ -95,7 +95,6 @@ module "user_service" {
   }
 
   volumes = []
-  health_check_dependency = [module.rabbitmq_service.ecs_container_name, module.redis_service.ecs_container_name]
   depends_on = [
     module.rabbitmq_service,
     module.redis_service
