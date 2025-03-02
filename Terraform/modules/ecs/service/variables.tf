@@ -74,7 +74,6 @@ variable "container_definitions" {
       read_only      = optional(bool, false)
     })), [])
     expose_port          = bool
-    host_port            = optional(number)
     container_port       = number
     health_check         = optional(object({
       command     = list(string)
