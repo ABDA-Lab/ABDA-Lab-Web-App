@@ -64,14 +64,30 @@ resource "aws_cloudwatch_log_group" "ecs_logs" {
   retention_in_days = 7
 }
 
-locals {
-  container_definitions_json = jsonencode([
+
+resource "aws_ecs_task_definition" "this" {
+  # The task family name could be derived from a merged name.
+  family                   = "${var.name}-task"
+  network_mode             = "awsvpc"
+  requires_compatibilities = ["EC2"]
+  # Task-level CPU and memory values must be sufficient to run all containers.
+  cpu                      = var.cpu
+  memory                   = var.memory
+
+  # Dynamically generate volume definitions from container mount points.
+  dynamic "volume" {
+    for_each = local.unique_volumes
+    content {
+      name = volume.value.name
+      host_path = volume.value.host_path != "" ? volume.value.host_path : null
+    }
+  }
+
+  container_definitions = jsonencode([
     for container in var.container_definitions : {
       name  = container.container_name
 
-      image = container.use_dockerhub ?
-        "${container.name}:${container.image_tag}" :
-        "${data.aws_ecr_repository.app[container.ecr_repository_name].repository_url}:${container.image_tag}"
+      image = container.use_dockerhub ? "${container.name}:${container.image_tag}" : "${data.aws_ecr_repository.app[container.ecr_repository_name].repository_url}:${container.image_tag}"
 
       essential = true
       command   = container.command
@@ -82,7 +98,7 @@ locals {
           value = value
         }
       ]
-
+      
       mountPoints = container.mount_points != null ? [
         for mount in container.mount_points : {
           sourceVolume  = mount.name
@@ -117,31 +133,6 @@ locals {
       }
     }
   ])
-
-  # Compute a short hash of the container definitions JSON.
-  container_definitions_hash = substr(sha256(local.container_definitions_json), 0, 8)
-}
-
-
-resource "aws_ecs_task_definition" "this" {
-  # The task family name could be derived from a merged name.
-  family                   = "${var.name}-task-${local.container_definitions_hash}"
-  network_mode             = "awsvpc"
-  requires_compatibilities = ["EC2"]
-  # Task-level CPU and memory values must be sufficient to run all containers.
-  cpu                      = var.cpu
-  memory                   = var.memory
-
-  # Dynamically generate volume definitions from container mount points.
-  dynamic "volume" {
-    for_each = local.unique_volumes
-    content {
-      name = volume.value.name
-      host_path = volume.value.host_path != "" ? volume.value.host_path : null
-    }
-  }
-
-  container_definitions = local.container_definitions_json
 }
 
 resource "aws_ecs_service" "this" {
