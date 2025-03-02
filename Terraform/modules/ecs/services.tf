@@ -17,7 +17,7 @@ module "microservice" {
   ecs_task_execution_role_name = aws_iam_role.ecs_instance_role.name
   region                       = var.region
 
-  container_definitions = [
+  container_definitions = [ 
     {
       container_name       = local.services_list[0]
       name                 = local.services_list[0]    # Image name
