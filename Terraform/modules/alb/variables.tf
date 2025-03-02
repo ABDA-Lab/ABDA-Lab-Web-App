@@ -28,7 +28,7 @@ variable "listener_port" {
 variable "health_check_path" {
   description = "Path for health check requests"
   type        = string
-  default     = "/"
+  default     = "/health"
 }
 
 variable "certificate_arn" {

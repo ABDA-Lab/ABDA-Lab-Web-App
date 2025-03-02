@@ -61,6 +61,7 @@ resource "aws_lb_target_group" "this" {
     timeout             = 5
   }
 
+
   tags = {
     Name = "${var.load_balancer_name}-tg"
   }
