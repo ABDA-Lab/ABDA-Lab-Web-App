@@ -3,25 +3,14 @@ variable "name" {
   type        = string
 }
 
-variable "ecr_repository_name" {
-  description = "ECR repository name"
-  type        = string
-}
-
-variable "image_tag" {
-  description = "Image tag to deploy"
-  type        = string
-  default     = "latest"
-}
-
 variable "cpu" {
-  description = "CPU units to allocate"
+  description = "CPU units to allocate to the task"
   type        = number
   default     = 256
 }
 
 variable "memory" {
-  description = "Memory in MB to allocate"
+  description = "Memory (in MB) to allocate to the task"
   type        = number
   default     = 512
 }
@@ -30,18 +19,6 @@ variable "desired_count" {
   description = "Number of tasks to run"
   type        = number
   default     = 1
-}
-
-variable "container_port" {
-  description = "Container port to expose"
-  type        = number
-  default     = 80
-}
-
-variable "expose_port" {
-  description = "Whether to expose the port to ALB"
-  type        = bool
-  default     = true
 }
 
 variable "ecs_cluster_id" {
@@ -69,22 +46,7 @@ variable "autoscaling_group_id" {
   type        = string
 }
 
-variable "env_vars" {
-  description = "Map of environment variables for the container"
-  type        = map(string)
-  default     = {}
-}
 
-variable "volumes" {
-  description = "List of volumes for the container"
-  type = list(object({
-    name           = string
-    container_path = string
-    host_path      = optional(string)
-    read_only      = optional(bool, false)
-  }))
-  default = []
-}
 
 variable "ecs_instance_tag" {
   description = "The instance tag for ECS instances"
@@ -96,32 +58,35 @@ variable "region" {
   type        = string
 }
 
-
+variable "container_definitions" {
+  description = "List of container definitions to be merged into one ECS task."
+  type = list(object({
+    container_name       = string
+    name                 = string       # image name
+    use_dockerhub        = optional(bool, false)
+    ecr_repository_name  = string
+    image_tag            = string
+    command              = optional(list(string), [])
+    env_vars             = map(string)
+    mount_points         = optional(list(object({
+      name           = string
+      container_path = string
+      read_only      = optional(bool, false)
+    })), [])
+    expose_port          = bool
+    container_port       = number
+    health_check         = optional(object({
+      command     = list(string)
+      interval    = number
+      timeout     = number
+      retries     = number
+      startPeriod = number
+    }), null)
+  }))
+  default = []
+}
 
 variable "ecs_task_execution_role_name" {
   description = "The name of the IAM role used by ECS task execution"
   type        = string
-}
-
-variable "use_dockerhub" {
-  type    = bool
-  default = false
-}
-
-variable "command" {
-  description = "Optional command override for the container. Example: [\"redis-server\", \"--requirepass\", \"password\"]"
-  type        = list(string)
-  default     = null
-}
-
-variable "health_check" {
-  description = "Optional health check configuration. Example: { command = [\"CMD-SHELL\", \"redis-cli -a password ping\"], interval = 5, timeout = 3, retries = 5, startPeriod = 30 }"
-  type = object({
-    command     = list(string)
-    interval    = number
-    timeout     = number
-    retries     = number
-    startPeriod = number
-  })
-  default = null
 }
