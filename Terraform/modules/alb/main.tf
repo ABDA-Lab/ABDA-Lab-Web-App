@@ -3,35 +3,30 @@ resource "aws_security_group" "alb_sg" {
   description = "Security group for the ALB (allows inbound HTTP/HTTPS)"
   vpc_id      = var.vpc_id
 
+
   ingress {
     description = "Allow inbound HTTP"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"]  # Allow traffic from anywhere
   }
 
-  ingress {
-    description = "Allow inbound on container"
-    from_port   = var.container_port
-    to_port     = var.container_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
+  # Allow inbound HTTPS (port 443)
   ingress {
     description = "Allow inbound HTTPS"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
+    cidr_blocks = ["0.0.0.0/0"]  # Allow traffic from anywhere
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow outbound to backend targets"
+    from_port   = var.container_port
+    to_port     = var.container_port
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]  # Allow traffic to any IP (restrict to backend targets' security group if possible)
   }
 
   tags = {
