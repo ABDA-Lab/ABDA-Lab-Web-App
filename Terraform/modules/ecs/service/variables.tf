@@ -86,6 +86,11 @@ variable "container_definitions" {
   default = []
 }
 
+variable "vpc_id" {
+  description = "VPC ID where the ALB is deployed"
+  type        = string
+}
+
 variable "ecs_task_execution_role_name" {
   description = "The name of the IAM role used by ECS task execution"
   type        = string

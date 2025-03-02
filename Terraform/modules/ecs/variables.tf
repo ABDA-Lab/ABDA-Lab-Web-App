@@ -48,6 +48,7 @@ variable "alb_security_group_id" {
   type        = string
 }
 
+
 variable "alb_target_group_arn" {
   description = "Target Group ARN from the ALB module"
   type        = string

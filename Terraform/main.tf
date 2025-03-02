@@ -110,7 +110,6 @@ module "ecs" {
   vpc_id        = module.vpc.vpc_id
   ecs_ami_id    = var.ecs_ami_id
   instance_type = var.instance_type
-  # Use the private subnets for ECS tasks
   region                = var.region
   subnet_ids            = [module.private_subnet1.subnet_id, module.private_subnet2.subnet_id]
   desired_capacity      = var.desired_capacity

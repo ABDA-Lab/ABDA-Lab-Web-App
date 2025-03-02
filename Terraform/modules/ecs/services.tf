@@ -16,6 +16,7 @@ module "microservice" {
   ecs_instance_tag             = "${var.cluster_name}-instance"
   ecs_task_execution_role_name = aws_iam_role.ecs_instance_role.name
   region                       = var.region
+  vpc_id                       = var.vpc_id
 
   container_definitions = [
     {
@@ -77,11 +78,11 @@ module "microservice" {
         DATABASE_NAME          = var.database_name
         DATABASE_USERNAME      = var.database_username
         DATABASE_PASSWORD      = var.database_password
-        RABBITMQ_HOST          = "rabbit-mq"
+        RABBITMQ_HOST          = module.utility_service.cloudmap_service_dns
         RABBITMQ_PORT          = "5672"
         RABBITMQ_USERNAME      = var.rabbitmq_username
         RABBITMQ_PASSWORD      = var.rabbitmq_password
-        REDIS_HOST             = "redis"
+        REDIS_HOST             = module.utility_service.cloudmap_service_dns
         REDIS_PORT             = "6379"
         REDIS_PASSWORD         = var.redis_password
       }
@@ -114,6 +115,7 @@ module "utility_service" {
   ecs_instance_tag             = "${var.cluster_name}-instance"
   ecs_task_execution_role_name = aws_iam_role.ecs_instance_role.name
   region                       = var.region
+  vpc_id                       = var.vpc_id
 
   container_definitions = [
     {
