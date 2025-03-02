@@ -28,11 +28,16 @@ variable "listener_port" {
 variable "health_check_path" {
   description = "Path for health check requests"
   type        = string
-  default     = "/"
+  default     = "/health"
 }
 
 variable "certificate_arn" {
   description = "ACM Certificate ARN for the HTTPS listener. Leave empty for HTTP-only."
   type        = string
   default     = ""
+}
+
+variable "container_port" {
+  description = "Port on which the container listens"
+  type        = number
 }

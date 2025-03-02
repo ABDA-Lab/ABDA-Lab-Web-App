@@ -110,7 +110,7 @@ variable "listener_port" {
 variable "health_check_path" {
   description = "Path used for ALB health checks"
   type        = string
-  default     = "/"
+  default     = "/health"
 }
 
 variable "container_port" {

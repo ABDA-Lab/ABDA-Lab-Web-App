@@ -103,10 +103,19 @@ var configuration = configBuilder.Build();
 builder.Services.AddOcelot(configuration);
 
 var app = builder.Build();
+app.UseRouting();
+
+app.UseWhen(context => context.Request.Path.StartsWithSegments("/health"), appBuilder =>
+{
+    appBuilder.Run(async context =>
+    {
+        context.Response.ContentType = "application/json";
+        await context.Response.WriteAsync("{\"status\":\"Healthy\"}");
+    });
+});
 
 // Use CORS before Ocelot middleware
 app.UseCors(corsPolicy);
-
 // Log CORS activation
 Console.WriteLine("CORS policy applied.");
 
