@@ -2,10 +2,12 @@ locals {
   # Flatten all mount points from all container definitions where host_path is set.
   container_volumes = flatten([
     for container in var.container_definitions : [
-      for mount in container.mount_points : lookup(mount, "host_path", null) != null ? {
-        name      = mount.name
-        host_path = lookup(mount, "host_path", "")
-      } : []
+      for mount in container.mount_points : lookup(mount, "host_path", null) != null ? [
+        {
+          name      = mount.name
+          host_path = lookup(mount, "host_path", "")
+        }
+      ] : []
     ]
   ])
 
