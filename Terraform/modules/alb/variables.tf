@@ -36,3 +36,8 @@ variable "certificate_arn" {
   type        = string
   default     = ""
 }
+
+variable "container_port" {
+  description = "Port on which the container listens"
+  type        = number
+}

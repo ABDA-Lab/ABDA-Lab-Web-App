@@ -12,6 +12,14 @@ resource "aws_security_group" "alb_sg" {
   }
 
   ingress {
+    description = "Allow inbound on container"
+    from_port   = var.container_port
+    to_port     = var.container_port
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
     description = "Allow inbound HTTPS"
     from_port   = 443
     to_port     = 443
