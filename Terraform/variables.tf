@@ -92,7 +92,7 @@ variable "min_size" {
 variable "alb_name" {
   description = "Name for the Application Load Balancer"
   type        = string
-  default     = "khang-load-balancer"
+  default     = "khang-alb"
 }
 
 variable "target_port" {
