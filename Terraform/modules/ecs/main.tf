@@ -16,43 +16,6 @@ resource "aws_iam_role" "ecs_instance_role" {
   })
 }
 
-resource "aws_iam_policy" "ecs_vpc_endpoints_policy" {
-  name        = "${var.cluster_name}-vpc-endpoints-policy"
-  description = "Allows ECS instances to pull images from Docker Hub & ECR, and send logs"
-
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow",
-        Action = [
-          "ecr:GetAuthorizationToken",
-          "ecr:BatchCheckLayerAvailability",
-          "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage"
-        ],
-        Resource = "*"
-      },
-
-      {
-        Effect = "Allow",
-        Action = [
-          "s3:GetObject",
-          "s3:ListBucket"
-        ],
-        Resource = [
-          "arn:aws:s3:::dockerhub-external", 
-          "arn:aws:s3:::dockerhub-external/*"
-        ]
-      }
-    ]
-  })
-}
-
-resource "aws_iam_role_policy_attachment" "ecs_vpc_endpoints_attach" {
-  role       = aws_iam_role.ecs_instance_role.name
-  policy_arn = aws_iam_policy.ecs_vpc_endpoints_policy.arn
-}
 
 # Attach CloudWatch Logs Policy (For ECS Logging)
 resource "aws_iam_role_policy_attachment" "ecs_cloudwatch_logs" {
