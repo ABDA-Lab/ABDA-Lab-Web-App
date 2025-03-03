@@ -55,3 +55,14 @@ resource "aws_vpc_endpoint" "ecr_dkr" {
     Name = "${var.name}-ecr-dkr-endpoint"
   }
 }
+
+resource "aws_vpc_endpoint" "ecs" {
+  vpc_id            = aws_vpc.this.id
+  service_name      = "com.amazonaws.${var.region}.ecs"
+  vpc_endpoint_type = "Interface"
+  subnet_ids        = var.private_subnet_ids
+  security_group_ids = [aws_security_group.vpc_endpoint_sg.id]
+  tags = {
+    Name = "ecs-endpoint"
+  }
+}
