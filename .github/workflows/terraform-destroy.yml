@@ -92,7 +92,8 @@ jobs:
             -var="database_password=${DATABASE_PASSWORD}" \
             -var="rabbitmq_username=${RABBITMQ_USERNAME}" \
             -var="rabbitmq_password=${RABBITMQ_PASSWORD}" \
-            -var="redis_password=${REDIS_PASSWORD}"
+            -var="redis_password=${REDIS_PASSWORD}" \
+            -auto-approve
 
       - name: Delete All ECR Repositories
         run: |

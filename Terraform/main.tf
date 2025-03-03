@@ -75,11 +75,13 @@ module "private_subnet2" {
 
 # Create NAT Gateway for private subnets outbound access
 resource "aws_eip" "nat" {
+  count                     = var.enable_nat ? 1 : 0
   associate_with_private_ip = true
 }
 
 resource "aws_nat_gateway" "this" {
-  allocation_id = aws_eip.nat.id
+  count         = var.enable_nat ? 1 : 0
+  allocation_id = var.enable_nat ? aws_eip.nat[0].id : null
   subnet_id     = module.public_subnet1.subnet_id
 
   depends_on = [module.public_subnet1]
@@ -87,9 +89,10 @@ resource "aws_nat_gateway" "this" {
 
 # Update the Private Route Table to use the NAT Gateway
 resource "aws_route" "private_nat" {
+  count                  = var.enable_nat ? 1 : 0
   route_table_id         = module.vpc.private_rt_id
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.this.id
+  nat_gateway_id         = var.enable_nat ? aws_nat_gateway.this[0].id : null
 }
 
 module "alb" {

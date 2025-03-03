@@ -53,6 +53,12 @@ variable "vpc_name" {
   default     = "khang-vpc"
 }
 
+variable "enable_nat" {
+  description = "Enable or disable NAT Gateway"
+  type        = bool
+  default     = false
+}
+
 variable "cluster_name" {
   description = "Name of the ECS cluster"
   type        = string
