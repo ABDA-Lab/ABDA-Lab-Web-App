@@ -16,6 +16,48 @@ resource "aws_iam_role" "ecs_instance_role" {
   })
 }
 
+resource "aws_iam_policy" "ecs_vpc_endpoints_policy" {
+  name        = "${var.cluster_name}-vpc-endpoints-policy"
+  description = "Allows ECS instances to use VPC Endpoints"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "ec2:DescribeInstances",
+          "ecs:DescribeClusters",
+          "ecs:RegisterContainerInstance",
+          "ecs:DeregisterContainerInstance",
+          "ecs:DiscoverPollEndpoint",
+          "ecs:StartTelemetrySession",
+          "ecs:Poll",
+          "ecs:Submit*",
+          "ecr:GetAuthorizationToken",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:BatchGetImage",
+          "s3:GetObject"
+        ],
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+# Attach Custom Policy to ECS Instance Role
+resource "aws_iam_role_policy_attachment" "ecs_vpc_endpoints_attach" {
+  role       = aws_iam_role.ecs_instance_role.name
+  policy_arn = aws_iam_policy.ecs_vpc_endpoints_policy.arn
+}
+
+# Attach CloudWatch Logs Policy (For ECS Logging)
+resource "aws_iam_role_policy_attachment" "ecs_cloudwatch_logs" {
+  role       = aws_iam_role.ecs_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchLogsFullAccess"
+}
+
 resource "aws_iam_role_policy_attachment" "ecs_instance_policy" {
   role       = aws_iam_role.ecs_instance_role.name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceforEC2Role"

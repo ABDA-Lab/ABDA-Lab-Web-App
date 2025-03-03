@@ -26,9 +26,12 @@ module "key_vault_lambda_edge_secret" {
 }
 
 module "vpc" {
-  source     = "./modules/vpc"
-  cidr_block = var.vpc_cidr
-  name       = var.vpc_name
+  source             = "./modules/vpc"
+  cidr_block         = var.vpc_cidr
+  name               = var.vpc_name
+  region             = var.region
+  private_subnet_ids = [module.private_subnet1.subnet_id, module.private_subnet2.subnet_id]
+  public_subnet_ids  = [module.public_subnet1.subnet_id, module.public_subnet2.subnet_id]
 }
 
 # Create Public Subnets for the ALB (and NAT Gateway)
