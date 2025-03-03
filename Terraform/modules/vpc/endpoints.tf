@@ -1,3 +1,4 @@
+# Create Security Group for VPC Endpoints (Allow Private Subnets to Connect)
 resource "aws_security_group" "vpc_endpoints_sg" {
   vpc_id = aws_vpc.this.id
   name   = "vpc-endpoints-sg"
@@ -18,45 +19,13 @@ resource "aws_security_group" "vpc_endpoints_sg" {
   }
 }
 
-# ECS VPC Endpoints (ECS Agent & Cluster Communication)
-resource "aws_vpc_endpoint" "ecs" {
-  vpc_id              = aws_vpc.this.id
-  service_name        = "com.amazonaws.${var.region}.ecs"
-  vpc_endpoint_type   = "Interface"
-  subnet_ids          = var.private_subnet_ids
-  security_group_ids  = [aws_security_group.vpc_endpoints_sg.id]
-  private_dns_enabled = true
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id            = aws_vpc.this.id
+  service_name      = "com.amazonaws.${var.region}.s3"
+  vpc_endpoint_type = "Gateway"
+  route_table_ids   = [aws_route_table.private.id] # Attach to private route table
 }
 
-resource "aws_vpc_endpoint" "ecs_agent" {
-  vpc_id              = aws_vpc.this.id
-  service_name        = "com.amazonaws.${var.region}.ecs-agent"
-  vpc_endpoint_type   = "Interface"
-  subnet_ids          = var.private_subnet_ids
-  security_group_ids  = [aws_security_group.vpc_endpoints_sg.id]
-  private_dns_enabled = true
-}
-
-resource "aws_vpc_endpoint" "ecs_telemetry" {
-  vpc_id              = aws_vpc.this.id
-  service_name        = "com.amazonaws.${var.region}.ecs-telemetry"
-  vpc_endpoint_type   = "Interface"
-  subnet_ids          = var.private_subnet_ids
-  security_group_ids  = [aws_security_group.vpc_endpoints_sg.id]
-  private_dns_enabled = true
-}
-
-# EC2 Metadata Service (For IAM Role Authentication)
-resource "aws_vpc_endpoint" "ec2" {
-  vpc_id              = aws_vpc.this.id
-  service_name        = "com.amazonaws.${var.region}.ec2"
-  vpc_endpoint_type   = "Interface"
-  subnet_ids          = var.private_subnet_ids
-  security_group_ids  = [aws_security_group.vpc_endpoints_sg.id]
-  private_dns_enabled = true
-}
-
-# ECR API Endpoint (For ECS to Authenticate & Pull Images)
 resource "aws_vpc_endpoint" "ecr_api" {
   vpc_id              = aws_vpc.this.id
   service_name        = "com.amazonaws.${var.region}.ecr.api"
@@ -66,7 +35,6 @@ resource "aws_vpc_endpoint" "ecr_api" {
   private_dns_enabled = true
 }
 
-# ECR DKR Endpoint (For Docker Image Registry)
 resource "aws_vpc_endpoint" "ecr_dkr" {
   vpc_id              = aws_vpc.this.id
   service_name        = "com.amazonaws.${var.region}.ecr.dkr"
@@ -76,7 +44,6 @@ resource "aws_vpc_endpoint" "ecr_dkr" {
   private_dns_enabled = true
 }
 
-# CloudWatch Logs (For ECS Logs)
 resource "aws_vpc_endpoint" "logs" {
   vpc_id              = aws_vpc.this.id
   service_name        = "com.amazonaws.${var.region}.logs"
@@ -85,4 +52,3 @@ resource "aws_vpc_endpoint" "logs" {
   security_group_ids  = [aws_security_group.vpc_endpoints_sg.id]
   private_dns_enabled = true
 }
-

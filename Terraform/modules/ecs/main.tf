@@ -3,22 +3,11 @@ resource "aws_ecs_cluster" "this" {
   name = var.cluster_name
 }
 
-# IAM Role for ECS Container Instances
-resource "aws_iam_role" "ecs_instance_role" {
-  name = "${var.cluster_name}-instance-role"
-  assume_role_policy = jsonencode({
-    Version   = "2012-10-17",
-    Statement = [{
-      Effect    = "Allow",
-      Principal = { Service = "ec2.amazonaws.com" },
-      Action    = "sts:AssumeRole"
-    }]
-  })
-}
 
+# IAM Role for ECS Container Instances
 resource "aws_iam_policy" "ecs_vpc_endpoints_policy" {
   name        = "${var.cluster_name}-vpc-endpoints-policy"
-  description = "Allows ECS instances to use VPC Endpoints"
+  description = "Allows ECS instances to pull images from Docker Hub & ECR, and send logs"
 
   policy = jsonencode({
     Version = "2012-10-17",
@@ -26,27 +15,29 @@ resource "aws_iam_policy" "ecs_vpc_endpoints_policy" {
       {
         Effect = "Allow",
         Action = [
-          "ec2:DescribeInstances",
-          "ecs:DescribeClusters",
-          "ecs:RegisterContainerInstance",
-          "ecs:DeregisterContainerInstance",
-          "ecs:DiscoverPollEndpoint",
-          "ecs:StartTelemetrySession",
-          "ecs:Poll",
-          "ecs:Submit*",
           "ecr:GetAuthorizationToken",
           "ecr:BatchCheckLayerAvailability",
           "ecr:GetDownloadUrlForLayer",
-          "ecr:BatchGetImage",
-          "s3:GetObject"
+          "ecr:BatchGetImage"
         ],
         Resource = "*"
+      },
+
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:GetObject",
+          "s3:ListBucket"
+        ],
+        Resource = [
+          "arn:aws:s3:::dockerhub-external", 
+          "arn:aws:s3:::dockerhub-external/*"
+        ]
       }
     ]
   })
 }
 
-# Attach Custom Policy to ECS Instance Role
 resource "aws_iam_role_policy_attachment" "ecs_vpc_endpoints_attach" {
   role       = aws_iam_role.ecs_instance_role.name
   policy_arn = aws_iam_policy.ecs_vpc_endpoints_policy.arn
