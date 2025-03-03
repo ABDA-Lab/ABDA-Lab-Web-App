@@ -29,7 +29,6 @@ resource "aws_route_table" "public" {
   }
 }
 
-# Private route table (no direct internet route; NAT gateway will be used)
 resource "aws_route_table" "private" {
   vpc_id = aws_vpc.this.id
 

@@ -7,7 +7,7 @@ resource "aws_ecs_cluster" "this" {
 resource "aws_iam_role" "ecs_instance_role" {
   name = "${var.cluster_name}-instance-role"
   assume_role_policy = jsonencode({
-    Version   = "2012-10-17",
+    Version = "2012-10-17",
     Statement = [{
       Effect    = "Allow",
       Principal = { Service = "ec2.amazonaws.com" },
@@ -56,9 +56,9 @@ resource "aws_security_group" "ecs_instance_sg" {
   }
 
   egress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
