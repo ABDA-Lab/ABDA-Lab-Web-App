@@ -16,6 +16,10 @@ resource "aws_iam_role" "ecs_instance_role" {
   })
 }
 
+resource "aws_iam_role_policy_attachment" "ecs_ecr_policy" {
+  role       = aws_iam_role.ecs_instance_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
 
 # Attach CloudWatch Logs Policy (For ECS Logging)
 resource "aws_iam_role_policy_attachment" "ecs_cloudwatch_logs" {
@@ -52,9 +56,9 @@ resource "aws_security_group" "ecs_instance_sg" {
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 

@@ -104,8 +104,8 @@ module "microservice" {
 module "utility_service" {
   source                       = "./service"
   name                         = "utility-service"
-  cpu                          = 512 # Combined CPU for both containers
-  memory                       = 512 # Combined memory for both containers
+  cpu                          = 256 # Combined CPU for both containers
+  memory                       = 256 # Combined memory for both containers
   desired_count                = 1
   ecs_cluster_id               = aws_ecs_cluster.this.id
   alb_target_group_arn         = var.alb_target_group_arn # Not used if no container exposes a port
@@ -119,33 +119,11 @@ module "utility_service" {
 
   container_definitions = [
     {
-      container_name      = "rabbit-mq"
-      name                = "rabbitmq"
-      use_dockerhub       = true
-      ecr_repository_name = "rabbit-mq" # Not used when using Docker Hub
-      image_tag           = "3-management"
-      command             = []
-      env_vars = {
-        RABBITMQ_DEFAULT_USER = var.rabbitmq_username
-        RABBITMQ_DEFAULT_PASS = var.rabbitmq_password
-      }
-      mount_points   = [] # You can define container-level mount points if needed
-      expose_port    = true
-      container_port = 5672
-      health_check = {
-        command     = ["CMD", "rabbitmqctl", "status"]
-        interval    = 5
-        timeout     = 3
-        retries     = 5
-        startPeriod = 0
-      }
-    },
-    {
-      container_name      = "redis"
-      name                = "redis"
-      use_dockerhub       = true
-      ecr_repository_name = "redis"
-      image_tag           = "alpine"
+      container_name      = local.services_list[2]
+      name                = local.services_list[2]
+      use_dockerhub       = false
+      ecr_repository_name = local.services_list[2]
+      image_tag           = "latest"
       command             = ["redis-server", "--requirepass", var.redis_password]
       env_vars            = {}
       mount_points = [
@@ -159,6 +137,28 @@ module "utility_service" {
       container_port = 6379
       health_check = {
         command     = ["CMD", "redis-cli", "-a", var.redis_password, "ping"]
+        interval    = 5
+        timeout     = 3
+        retries     = 5
+        startPeriod = 0
+      }
+    },
+    {
+      container_name      = local.services_list[3]
+      name                = local.services_list[3]
+      use_dockerhub       = false
+      ecr_repository_name = local.services_list[3]
+      image_tag           = "latest"
+      command             = []
+      env_vars = {
+        RABBITMQ_DEFAULT_USER = var.rabbitmq_username
+        RABBITMQ_DEFAULT_PASS = var.rabbitmq_password
+      }
+      mount_points   = [] # You can define container-level mount points if needed
+      expose_port    = true
+      container_port = 5672
+      health_check = {
+        command     = ["CMD", "rabbitmqctl", "status"]
         interval    = 5
         timeout     = 3
         retries     = 5

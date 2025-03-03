@@ -56,7 +56,7 @@ variable "vpc_name" {
 variable "enable_nat" {
   description = "Enable or disable NAT Gateway"
   type        = bool
-  default     = true
+  default     = false
 }
 
 variable "cluster_name" {
