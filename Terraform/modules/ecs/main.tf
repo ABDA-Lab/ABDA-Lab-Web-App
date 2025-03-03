@@ -3,8 +3,19 @@ resource "aws_ecs_cluster" "this" {
   name = var.cluster_name
 }
 
-
 # IAM Role for ECS Container Instances
+resource "aws_iam_role" "ecs_instance_role" {
+  name = "${var.cluster_name}-instance-role"
+  assume_role_policy = jsonencode({
+    Version   = "2012-10-17",
+    Statement = [{
+      Effect    = "Allow",
+      Principal = { Service = "ec2.amazonaws.com" },
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
 resource "aws_iam_policy" "ecs_vpc_endpoints_policy" {
   name        = "${var.cluster_name}-vpc-endpoints-policy"
   description = "Allows ECS instances to pull images from Docker Hub & ECR, and send logs"
