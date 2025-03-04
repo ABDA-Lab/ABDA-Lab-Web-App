@@ -68,14 +68,10 @@ resource "aws_launch_template" "ecs_instance" {
   image_id      = var.ecs_ami_id
   instance_type = var.instance_type
 
+  vpc_security_group_ids = [aws_security_group.ecs_instance_sg.id]
 
   iam_instance_profile {
     name = aws_iam_instance_profile.ecs_instance_profile.name
-  }
-  network_interfaces {
-    device_index                = 0
-    associate_public_ip_address = false
-    security_groups             = [aws_security_group.ecs_instance_sg.id]
   }
   
   user_data = base64encode(<<EOF
