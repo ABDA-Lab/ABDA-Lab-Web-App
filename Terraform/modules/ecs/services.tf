@@ -104,8 +104,8 @@ module "microservice" {
 module "utility_service" {
   source                       = "./service"
   name                         = "utility-service"
-  cpu                          = 256 # Combined CPU for both containers
-  memory                       = 256 # Combined memory for both containers
+  cpu                          = 512 # Combined CPU for both containers
+  memory                       = 512 # Combined memory for both containers
   desired_count                = 1
   ecs_cluster_id               = aws_ecs_cluster.this.id
   alb_target_group_arn         = var.alb_target_group_arn # Not used if no container exposes a port
