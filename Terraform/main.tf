@@ -118,6 +118,7 @@ module "ecs" {
   instance_type         = var.instance_type
   region                = var.region
   subnet_ids            = [module.public_subnet1.subnet_id, module.public_subnet1.subnet_id]
+  # subnet_ids            = [module.private_subnet1.subnet_id, module.private_subnet2.subnet_id]
   desired_capacity      = var.desired_capacity
   max_size              = var.max_size
   min_size              = var.min_size
