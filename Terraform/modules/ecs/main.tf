@@ -16,10 +16,6 @@ resource "aws_iam_role" "ecs_instance_role" {
   })
 }
 
-resource "aws_iam_role_policy_attachment" "ecs_ecr_policy" {
-  role       = aws_iam_role.ecs_instance_role.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
-}
 
 # Attach CloudWatch Logs Policy (For ECS Logging)
 resource "aws_iam_role_policy_attachment" "ecs_cloudwatch_logs" {
