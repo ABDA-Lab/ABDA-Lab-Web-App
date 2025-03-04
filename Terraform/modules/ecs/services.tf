@@ -158,7 +158,7 @@ module "utility_service" {
       expose_port    = true
       container_port = 5672
       health_check = {
-        command     = ["CMD", "rabbitmqctl", "status"]
+        command     = ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
         interval    = 5
         timeout     = 3
         retries     = 5
