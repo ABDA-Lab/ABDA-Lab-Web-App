@@ -154,11 +154,17 @@ module "utility_service" {
         RABBITMQ_DEFAULT_USER = var.rabbitmq_username
         RABBITMQ_DEFAULT_PASS = var.rabbitmq_password
       }
-      mount_points   = [] # You can define container-level mount points if needed
+      mount_points   = [
+        {
+          name           = "rabbitmq-data"
+          container_path = "/var/lib/rabbitmq"
+          read_only      = false
+        }
+      ] # You can define container-level mount points if needed
       expose_port    = true
       container_port = 5672
       health_check = {
-        command     = ["CMD", "rabbitmq-diagnostics", "-q", "check_running"]
+        command     = ["CMD", "rabbitmqctl", "status"]
         interval    = 5
         timeout     = 3
         retries     = 5
