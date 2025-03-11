@@ -24,3 +24,4 @@ SERVICES=service-name-in-docker-compose-1 next-service-name next-service
 aws-nuke nuke -c nuke-config.yaml --profile terraform-user #list resources will be delete
 aws-nuke nuke -c nuke-config.yaml --no-dry-run --profile terraform-user #actual delete
 
+--no-alias-check
