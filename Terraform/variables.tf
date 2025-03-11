@@ -150,40 +150,6 @@ variable "services" {
 }
 
 
-# ===============================
-# Database Configuration
-# ===============================
-
-variable "database_host" {
-  description = "Database host address"
-  type        = string
-}
-
-variable "database_port" {
-  description = "Database port"
-  type        = string
-  default     = "5432"
-}
-
-variable "database_name" {
-  description = "Database name"
-  type        = string
-}
-
-variable "database_username" {
-  description = "Database username"
-  type        = string
-}
-
-variable "database_password" {
-  description = "Database password"
-  type        = string
-  sensitive   = true
-}
-
-# ===============================
-# RabbitMQ Configuration
-# ===============================
 
 variable "rabbitmq_username" {
   description = "RabbitMQ username"
@@ -195,10 +161,6 @@ variable "rabbitmq_password" {
   type        = string
   sensitive   = true
 }
-
-# ===============================
-# Redis Configuration
-# ===============================
 
 variable "redis_password" {
   description = "Redis password"
