@@ -9,7 +9,7 @@ resource "aws_security_group" "alb_sg" {
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Allow traffic from anywhere
+    cidr_blocks = ["0.0.0.0/0"] # Allow traffic from anywhere
   }
 
   # Allow inbound HTTPS (port 443)
@@ -18,7 +18,7 @@ resource "aws_security_group" "alb_sg" {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Allow traffic from anywhere
+    cidr_blocks = ["0.0.0.0/0"] # Allow traffic from anywhere
   }
 
   dynamic "egress" {
@@ -51,7 +51,7 @@ resource "aws_lb" "this" {
 resource "aws_lb_target_group" "this" {
   for_each = var.exposed_containers
 
-  name        = substr(regexreplace("${var.load_balancer_name}-tg-${each.key}", "[^A-Za-z0-9-]", ""), 0, 32)
+  name = substr(replace("${var.load_balancer_name}-tg-${each.key}", "/[^A-Za-z0-9-]/", ""), 0, 32)
   port        = each.value.container_port
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
@@ -116,7 +116,7 @@ resource "aws_lb_listener_rule" "http_rules" {
   priority     = 100 + count.index
 
   action {
-    type             = "forward"
+    type = "forward"
     target_group_arn = aws_lb_target_group.this[
       element(keys(var.exposed_containers), count.index)
     ].arn
