@@ -106,6 +106,8 @@ resource "aws_ecs_task_definition" "this" {
     }
   }
 
+  
+
   container_definitions = jsonencode([
     for container in var.container_definitions : {
       name  = container.container_name
@@ -163,6 +165,7 @@ resource "aws_ecs_task_definition" "this" {
       ] : []
     }
   ])
+  
 }
 
 resource "aws_ecs_service" "this" {
@@ -171,6 +174,7 @@ resource "aws_ecs_service" "this" {
   task_definition = aws_ecs_task_definition.this.arn
   desired_count   = var.desired_count
   launch_type     = "EC2"
+
 
   service_registries {
     registry_arn = aws_service_discovery_service.this.arn
@@ -186,7 +190,7 @@ resource "aws_ecs_service" "this" {
     }
   }
 
-  deployment_minimum_healthy_percent = 50
+  deployment_minimum_healthy_percent = 0
   deployment_maximum_percent         = 200
 
   network_configuration {
@@ -202,6 +206,52 @@ resource "aws_ecs_service" "this" {
 
   timeouts {
     delete = "30m"
+  }
+}
+
+resource "aws_appautoscaling_target" "ecs_target" {
+  max_capacity       = 10  # Max number of tasks
+  min_capacity       = 1   # Min number of tasks
+  resource_id        = "service/${var.ecs_cluster_id}/${aws_ecs_service.this.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+}
+
+# Auto Scaling Policy - Scale up when CPU usage is high
+resource "aws_appautoscaling_policy" "ecs_scale_up" {
+  name               = "${var.name}-scale-up"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.ecs_target.resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs_target.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.ecs_target.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    target_value       = 70.0
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+
+    scale_in_cooldown  = 300
+    scale_out_cooldown = 300
+  }
+}
+
+# Auto Scaling Policy - Scale down when CPU usage is low
+resource "aws_appautoscaling_policy" "ecs_scale_down" {
+  name               = "${var.name}-scale-down"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.ecs_target.resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs_target.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.ecs_target.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    target_value       = 30.0
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+
+    scale_in_cooldown  = 300
+    scale_out_cooldown = 300
   }
 }
 
