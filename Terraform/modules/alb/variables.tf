@@ -41,3 +41,11 @@ variable "container_port" {
   description = "Port on which the container listens"
   type        = number
 }
+
+variable "exposed_containers" {
+  description = "Map of exposed containers with their ports"
+  type = map(object({
+    container_port = number
+  }))
+  default = {}
+}

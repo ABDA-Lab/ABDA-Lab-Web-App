@@ -46,8 +46,10 @@ resource "aws_lb" "this" {
 }
 
 resource "aws_lb_target_group" "this" {
-  name        = "${var.load_balancer_name}-tg"
-  port        = var.target_port
+  for_each = var.exposed_containers
+
+  name        = "${var.load_balancer_name}-tg-${each.key}"
+  port        = each.value.container_port
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
   target_type = "ip"
@@ -61,38 +63,24 @@ resource "aws_lb_target_group" "this" {
     timeout             = 5
   }
 
-
   tags = {
-    Name = "${var.load_balancer_name}-tg"
+    Name = "${var.load_balancer_name}-tg-${each.key}"
   }
 }
 
-# HTTP-only listener if no certificate ARN is provided
+# Next, define a listener (HTTP or HTTPS) with a default action.
 resource "aws_lb_listener" "http" {
   count             = var.certificate_arn == "" ? 1 : 0
-  load_balancer_arn = aws_lb.this.arn
-  port              = var.listener_port
-  protocol          = "HTTP"
-
-  default_action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.this.arn
-  }
-}
-
-# When certificate ARN is provided, redirect HTTP to HTTPS and create an HTTPS listener
-resource "aws_lb_listener" "http_redirect" {
-  count             = var.certificate_arn != "" ? 1 : 0
   load_balancer_arn = aws_lb.this.arn
   port              = 80
   protocol          = "HTTP"
 
   default_action {
-    type = "redirect"
-    redirect {
-      protocol    = "HTTPS"
-      port        = "443"
-      status_code = "HTTP_301"
+    type = "fixed-response"
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "Not found"
+      status_code  = 404
     }
   }
 }
@@ -102,11 +90,39 @@ resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.this.arn
   port              = 443
   protocol          = "HTTPS"
-  ssl_policy        = "ELBSecurityPolicy-2016-08"
   certificate_arn   = var.certificate_arn
+  ssl_policy        = "ELBSecurityPolicy-2016-08"
 
   default_action {
+    type = "fixed-response"
+    fixed_response {
+      content_type = "text/plain"
+      message_body = "Not found"
+      status_code  = 404
+    }
+  }
+}
+
+# Then, create one or more listener rules that map specific paths (or hosts) to each target group.
+# For example, path-based:
+resource "aws_lb_listener_rule" "http_rules" {
+  # Only if you have an http listener:
+  count = var.certificate_arn == "" ? length(var.exposed_containers) : 0
+
+  listener_arn = aws_lb_listener.http[0].arn
+  priority     = 100 + count.index
+
+  action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.this.arn
+    target_group_arn = aws_lb_target_group.this[
+      element(keys(var.exposed_containers), count.index)
+    ].arn
+  }
+
+  condition {
+    path_pattern {
+      # e.g. /redis/* -> the redis container, /rabbitmq/* -> the rabbitmq container
+      values = ["/${element(keys(var.exposed_containers), count.index)}/*"]
+    }
   }
 }

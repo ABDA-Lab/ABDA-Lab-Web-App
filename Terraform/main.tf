@@ -108,6 +108,7 @@ module "alb" {
   health_check_path  = var.health_check_path
   certificate_arn    = var.certificate_arn # Supply certificate ARN for HTTPS; leave empty for HTTP-only
   container_port     = var.container_port
+  exposed_containers = module.ecs.local.exposed_containers
 }
 
 module "ecs" {

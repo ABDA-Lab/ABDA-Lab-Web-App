@@ -11,6 +11,11 @@ locals {
       password = local.database_list[i * 5 + 4]
     }
   ]
+
+  all_exposed_containers = merge(
+    module.microservice.exposed_containers,
+    module.utility_service.exposed_containers
+  )
 }
 
 module "microservice" {

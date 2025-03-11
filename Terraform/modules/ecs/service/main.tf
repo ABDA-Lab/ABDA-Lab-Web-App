@@ -1,5 +1,5 @@
 resource "aws_service_discovery_private_dns_namespace" "this" {
-  name        = "${var.name}.local" # Change domain name if needed
+  name        = "${var.name}.local"  # Change domain name if needed
   vpc         = var.vpc_id
   description = "Service discovery namespace for ${var.name}"
 }
@@ -11,7 +11,7 @@ resource "aws_service_discovery_service" "this" {
     namespace_id = aws_service_discovery_private_dns_namespace.this.id
     dns_records {
       ttl  = 10
-      type = "A" # Use A record for awsvpc mode (IP-based)
+      type = "A"  # Use A record for awsvpc mode (IP-based)
     }
     routing_policy = "MULTIVALUE"
   }
@@ -38,7 +38,7 @@ locals {
 
   # Deduplicate volumes by their name.
   volumes_from_containers = { for vol in local.flat_volumes : vol.name => vol }
-  unique_volumes          = values(local.volumes_from_containers)
+  unique_volumes = values(local.volumes_from_containers)
 }
 
 
@@ -94,23 +94,23 @@ resource "aws_ecs_task_definition" "this" {
   network_mode             = "awsvpc"
   requires_compatibilities = ["EC2"]
   # Task-level CPU and memory values must be sufficient to run all containers.
-  cpu    = var.cpu
-  memory = var.memory
+  cpu                      = var.cpu
+  memory                   = var.memory
 
   # Dynamically generate volume definitions from container mount points.
   dynamic "volume" {
     for_each = local.unique_volumes
     content {
-      name      = volume.value.name
+      name = volume.value.name
       host_path = volume.value.host_path != "" ? volume.value.host_path : null
     }
   }
 
-
+  
 
   container_definitions = jsonencode([
     for container in var.container_definitions : {
-      name = container.container_name
+      name  = container.container_name
 
       image = container.use_dockerhub ? "${container.name}:${container.image_tag}" : "${data.aws_ecr_repository.app[container.ecr_repository_name].repository_url}:${container.image_tag}"
 
@@ -123,7 +123,7 @@ resource "aws_ecs_task_definition" "this" {
           value = value
         }
       ]
-
+      
       mountPoints = container.mount_points != null ? [
         for mount in container.mount_points : {
           sourceVolume  = mount.name
@@ -165,18 +165,7 @@ resource "aws_ecs_task_definition" "this" {
       ] : []
     }
   ])
-
-}
-resource "aws_alb_target_group" "tg" {
-  for_each = {
-    for c in var.container_definitions : c.container_name => c
-    if c.expose_port
-  }
-  name        = "tg-${each.key}"
-  port        = each.value.container_port
-  protocol    = "HTTP"
-  vpc_id      = var.vpc_id
-  target_type = "ip"
+  
 }
 
 resource "aws_ecs_service" "this" {
@@ -193,14 +182,11 @@ resource "aws_ecs_service" "this" {
 
   # For load balancing, we assume that one of the containers (e.g. the first in the list) exposes a port.
   dynamic "load_balancer" {
-    for_each = {
-      for c in var.container_definitions : c.container_name => c
-      if c.expose_port
-    }
+    for_each = var.container_definitions[0].expose_port ? [1] : []
     content {
-      target_group_arn = aws_alb_target_group.tg[load_balancer.key].arn
-      container_name   = load_balancer.value.container_name
-      container_port   = load_balancer.value.container_port
+      target_group_arn = var.alb_target_group_arn
+      container_name   = var.container_definitions[0].container_name
+      container_port   = var.container_definitions[0].container_port
     }
   }
 
@@ -208,8 +194,8 @@ resource "aws_ecs_service" "this" {
   deployment_maximum_percent         = 200
 
   network_configuration {
-    subnets          = var.subnet_ids
-    security_groups  = [var.security_group_id]
+    subnets         = var.subnet_ids
+    security_groups = [var.security_group_id]
     assign_public_ip = false
   }
 
@@ -224,8 +210,8 @@ resource "aws_ecs_service" "this" {
 }
 
 resource "aws_appautoscaling_target" "ecs_target" {
-  max_capacity       = 10 # Max number of tasks
-  min_capacity       = 1  # Min number of tasks
+  max_capacity       = 10  # Max number of tasks
+  min_capacity       = 1   # Min number of tasks
   resource_id        = "service/${var.ecs_cluster_id}/${aws_ecs_service.this.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
@@ -240,7 +226,7 @@ resource "aws_appautoscaling_policy" "ecs_scale_up" {
   service_namespace  = aws_appautoscaling_target.ecs_target.service_namespace
 
   target_tracking_scaling_policy_configuration {
-    target_value = 95.0
+    target_value       = 95.0
     predefined_metric_specification {
       predefined_metric_type = "ECSServiceAverageCPUUtilization"
     }
@@ -259,7 +245,7 @@ resource "aws_appautoscaling_policy" "ecs_scale_down" {
   service_namespace  = aws_appautoscaling_target.ecs_target.service_namespace
 
   target_tracking_scaling_policy_configuration {
-    target_value = 30.0
+    target_value       = 30.0
     predefined_metric_specification {
       predefined_metric_type = "ECSServiceAverageCPUUtilization"
     }
@@ -274,7 +260,7 @@ data "aws_caller_identity" "current" {}
 resource "aws_iam_policy" "ecs_logging_policy" {
   name        = "${var.name}-ecs-logging-policy"
   description = "Allows ECS tasks to write logs to CloudWatch"
-  policy = jsonencode({
+  policy      = jsonencode({
     Version = "2012-10-17",
     Statement = [
       {
