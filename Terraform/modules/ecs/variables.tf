@@ -105,3 +105,8 @@ variable "redis_password" {
   type        = string
   sensitive   = true
 }
+
+variable "alb" {
+  description = "Reference to the ALB module for dependency tracking"
+  type        = any
+}

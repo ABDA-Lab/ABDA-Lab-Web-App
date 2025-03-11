@@ -197,7 +197,7 @@ module "microservice" {
   vpc_id = var.vpc_id
   depends_on = [
     module.utility_service,
-    module.alb
+    var.alb
   ]
   container_definitions = [
     local.container_definitions.api_gateway,
@@ -221,7 +221,7 @@ module "utility_service" {
   region = var.region
   vpc_id = var.vpc_id
   depends_on = [
-    module.alb 
+    var.alb
   ]
   container_definitions = [
     local.container_definitions.redis_service,

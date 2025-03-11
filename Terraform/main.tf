@@ -132,4 +132,5 @@ module "ecs" {
   redis_password        = var.redis_password
   rabbitmq_password     = var.rabbitmq_password
   rabbitmq_username     = var.rabbitmq_username
+  alb                   = module.alb
 }
