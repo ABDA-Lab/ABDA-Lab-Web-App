@@ -167,6 +167,16 @@ resource "aws_ecs_task_definition" "this" {
   ])
 
 }
+resource "aws_alb_target_group" "tg" {
+  for_each = {
+    for c in var.container_definitions : c.container_name => c
+    if c.expose_port
+  }
+  name        = "tg-${each.key}"
+  port        = each.value.container_port
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
+}
 
 resource "aws_ecs_service" "this" {
   name            = "${var.name}-service"
@@ -187,7 +197,7 @@ resource "aws_ecs_service" "this" {
       if c.expose_port
     }
     content {
-      target_group_arn = var.alb_target_group_arn
+      target_group_arn = aws_alb_target_group.tg[load_balancer.key].arn
       container_name   = load_balancer.value.container_name
       container_port   = load_balancer.value.container_port
     }
