@@ -155,8 +155,8 @@ resource "aws_ecs_task_definition" "this" {
         startPeriod = container.health_check.startPeriod
       }
 
-      dependsOn = container.dependsOn != null ? [
-        for d in container.dependsOn : {
+      dependsOn = container.depend_on != null ? [
+        for d in container.depend_on : {
           containerName = d.containerName
           condition     = d.condition
         }
