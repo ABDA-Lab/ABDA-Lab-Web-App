@@ -133,4 +133,5 @@ module "ecs" {
   container_port        = var.container_port
   alb_security_group_id = module.alb.alb_sg_id
   alb_target_group_arns = module.alb.target_group_arns
+  container_definitions = module.container_config.container_definitions
 }
