@@ -126,11 +126,8 @@ module "ecs" {
   alb_security_group_id = module.alb.alb_sg_id
   alb_target_group_arn  = module.alb.target_group_arn
   services              = var.services
-  database_host         = var.database_host
-  database_name         = var.database_name
-  database_username     = var.database_username
-  database_password     = var.database_password
-  database_port         = var.database_port
+  database              = var.database
+  jwt_key               = var.jwt_key
   redis_password        = var.redis_password
   rabbitmq_password     = var.rabbitmq_password
   rabbitmq_username     = var.rabbitmq_username

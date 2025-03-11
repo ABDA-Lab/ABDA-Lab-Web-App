@@ -89,6 +89,19 @@ variable "max_size" {
   default     = 3
 }
 
+variable "database" {
+  description = "Database"
+  type        = string
+  default     = ""
+}
+
+variable "jwt_key" {
+  description = "Database"
+  type        = string
+  default     = ""
+}
+
+
 variable "min_size" {
   description = "Minimum number of ECS container instances in the ASG"
   type        = number

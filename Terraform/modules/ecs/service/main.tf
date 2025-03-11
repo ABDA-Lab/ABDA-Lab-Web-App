@@ -154,6 +154,13 @@ resource "aws_ecs_task_definition" "this" {
         retries     = container.health_check.retries
         startPeriod = container.health_check.startPeriod
       }
+
+      dependsOn = container.dependsOn != null ? [
+        for d in container.dependsOn : {
+          containerName = d.containerName
+          condition     = d.condition
+        }
+      ] : []
     }
   ])
 }
