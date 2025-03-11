@@ -69,3 +69,8 @@ variable "region" {
   description = "The AWS region where the ECS cluster is deployed"
   type        = string
 }
+
+variable "container_definitions" {
+  description = "Map of container definitions for the service"
+  type        = map(any)
+}

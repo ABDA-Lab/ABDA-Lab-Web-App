@@ -18,9 +18,9 @@ module "microservice" {
     module.utility_service,
   ]
   container_definitions = [
-    local.container_definitions.api_gateway,
-    local.container_definitions.user_microservice,
-    local.container_definitions.identity_microservice
+    var.container_definitions.api_gateway,
+    var.container_definitions.user_microservice,
+    var.container_definitions.identity_microservice
   ]
 }
 
@@ -41,7 +41,7 @@ module "utility_service" {
   depends_on = [
   ]
   container_definitions = [
-    local.container_definitions.redis_service,
-    local.container_definitions.rabbitmq_service
+    var.container_definitions.redis_service,
+    var.container_definitions.rabbitmq_service
   ]
 }
