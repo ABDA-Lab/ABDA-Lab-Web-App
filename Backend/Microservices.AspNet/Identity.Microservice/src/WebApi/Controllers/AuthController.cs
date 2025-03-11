@@ -15,7 +15,11 @@ namespace WebApi.Controllers
         public AuthController(IMediator mediator) : base(mediator)
         {
         }
-
+        [HttpGet("health")]
+        public IActionResult Health(CancellationToken cancellationToken)
+        {
+            return Ok();
+        }
         //POST api/auth/register
         //Body
         //  {

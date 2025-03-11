@@ -1,0 +1,17 @@
+regions:
+  - global
+  - us-east-1
+
+blocklist:
+- "999999999999"
+
+resource-types:
+  excludes:
+  - IAMUser
+  - IAMUserPolicyAttachment
+  - IAMUserPolicy
+  - IAMUserAccessKey
+
+
+accounts:
+  "242201290212": {} 

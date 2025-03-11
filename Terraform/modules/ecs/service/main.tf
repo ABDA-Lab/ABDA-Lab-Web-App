@@ -1,3 +1,26 @@
+resource "aws_service_discovery_private_dns_namespace" "this" {
+  name        = "${var.name}.local"  # Change domain name if needed
+  vpc         = var.vpc_id
+  description = "Service discovery namespace for ${var.name}"
+}
+
+resource "aws_service_discovery_service" "this" {
+  name = "${var.name}-cloudmap"
+
+  dns_config {
+    namespace_id = aws_service_discovery_private_dns_namespace.this.id
+    dns_records {
+      ttl  = 10
+      type = "A"  # Use A record for awsvpc mode (IP-based)
+    }
+    routing_policy = "MULTIVALUE"
+  }
+
+  health_check_custom_config {
+    failure_threshold = 2
+  }
+}
+
 locals {
   # Flatten all container mount points.
   container_volumes = flatten([
@@ -131,6 +154,13 @@ resource "aws_ecs_task_definition" "this" {
         retries     = container.health_check.retries
         startPeriod = container.health_check.startPeriod
       }
+
+      dependsOn = container.dependsOn != null ? [
+        for d in container.dependsOn : {
+          containerName = d.containerName
+          condition     = d.condition
+        }
+      ] : []
     }
   ])
 }
@@ -141,6 +171,10 @@ resource "aws_ecs_service" "this" {
   task_definition = aws_ecs_task_definition.this.arn
   desired_count   = var.desired_count
   launch_type     = "EC2"
+
+  service_registries {
+    registry_arn = aws_service_discovery_service.this.arn
+  }
 
   # For load balancing, we assume that one of the containers (e.g. the first in the list) exposes a port.
   dynamic "load_balancer" {

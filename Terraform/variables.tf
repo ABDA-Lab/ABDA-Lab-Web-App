@@ -53,6 +53,12 @@ variable "vpc_name" {
   default     = "khang-vpc"
 }
 
+variable "enable_nat" {
+  description = "Enable or disable NAT Gateway"
+  type        = bool
+  default     = false
+}
+
 variable "cluster_name" {
   description = "Name of the ECS cluster"
   type        = string
@@ -83,6 +89,19 @@ variable "max_size" {
   default     = 3
 }
 
+variable "database" {
+  description = "Database"
+  type        = string
+  default     = ""
+}
+
+variable "jwt_key" {
+  description = "Database"
+  type        = string
+  default     = ""
+}
+
+
 variable "min_size" {
   description = "Minimum number of ECS container instances in the ASG"
   type        = number
@@ -92,7 +111,7 @@ variable "min_size" {
 variable "alb_name" {
   description = "Name for the Application Load Balancer"
   type        = string
-  default     = "khang-alb"
+  default     = "khang-load-balancer"
 }
 
 variable "target_port" {

@@ -26,9 +26,12 @@ module "key_vault_lambda_edge_secret" {
 }
 
 module "vpc" {
-  source     = "./modules/vpc"
-  cidr_block = var.vpc_cidr
-  name       = var.vpc_name
+  source             = "./modules/vpc"
+  cidr_block         = var.vpc_cidr
+  name               = var.vpc_name
+  region             = var.region
+  private_subnet_ids = [module.private_subnet1.subnet_id, module.private_subnet2.subnet_id]
+  public_subnet_ids  = [module.public_subnet1.subnet_id, module.public_subnet2.subnet_id]
 }
 
 # Create Public Subnets for the ALB (and NAT Gateway)
@@ -75,11 +78,13 @@ module "private_subnet2" {
 
 # Create NAT Gateway for private subnets outbound access
 resource "aws_eip" "nat" {
+  count                     = var.enable_nat ? 1 : 0
   associate_with_private_ip = true
 }
 
 resource "aws_nat_gateway" "this" {
-  allocation_id = aws_eip.nat.id
+  count         = var.enable_nat ? 1 : 0
+  allocation_id = var.enable_nat ? aws_eip.nat[0].id : null
   subnet_id     = module.public_subnet1.subnet_id
 
   depends_on = [module.public_subnet1]
@@ -87,9 +92,10 @@ resource "aws_nat_gateway" "this" {
 
 # Update the Private Route Table to use the NAT Gateway
 resource "aws_route" "private_nat" {
+  count                  = var.enable_nat ? 1 : 0
   route_table_id         = module.vpc.private_rt_id
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = aws_nat_gateway.this.id
+  nat_gateway_id         = var.enable_nat ? aws_nat_gateway.this[0].id : null
 }
 
 module "alb" {
@@ -110,9 +116,9 @@ module "ecs" {
   vpc_id        = module.vpc.vpc_id
   ecs_ami_id    = var.ecs_ami_id
   instance_type = var.instance_type
-  # Use the private subnets for ECS tasks
-  region                = var.region
-  subnet_ids            = [module.private_subnet1.subnet_id, module.private_subnet2.subnet_id]
+  region        = var.region
+  subnet_ids    = [module.public_subnet1.subnet_id, module.public_subnet1.subnet_id]
+  # subnet_ids            = [module.private_subnet1.subnet_id, module.private_subnet2.subnet_id]
   desired_capacity      = var.desired_capacity
   max_size              = var.max_size
   min_size              = var.min_size
@@ -120,11 +126,8 @@ module "ecs" {
   alb_security_group_id = module.alb.alb_sg_id
   alb_target_group_arn  = module.alb.target_group_arn
   services              = var.services
-  database_host         = var.database_host
-  database_name         = var.database_name
-  database_username     = var.database_username
-  database_password     = var.database_password
-  database_port         = var.database_port
+  database              = var.database
+  jwt_key               = var.jwt_key
   redis_password        = var.redis_password
   rabbitmq_password     = var.rabbitmq_password
   rabbitmq_username     = var.rabbitmq_username

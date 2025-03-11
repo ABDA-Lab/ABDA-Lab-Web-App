@@ -82,8 +82,18 @@ variable "container_definitions" {
       retries     = number
       startPeriod = number
     }), null)
+    depend_on = optional(list(object({
+      containerName = string
+      condition     = string
+    })), [])
   }))
   default = []
+}
+
+
+variable "vpc_id" {
+  description = "VPC ID where the ALB is deployed"
+  type        = string
 }
 
 variable "ecs_task_execution_role_name" {
