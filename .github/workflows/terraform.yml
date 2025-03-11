@@ -186,7 +186,7 @@ jobs:
             -var="rabbitmq_password=${RABBITMQ_PASSWORD}" \
             -var="redis_password=${REDIS_PASSWORD}" \
             -var="database=${DATABASE}" \
-            -var-"jwt_key=${JWT_KEY}" \
+            -var="jwt_key=${JWT_KEY}" \
             -out=tfplan
 
       - name: Terraform Apply
