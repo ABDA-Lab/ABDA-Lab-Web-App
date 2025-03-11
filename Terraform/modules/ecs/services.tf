@@ -16,8 +16,8 @@ locals {
 module "microservice" {
   source                       = "./service"
   name                         = "microservice"
-  cpu                          = 800
-  memory                       = 700
+  cpu                          = 1000
+  memory                       = 800
   desired_count                = 1
   ecs_cluster_id               = aws_ecs_cluster.this.id
   alb_target_group_arn         = var.alb_target_group_arn
