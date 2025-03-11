@@ -49,11 +49,20 @@ variable "alb_security_group_id" {
 }
 
 
-variable "alb_target_group_arn" {
-  description = "Target Group ARN from the ALB module"
-  type        = string
-}
+variable "alb_target_group_arns" {
+  description = <<EOT
+Map of container_name => ALB target group ARN.
 
+Example:
+{
+  "gateway"  = "arn:aws:elasticloadbalancing:us-east-1:1234:targetgroup/gateway-tg/abcd1234",
+  "redis"    = "arn:aws:elasticloadbalancing:us-east-1:1234:targetgroup/redis-tg/abcd2345"
+  ...
+}
+EOT
+  type    = map(string)
+  default = {}
+}
 variable "services" {
   description = "Space-separated list of service names"
   type        = string

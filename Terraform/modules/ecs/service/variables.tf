@@ -26,10 +26,7 @@ variable "ecs_cluster_id" {
   type        = string
 }
 
-variable "alb_target_group_arn" {
-  description = "ALB Target Group ARN"
-  type        = string
-}
+
 
 variable "subnet_ids" {
   description = "List of subnets for the service"
@@ -99,4 +96,20 @@ variable "vpc_id" {
 variable "ecs_task_execution_role_name" {
   description = "The name of the IAM role used by ECS task execution"
   type        = string
+}
+
+
+variable "alb_target_group_arns" {
+  description = <<EOT
+Map of container_name => ALB target group ARN.
+
+Example:
+{
+  "gateway"  = "arn:aws:elasticloadbalancing:us-east-1:1234:targetgroup/gateway-tg/abcd1234",
+  "redis"    = "arn:aws:elasticloadbalancing:us-east-1:1234:targetgroup/redis-tg/abcd2345"
+  ...
+}
+EOT
+  type    = map(string)
+  default = {}
 }

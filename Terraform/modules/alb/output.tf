@@ -1,11 +1,16 @@
+
 output "load_balancer_dns_name" {
   description = "DNS name of the ALB"
   value       = aws_lb.this.dns_name
 }
 
-output "target_group_arn" {
-  description = "ARN of the target group"
-  value       = aws_lb_target_group.this.arn
+
+output "target_group_arns" {
+  description = "ARNs of the target groups (indexed by container name)"
+  value = {
+    for container_name, tg in aws_lb_target_group.this :
+    container_name => tg.arn
+  }
 }
 
 output "alb_sg_id" {

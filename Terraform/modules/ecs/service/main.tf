@@ -182,11 +182,14 @@ resource "aws_ecs_service" "this" {
 
   # For load balancing, we assume that one of the containers (e.g. the first in the list) exposes a port.
   dynamic "load_balancer" {
-    for_each = var.container_definitions[0].expose_port ? [1] : []
+    for_each = {
+      for c in var.container_definitions : c.container_name => c
+      if c.expose_port && contains(keys(var.alb_target_group_arns), c.container_name)
+    }
     content {
-      target_group_arn = var.alb_target_group_arn
-      container_name   = var.container_definitions[0].container_name
-      container_port   = var.container_definitions[0].container_port
+      target_group_arn = var.alb_target_group_arns[each.key]
+      container_name   = each.value.container_name
+      container_port   = each.value.container_port
     }
   }
 

@@ -13,13 +13,5 @@ output "cloudmap_service_dns" {
   value       = "${aws_service_discovery_private_dns_namespace.this.name}"
 }
 
-output "exposed_containers" {
-  description = "List of exposed containers with their ports"
-  value = {
-    for c in var.container_definitions : c.container_name => {
-      container_port = c.container_port
-    }
-    if c.expose_port
-  }
-}
+
 
