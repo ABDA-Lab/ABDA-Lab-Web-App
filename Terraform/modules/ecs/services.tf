@@ -12,7 +12,7 @@ locals {
     }
   ]
 
-  all_exposed_containers = {
+  exposed_containers = {
     for name, def in local.container_definitions : name => {
       container_port = def.container_port
     }
@@ -195,7 +195,10 @@ module "microservice" {
   ecs_task_execution_role_name = aws_iam_role.ecs_instance_role.name
   region = var.region
   vpc_id = var.vpc_id
-  depends_on = [module.utility_service]
+  depends_on = [
+    module.utility_service,
+    module.alb
+  ]
   container_definitions = [
     local.container_definitions.api_gateway,
     local.container_definitions.user_microservice,
@@ -217,6 +220,9 @@ module "utility_service" {
   ecs_task_execution_role_name = aws_iam_role.ecs_instance_role.name
   region = var.region
   vpc_id = var.vpc_id
+  depends_on = [
+    module.alb 
+  ]
   container_definitions = [
     local.container_definitions.redis_service,
     local.container_definitions.rabbitmq_service
