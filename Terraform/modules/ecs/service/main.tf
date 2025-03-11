@@ -176,6 +176,7 @@ resource "aws_alb_target_group" "tg" {
   port        = each.value.container_port
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
+  target_type = "ip"
 }
 
 resource "aws_ecs_service" "this" {
