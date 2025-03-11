@@ -51,7 +51,7 @@ resource "aws_lb" "this" {
 resource "aws_lb_target_group" "this" {
   for_each = var.exposed_containers
 
-  name        = "${var.load_balancer_name}-tg-${each.key}"
+  name        = substr("${var.load_balancer_name}-tg-${each.key}", 0, 32)
   port        = each.value.container_port
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
