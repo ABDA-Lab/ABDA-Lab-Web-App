@@ -145,12 +145,7 @@ module "microservice" {
         startPeriod = 0
       }
 
-      depend_on = [
-        {
-          containerName = local.services_list[3]
-          condition     = "HEALTHY"
-        }
-      ]
+      
     }
   ]
 }
