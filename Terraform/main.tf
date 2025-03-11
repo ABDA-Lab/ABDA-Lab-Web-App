@@ -113,11 +113,8 @@ module "alb" {
   load_balancer_name = var.alb_name
   subnet_ids         = [module.public_subnet1.subnet_id, module.public_subnet2.subnet_id]
   vpc_id             = module.vpc.vpc_id
-  target_port        = var.target_port
-  listener_port      = var.listener_port
   health_check_path  = var.health_check_path
   certificate_arn    = var.certificate_arn
-  container_port     = var.container_port
   exposed_containers = module.container_config.exposed_containers
 }
 
