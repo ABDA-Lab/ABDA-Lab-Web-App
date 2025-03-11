@@ -74,40 +74,40 @@ module "microservice" {
         startPeriod = 0
       }
     },
-    {
-      container_name      = local.services_list[3]
-      name                = local.services_list[3]
-      use_dockerhub       = false
-      ecr_repository_name = local.services_list[3]
-      image_tag           = "latest"
-      command             = []
-      env_vars = {
-        ASPNETCORE_ENVIRONMENT = "Production"
-        ASPNETCORE_URLS        = "http://+:5002"
-        DATABASE_HOST          = local.databases[0].host
-        DATABASE_PORT          = local.databases[0].port
-        DATABASE_NAME          = local.databases[0].name
-        DATABASE_USERNAME      = local.databases[0].username
-        DATABASE_PASSWORD      = local.databases[0].password
-        RABBITMQ_HOST          = module.utility_service.cloudmap_service_dns
-        RABBITMQ_PORT          = "5672"
-        RABBITMQ_USERNAME      = var.rabbitmq_username
-        RABBITMQ_PASSWORD      = var.rabbitmq_password
-        REDIS_HOST             = module.utility_service.cloudmap_service_dns
-        REDIS_PORT             = "6379"
-        REDIS_PASSWORD         = var.redis_password
-      }
-      mount_points   = []
-      expose_port    = false
-      container_port = 5002
-      health_check = {
-        command : ["CMD", "curl", "-f", "http://localhost:5002/api/user/health"]
-        interval    = 5
-        timeout     = 3
-        retries     = 5
-        startPeriod = 0
-      }
-    },
+    # {
+    #   container_name      = local.services_list[3]
+    #   name                = local.services_list[3]
+    #   use_dockerhub       = false
+    #   ecr_repository_name = local.services_list[3]
+    #   image_tag           = "latest"
+    #   command             = []
+    #   env_vars = {
+    #     ASPNETCORE_ENVIRONMENT = "Production"
+    #     ASPNETCORE_URLS        = "http://+:5002"
+    #     DATABASE_HOST          = local.databases[0].host
+    #     DATABASE_PORT          = local.databases[0].port
+    #     DATABASE_NAME          = local.databases[0].name
+    #     DATABASE_USERNAME      = local.databases[0].username
+    #     DATABASE_PASSWORD      = local.databases[0].password
+    #     RABBITMQ_HOST          = module.utility_service.cloudmap_service_dns
+    #     RABBITMQ_PORT          = "5672"
+    #     RABBITMQ_USERNAME      = var.rabbitmq_username
+    #     RABBITMQ_PASSWORD      = var.rabbitmq_password
+    #     REDIS_HOST             = module.utility_service.cloudmap_service_dns
+    #     REDIS_PORT             = "6379"
+    #     REDIS_PASSWORD         = var.redis_password
+    #   }
+    #   mount_points   = []
+    #   expose_port    = false
+    #   container_port = 5002
+    #   health_check = {
+    #     command : ["CMD", "curl", "-f", "http://localhost:5002/api/user/health"]
+    #     interval    = 5
+    #     timeout     = 3
+    #     retries     = 5
+    #     startPeriod = 0
+    #   }
+    # },
     {
       container_name      = local.services_list[4]
       name                = local.services_list[4]
