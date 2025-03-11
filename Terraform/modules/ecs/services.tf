@@ -16,8 +16,8 @@ locals {
 module "microservice" {
   source                       = "./service"
   name                         = "microservice"
-  cpu                          = 512
-  memory                       = 900
+  cpu                          = 800
+  memory                       = 970
   desired_count                = 1
   ecs_cluster_id               = aws_ecs_cluster.this.id
   alb_target_group_arn         = var.alb_target_group_arn
@@ -159,7 +159,7 @@ module "microservice" {
 module "utility_service" {
   source                       = "./service"
   name                         = "utility-service"
-  cpu                          = 512 # Combined CPU for both containers
+  cpu                          = 700 # Combined CPU for both containers
   memory                       = 512 # Combined memory for both containers
   desired_count                = 1
   ecs_cluster_id               = aws_ecs_cluster.this.id
