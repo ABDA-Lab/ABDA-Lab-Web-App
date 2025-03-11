@@ -98,6 +98,16 @@ resource "aws_route" "private_nat" {
   nat_gateway_id         = var.enable_nat ? aws_nat_gateway.this[0].id : null
 }
 
+module "container_config" {
+  source            = "./modules/container_config"
+  services          = var.services
+  database          = var.database
+  jwt_key           = var.jwt_key
+  rabbitmq_username = var.rabbitmq_username
+  rabbitmq_password = var.rabbitmq_password
+  redis_password    = var.redis_password
+}
+
 module "alb" {
   source             = "./modules/alb"
   load_balancer_name = var.alb_name
@@ -106,9 +116,9 @@ module "alb" {
   target_port        = var.target_port
   listener_port      = var.listener_port
   health_check_path  = var.health_check_path
-  certificate_arn    = var.certificate_arn # Supply certificate ARN for HTTPS; leave empty for HTTP-only
+  certificate_arn    = var.certificate_arn
   container_port     = var.container_port
-  exposed_containers = module.ecs.local.exposed_containers
+  exposed_containers = module.container_config.exposed_containers
 }
 
 module "ecs" {
@@ -126,11 +136,4 @@ module "ecs" {
   container_port        = var.container_port
   alb_security_group_id = module.alb.alb_sg_id
   alb_target_group_arns = module.alb.target_group_arns
-  services              = var.services
-  database              = var.database
-  jwt_key               = var.jwt_key
-  redis_password        = var.redis_password
-  rabbitmq_password     = var.rabbitmq_password
-  rabbitmq_username     = var.rabbitmq_username
-  alb                   = module.alb
 }

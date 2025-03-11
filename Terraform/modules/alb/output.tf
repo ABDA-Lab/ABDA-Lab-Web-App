@@ -4,7 +4,6 @@ output "load_balancer_dns_name" {
   value       = aws_lb.this.dns_name
 }
 
-
 output "target_group_arns" {
   description = "ARNs of the target groups (indexed by container name)"
   value = {

@@ -21,12 +21,15 @@ resource "aws_security_group" "alb_sg" {
     cidr_blocks = ["0.0.0.0/0"]  # Allow traffic from anywhere
   }
 
-  egress {
-    description = "Allow outbound to backend targets"
-    from_port   = var.container_port
-    to_port     = var.container_port
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]  # Allow traffic to any IP (restrict to backend targets' security group if possible)
+  dynamic "egress" {
+    for_each = var.exposed_containers
+    content {
+      description = "Allow outbound to backend targets for container ${egress.key}"
+      from_port   = egress.value.container_port
+      to_port     = egress.value.container_port
+      protocol    = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+    }
   }
 
   tags = {

@@ -63,50 +63,9 @@ EOT
   type    = map(string)
   default = {}
 }
-variable "services" {
-  description = "Space-separated list of service names"
-  type        = string
-  default     = ""
-}
+
 
 variable "region" {
   description = "The AWS region where the ECS cluster is deployed"
   type        = string
-}
-
-
-
-variable "database" {
-  description = "Database"
-  type        = string
-  default     = ""
-}
-variable "jwt_key" {
-  description = "Database"
-  type        = string
-  default     = ""
-}
-
-
-variable "rabbitmq_username" {
-  description = "RabbitMQ username"
-  type        = string
-}
-
-variable "rabbitmq_password" {
-  description = "RabbitMQ password"
-  type        = string
-  sensitive   = true
-}
-
-
-variable "redis_password" {
-  description = "Redis password"
-  type        = string
-  sensitive   = true
-}
-
-variable "alb" {
-  description = "Reference to the ALB module for dependency tracking"
-  type        = any
 }
