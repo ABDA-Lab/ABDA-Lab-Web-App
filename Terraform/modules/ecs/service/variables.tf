@@ -56,8 +56,8 @@ variable "region" {
 }
 
 variable "container_definitions" {
-  description = "Map of container definitions to be merged into one ECS task."
-  type = map(object({
+  description = "List of container definitions to be merged into one ECS task."
+  type = list(object({
     container_name       = string
     name                 = string       # image name
     use_dockerhub        = optional(bool, false)
@@ -84,9 +84,8 @@ variable "container_definitions" {
       condition     = string
     })), [])
   }))
-  default = {}
+  default = []
 }
-
 
 
 variable "vpc_id" {
