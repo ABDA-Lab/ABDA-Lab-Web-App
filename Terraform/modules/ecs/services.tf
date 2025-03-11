@@ -75,10 +75,10 @@ module "microservice" {
       }
     },
     {
-      container_name      = local.services_list[2]
-      name                = local.services_list[2]
+      container_name      = local.services_list[3]
+      name                = local.services_list[3]
       use_dockerhub       = false
-      ecr_repository_name = local.services_list[2]
+      ecr_repository_name = local.services_list[3]
       image_tag           = "latest"
       command             = []
       env_vars = {
@@ -109,10 +109,10 @@ module "microservice" {
       }
     },
     {
-      container_name      = local.services_list[3]
-      name                = local.services_list[3]
+      container_name      = local.services_list[4]
+      name                = local.services_list[4]
       use_dockerhub       = false
-      ecr_repository_name = local.services_list[3]
+      ecr_repository_name = local.services_list[4]
       image_tag           = "latest"
       command             = []
       env_vars = {
@@ -147,7 +147,7 @@ module "microservice" {
 
       depend_on = [
         {
-          containerName = local.services_list[2]
+          containerName = local.services_list[3]
           condition     = "HEALTHY"
         }
       ]

@@ -9,23 +9,32 @@ services:
 
   ${services_1}:
     build:
-      context: ./Backend/Microservices.AspNet
-      dockerfile: ./User.Microservice/Dockerfile
-      args:
-        SERVICE_NAME: User.Microservice
+      context: ./Terraform/docker/redis
+      dockerfile: ./Dockerfile
     image: ${services_1}
     container_name: ${services_1}
 
   ${services_2}:
     build:
-      context: ./Terraform/docker/redis
+      context: ./Terraform/docker/rabbitmq
       dockerfile: ./Dockerfile
     image: ${services_2}
     container_name: ${services_2}
 
   ${services_3}:
     build:
-      context: ./Terraform/docker/rabbitmq
-      dockerfile: ./Dockerfile
+      context: ./Backend/Microservices.AspNet
+      dockerfile: ./User.Microservice/Dockerfile
+      args:
+        SERVICE_NAME: User.Microservice
     image: ${services_3}
-    container_name: ${services_3}   
+    container_name: ${services_3}
+
+  ${services_4}:
+    build:
+      context: ./Backend/Microservices.AspNet
+      dockerfile: ./Identity.Microservice/Dockerfile
+      args:
+        SERVICE_NAME: Identity.Microservice
+    image: ${services_4}
+    container_name: ${services_4}
