@@ -11,7 +11,7 @@ resource-types:
   - IAMUserPolicyAttachment
   - IAMUserPolicy
   - IAMUserAccessKey
-
+ 
 
 accounts:
   "242201290212": {} 
