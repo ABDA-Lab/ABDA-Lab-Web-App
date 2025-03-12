@@ -118,7 +118,7 @@ locals {
         startPeriod = 0
       }
     }
-
+ 
     redis_service = {
       container_name      = local.services_list[1]
       name                = local.services_list[1]
