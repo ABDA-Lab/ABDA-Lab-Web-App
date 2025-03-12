@@ -72,7 +72,7 @@ locals {
         ASPNETCORE_URLS        = "http://+:5002"
         DATABASE_HOST          = local.databases[0].host
         DATABASE_PORT          = local.databases[0].port
-        DATABASE_NAME          = local.databases[0].name
+        DATABASE_NAME          = "UserService"
         DATABASE_USERNAME      = local.databases[0].username
         DATABASE_PASSWORD      = local.databases[0].password
       }
@@ -99,7 +99,7 @@ locals {
         ASPNETCORE_ENVIRONMENT = "Production"
         DATABASE_HOST          = local.databases[0].host
         DATABASE_PORT          = local.databases[0].port
-        DATABASE_NAME          = local.databases[0].name
+        DATABASE_NAME          = "IdentityService"
         DATABASE_USERNAME      = local.databases[0].username
         DATABASE_PASSWORD      = local.databases[0].password
         ASPNETCORE_URLS        = "http://+:5001"
