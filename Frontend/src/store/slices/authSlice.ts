@@ -1,6 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { login as loginApi, logout as logoutApi } from '@/app/api/authentication/authApi';
-import http from '@/lib/http';
+import http from '@/lib/http_old';
 
 interface AuthState {
     accessToken: string | null;

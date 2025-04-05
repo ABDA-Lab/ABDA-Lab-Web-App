@@ -1,4 +1,4 @@
-import http from '@/lib/http';
+import http from '@/lib/http_old';
 import { LoginBody, LoginResType, RegisterBody } from '@/schemaValidations/auth.schema';
 
 // Login API
