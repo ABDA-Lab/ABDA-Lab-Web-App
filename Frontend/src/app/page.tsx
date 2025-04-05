@@ -10,7 +10,6 @@ export const metadata: Metadata = {
 export default function Home() {
     return (
         <div className="">
-    
             <main className="py-10">
                 <WelcomeMessage
                     title="Welcome to ABDA Lab"
@@ -19,6 +18,7 @@ export default function Home() {
                     descriptionClassName="absolute inset-0 w-full h-full bg-slate-900 z-20 [mask-image:radial-gradient(transparent,white)] pointer-events-none"
                 />
             </main>
+            
         </div>
     );
 }
