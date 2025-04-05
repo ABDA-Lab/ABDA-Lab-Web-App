@@ -39,10 +39,8 @@ export class EntityError extends HttpError {
     }
 }
 
-// Kiểm tra môi trường client hay server
 export const isClient = () => typeof window !== 'undefined';
 
-// Lấy accessToken từ localStorage (chỉ chạy trên Client)
 const getAccessToken = (): string | null => {
     if (isClient()) {
         return localStorage.getItem('accessToken');
@@ -50,7 +48,6 @@ const getAccessToken = (): string | null => {
     return null;
 };
 
-// Ghi log request để debug
 const logRequest = (method: string, url: string, options: CustomOptions | undefined) => {
     console.log(`[HTTP ${method}] ${url}`, {
         headers: options?.headers,
@@ -59,7 +56,6 @@ const logRequest = (method: string, url: string, options: CustomOptions | undefi
     });
 };
 
-// Xử lý logout
 async function handleLogout() {
     if (isClient()) {
         localStorage.removeItem('accessToken');
@@ -69,7 +65,6 @@ async function handleLogout() {
     }
 }
 
-// Xử lý refresh token
 async function handleAuthError() {
     if (!isClient()) {
         console.error('❌ handleAuthError() được gọi trên Server. Bỏ qua...');
@@ -106,10 +101,8 @@ async function handleAuthError() {
     }
 }
 
-// Hàm chuẩn hóa URL
 const normalizeUrl = (url: string) => (url.startsWith('/') ? url : `/${url}`);
 
-// Hàm chính để thực hiện request
 const request = async <Response>(
     method: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE',
     url: string,
@@ -185,7 +178,6 @@ const request = async <Response>(
     }
 };
 
-// Các phương thức HTTP
 const http = {
     get<Response>(url: string, options?: Omit<CustomOptions, 'body'>) {
         return request<Response>('GET', url, options);
