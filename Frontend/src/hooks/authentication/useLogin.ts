@@ -12,25 +12,23 @@ export function useLogin() {
     const dispatch = useAppDispatch();
 
     const handleLogin = async (username: string, password: string) => {
-        setLoading(true);
-        setError(null);
-
-        try {
-            const resultAction = await dispatch(login({ username: username, password }));
-
-            if (login.fulfilled.match(resultAction)) {
-                await dispatch(fetchUserProfile());
-                toast.success('Login successful!');
-                router.push('/');
-            } else if (login.rejected.match(resultAction)) {
-                throw new Error('Invalid login credentials');
-            }
-        } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : 'Unexpected error');
-            toast.error(err instanceof Error ? err.message : 'Unexpected error');
-        } finally {
-            setLoading(false);
-        }
+        // setLoading(true);
+        // setError(null);
+        // try {
+        //     const resultAction = await dispatch(login({ username: username, password }));
+        //     if (login.fulfilled.match(resultAction)) {
+        //         await dispatch(fetchUserProfile());
+        //         toast.success('Login successful!');
+        //         router.push('/');
+        //     } else if (login.rejected.match(resultAction)) {
+        //         throw new Error('Invalid login credentials');
+        //     }
+        // } catch (err: unknown) {
+        //     setError(err instanceof Error ? err.message : 'Unexpected error');
+        //     toast.error(err instanceof Error ? err.message : 'Unexpected error');
+        // } finally {
+        //     setLoading(false);
+        // }
     };
 
     return { handleLogin, loading, error };
