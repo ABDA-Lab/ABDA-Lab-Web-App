@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 export default function Home() {
     return (
         <div className="">
-            <main className="py-10">
+            <main className="py-40">
                 <WelcomeMessage
                     title="Welcome to ABDA Lab"
                     description="Exploring cutting-edge AI algorithms and data structures through innovative research and experimentation. Join us in advancing the boundaries of artificial intelligence."
