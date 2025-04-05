@@ -86,7 +86,6 @@ async function handleAuthError() {
                 localStorage.setItem('accessToken', data.value.accessToken);
                 localStorage.setItem('refreshToken', data.value.refreshToken);
 
-                // 🚨 Dùng import động để phá vòng lặp dependency
                 const { updateTokens } = await import('@/store/slices/authSlice');
                 store.dispatch(updateTokens(data.value));
             } else {
