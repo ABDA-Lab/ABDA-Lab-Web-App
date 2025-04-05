@@ -1,198 +1,148 @@
 'use client';
+
 import { useState } from 'react';
 import { Menu, MenuItem, ProductItem } from './ui/navbar-menu';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
-export default function Navigation() {
+export default function Navigation({ mobile = false }) {
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
 
-    return (
-        // <div className={cn('fixed top-10 inset-x-0 max-w-2xl mx-auto z-50')}>
-        <Menu setActive={setActiveMenu}>
-            <MenuItem item="Home" active={activeMenu} setActive={setActiveMenu}>
+    // Responsive styles based on mobile prop
+    const navClasses = mobile ? 'flex flex-col w-full space-y-4' : 'flex items-center space-x-6';
+
+    // For mobile view, use simpler navigation
+    if (mobile) {
+        return (
+            <div className={navClasses}>
                 <Link
-                    title="Home"
                     href="/"
-                    className="flex items-center space-x-3 hover:text-blue-500 transition-colors">
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        className="h-4 w-4">
-                        <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" />
-                        <polyline points="9 22 9 12 15 12 15 22" />
-                    </svg>
-                    <span className="px-5">Home</span>
+                    className="block w-full px-3 py-2 text-gray-700 hover:text-blue-500 hover:bg-gray-100 rounded-md font-medium">
+                    Home
                 </Link>
-            </MenuItem>
-            <MenuItem item="About ABDA" active={activeMenu} setActive={setActiveMenu}>
-                <div className="grid grid-cols-3 gap-4">
-                    <ProductItem
-                        title="Research"
-                        description="Our research in AI, ML, and data analytics"
-                        href=""
-                        src="https://www.vinai.io/wp-content/uploads/2023/01/3.-ML-shutterstock_2152292393-Horizontal-2560-px.jpg"
-                    />
-                    <ProductItem
-                        title="Projects"
-                        description="Innovative AI projects and applications"
-                        href=""
-                        src="https://research.vinai.io/wp-content/uploads/2023/09/5-Amazing-Examples-Of-Natural-Language-Processing-NLP-In-Practice-1200x639-1-1024x545.jpg"
-                    />
-                    <ProductItem
-                        title="Lab Members"
-                        description="Our team of researchers and engineers"
-                        href=""
-                        src="https://news.vinai.io/wp-content/uploads/2025/01/VinAI-at-CES-2025.jpg"
-                    />
-                    <ProductItem
-                        title="Alumni Members"
-                        description="Our distinguished alumni network"
-                        href=""
-                        src="https://plus.unsplash.com/premium_photo-1679429320956-f6171b6f006b?q=80&w=3269&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                    />
-                    <ProductItem
-                        title="Colaboration"
-                        description="Partner with us on research projects"
-                        href=""
-                        src="https://research.vinai.io/wp-content/uploads/2023/10/Machine-learning-1024x512.jpg"
-                    />
-                    <ProductItem
-                        title="Contact"
-                        description="Get in touch with our team"
-                        href=""
-                        src="https://www.vinai.io/wp-content/uploads/MirrorSense-CES-Award-KV-1.png"
-                    />
-                </div>
-            </MenuItem>
-            <MenuItem item="Publications" active={activeMenu} setActive={setActiveMenu}>
-                <div className="flex flex-col space-y-4">
-                    <Link title="Journal Papers" href="/" className="flex items-center space-x-2">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="h-4 w-4">
-                            <path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" />
-                        </svg>
-                        <span>Journal Papers</span>
+                <Link
+                    href="/about"
+                    className="block w-full px-3 py-2 text-gray-700 hover:text-blue-500 hover:bg-gray-100 rounded-md font-medium">
+                    About ABDA
+                </Link>
+                <div className="pl-6 flex flex-col space-y-2">
+                    <Link href="/about/research" className="block text-gray-600 hover:text-blue-500 text-sm">
+                        Research
                     </Link>
-                    <Link title="Conference Papers" href="/" className="flex items-center space-x-2">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="h-4 w-4">
-                            <rect width="18" height="18" x="3" y="4" rx="2" ry="2" />
-                            <line x1="16" x2="16" y1="2" y2="6" />
-                            <line x1="8" x2="8" y1="2" y2="6" />
-                            <line x1="3" x2="21" y1="10" y2="10" />
-                        </svg>
-                        <span>Conferences Papers</span>
+                    <Link href="/about/projects" className="block text-gray-600 hover:text-blue-500 text-sm">
+                        Projects
+                    </Link>
+                    <Link href="/about/members" className="block text-gray-600 hover:text-blue-500 text-sm">
+                        Lab Members
                     </Link>
                 </div>
-            </MenuItem>
-            <MenuItem item="Sharing" active={activeMenu} setActive={setActiveMenu}>
-                <div className="flex flex-col space-y-4">
-                    <Link title="Journal Papers" href="/" className="flex items-center space-x-2">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="h-4 w-4">
-                            <path d="M4 6h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2" />
-                            <path d="M14 2v4" />
-                            <path d="M10 2v4" />
-                            <path d="M7 11h10" />
-                            <path d="M7 15h10" />
-                            <path d="M7 19h10" />
-                        </svg>
-                        <span>Blogs</span>
+                <Link
+                    href="/publications"
+                    className="block w-full px-3 py-2 text-gray-700 hover:text-blue-500 hover:bg-gray-100 rounded-md font-medium">
+                    Publications
+                </Link>
+                <div className="pl-6 flex flex-col space-y-2">
+                    <Link href="/publications/journal" className="block text-gray-600 hover:text-blue-500 text-sm">
+                        Journal Papers
                     </Link>
-                    <Link title="Conference Papers" href="/" className="flex items-center space-x-2">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="h-4 w-4">
-                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
-                            <polyline points="7 10 12 15 17 10" />
-                            <line x1="12" y1="15" x2="12" y2="3" />
-                        </svg>
-                        <span>Datasets</span>
+                    <Link href="/publications/conference" className="block text-gray-600 hover:text-blue-500 text-sm">
+                        Conference Papers
                     </Link>
                 </div>
-            </MenuItem>
-            <MenuItem item="Events" active={activeMenu} setActive={setActiveMenu}>
-                <div className="flex flex-col space-y-4">
-                    <Link title="Public Seminar" href="/" className="flex items-center space-x-2">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="h-4 w-4">
-                            <path d="M7 21h10" />
-                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
-                        </svg>
-                        <span>Public Seminar</span>
-                    </Link>
-                    <Link title="Competitions" href="/" className="flex items-center space-x-2">
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            width="24"
-                            height="24"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            className="h-4 w-4">
-                            <path d="M6 9H4.5a2.5 2.5 0 0 1 0-5h3a2.5 2.5 0 0 1 0 5H6zm0 0v8a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V9M6 9h12" />
-                            <path d="M18 9h1.5a2.5 2.5 0 0 0 0-5h-3a2.5 2.5 0 0 0 0 5H18z" />
-                        </svg>
-                        <span>Competitions</span>
-                    </Link>
+            </div>
+        );
+    }
+
+    // Desktop navigation with dropdowns
+    return (
+        <div className="hidden md:flex space-x-6">
+            {/* Home */}
+            <div className="relative group">
+                <button className="text-gray-700 hover:text-blue-500 transition-colors font-medium py-2 px-3">
+                    Home
+                </button>
+                <div className="absolute left-0 top-full w-56 bg-white shadow-lg rounded-lg p-0 invisible group-hover:visible opacity-0 group-hover:opacity-100 z-50 transform -translate-y-2 group-hover:translate-y-0 transition-all duration-200 border border-gray-100">
+                    <div className="p-2">
+                        <Link
+                            href="/"
+                            className="block w-full text-gray-700 hover:text-blue-500 hover:bg-blue-50 py-2 px-3 rounded-md transition-colors">
+                            Home
+                        </Link>
+                    </div>
                 </div>
-            </MenuItem>
-        </Menu>
-        // </div>
+            </div>
+
+            {/* About ABDA */}
+            <div className="relative group">
+                <button className="text-gray-700 hover:text-blue-500 transition-colors font-medium py-2 px-3">
+                    About ABDA
+                </button>
+                <div className="absolute left-0 top-full min-w-[900px] bg-white shadow-lg rounded-lg invisible group-hover:visible opacity-0 group-hover:opacity-100 z-50 transform -translate-y-2 group-hover:translate-y-0 transition-all duration-200 border border-gray-100">
+                    <div className="p-6">
+                        <h4 className="text-sm font-medium text-gray-500 mb-3 uppercase tracking-wider">
+                            About Our Lab
+                        </h4>
+                        <div className="grid grid-cols-3 gap-6">
+                            <ProductItem
+                                title="Research"
+                                description="Our research in AI, ML, and data analytics"
+                                href="/about/research"
+                                src="https://images.unsplash.com/photo-1742827871494-3a34fc06b69f?q=80&w=2584&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            />
+                            <ProductItem
+                                title="Projects"
+                                description="Innovative AI projects and applications"
+                                href="/about/projects"
+                                src="https://images.unsplash.com/photo-1742827871494-3a34fc06b69f?q=80&w=2584&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            />
+                            <ProductItem
+                                title="Lab Members"
+                                description="Our team of researchers and engineers"
+                                href="/about/members"
+                                src="https://images.unsplash.com/photo-1742827871494-3a34fc06b69f?q=80&w=2584&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                            />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Publications */}
+            <div className="relative group">
+                <button className="text-gray-700 hover:text-blue-500 transition-colors font-medium py-2 px-3">
+                    Publications
+                </button>
+                <div className="absolute left-0 top-full w-64 bg-white shadow-lg rounded-lg invisible group-hover:visible opacity-0 group-hover:opacity-100 z-50 transform -translate-y-2 group-hover:translate-y-0 transition-all duration-200 border border-gray-100">
+                    <div className="p-4">
+                        <h4 className="text-sm font-medium text-gray-500 mb-3 uppercase tracking-wider">
+                            Our Research Papers
+                        </h4>
+                        <div className="space-y-1">
+                            <Link
+                                href="/publications/journal"
+                                className="flex items-center w-full text-gray-700 hover:text-blue-500 hover:bg-blue-50 py-2 px-3 rounded-md transition-colors">
+                                <div>
+                                    <div className="font-medium">Journal Papers</div>
+                                    <div className="text-xs text-gray-500">Peer-reviewed journal publications</div>
+                                </div>
+                            </Link>
+                            <Link
+                                href="/publications/conference"
+                                className="flex items-center w-full text-gray-700 hover:text-blue-500 hover:bg-blue-50 py-2 px-3 rounded-md transition-colors">
+                                <div>
+                                    <div className="font-medium">Conference Papers</div>
+                                    <div className="text-xs text-gray-500">Papers presented at conferences</div>
+                                </div>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     );
 }
