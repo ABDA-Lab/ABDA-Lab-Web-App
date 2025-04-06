@@ -1,9 +1,6 @@
 import React from 'react';
 import WelcomeMessage from '@/components/homepage/WelcomeMessage';
 import { Metadata } from 'next';
-import { Button } from '@/components/ui/button';
-import { ArrowRight, Brain, FlaskConical, Lightbulb, Link, Users } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import ResearchAreasSection from '@/components/homepage/ResearchAreasSection';
 import RecentProjectsSection from '@/components/homepage/RecentProjectsSection';
 import TeamSection from '@/components/homepage/TeamSection';

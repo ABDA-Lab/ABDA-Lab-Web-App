@@ -1,10 +1,8 @@
 import type { Metadata } from 'next';
 import { JetBrains_Mono } from 'next/font/google';
 import '@/styles/globals.css';
-import HeaderWrapper from '@/components/HeaderWrapper';
 import { Toaster } from 'react-hot-toast';
 import Provider from '@/components/Provider';
-import Footer from '@/components/Footer';
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar';
 import { AppSidebar } from '@/components/dashboard/appSidebar';
 import HeaderDashboard from '@/components/HeaderDashboard';
