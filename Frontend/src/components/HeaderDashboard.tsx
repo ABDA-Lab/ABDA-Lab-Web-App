@@ -1,6 +1,15 @@
-import { Separator } from "@radix-ui/react-dropdown-menu";
-import { SidebarTrigger } from "./ui/sidebar";
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "./ui/breadcrumb";
+'use client';
+import { Separator } from '@radix-ui/react-dropdown-menu';
+import { SidebarTrigger } from './ui/sidebar';
+import {
+    Breadcrumb,
+    BreadcrumbItem,
+    BreadcrumbLink,
+    BreadcrumbList,
+    BreadcrumbPage,
+    BreadcrumbSeparator,
+} from './ui/breadcrumb';
+import UserProfileDropdown from './UserProfileDropdown';
 
 export default function HeaderDashboard() {
     return (
@@ -18,6 +27,10 @@ export default function HeaderDashboard() {
                     </BreadcrumbItem>
                 </BreadcrumbList>
             </Breadcrumb>
+
+            <div className="ml-auto">
+                <UserProfileDropdown />
+            </div>
         </header>
     );
 }

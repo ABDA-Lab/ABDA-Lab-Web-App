@@ -43,7 +43,7 @@ const data = {
                 },
                 {
                     title: 'Projects',
-                    url: '#',
+                    url: '/dashboard/up-coming/projects',
                     isActive: true,
                 },
                 {

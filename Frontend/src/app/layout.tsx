@@ -4,7 +4,6 @@ import '@/styles/globals.css';
 import HeaderWrapper from '@/components/HeaderWrapper';
 import { Toaster } from 'react-hot-toast';
 import Provider from '@/components/Provider';
-import Footer from '@/components/Footer';
 import FooterWrapper from '@/components/FooterWrapper';
 
 const jetBrainsMono = JetBrains_Mono({
