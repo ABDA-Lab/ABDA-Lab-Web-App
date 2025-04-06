@@ -1,4 +1,6 @@
+'use client';
 import * as React from 'react';
+import Link from 'next/link';
 
 import {
     Sidebar,
@@ -14,9 +16,10 @@ import {
 } from '@/components/ui/sidebar';
 import { SearchForm } from './searchForm';
 import Logo from '../Logo';
+import { usePathname } from 'next/navigation';
 
-// This is sample data.
-const data = {
+// Move data outside the component
+const getNavData = () => ({
     versions: ['1.0.1', '1.1.0-alpha', '2.0.0-beta1'],
     navMain: [
         {
@@ -38,17 +41,8 @@ const data = {
             url: '#',
             items: [
                 {
-                    title: 'Learning',
-                    url: '#',
-                },
-                {
                     title: 'Projects',
                     url: '/dashboard/up-coming/projects',
-                    isActive: true,
-                },
-                {
-                    title: 'Research',
-                    url: '#',
                 },
             ],
         },
@@ -63,10 +57,6 @@ const data = {
                 {
                     title: 'Learning Courses',
                     url: '/dashboard/manage-material/learning-courses',
-                },
-                {
-                    title: 'Public Blogs',
-                    url: '#',
                 },
             ],
         },
@@ -97,9 +87,12 @@ const data = {
             ],
         },
     ],
-};
+});
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+    const pathname = usePathname();
+    const data = getNavData();
+
     return (
         <Sidebar {...props}>
             <SidebarHeader>
@@ -107,19 +100,23 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 <SearchForm />
             </SidebarHeader>
             <SidebarContent>
-                {/* We create a SidebarGroup for each parent. */}
-                {data.navMain.map((item) => (
-                    <SidebarGroup key={item.title}>
-                        <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
+                {data.navMain.map((section) => (
+                    <SidebarGroup key={section.title}>
+                        <SidebarGroupLabel>{section.title}</SidebarGroupLabel>
                         <SidebarGroupContent>
                             <SidebarMenu>
-                                {item.items.map((item) => (
-                                    <SidebarMenuItem key={item.title}>
-                                        <SidebarMenuButton asChild isActive={item.isActive}>
-                                            <a href={item.url}>{item.title}</a>
-                                        </SidebarMenuButton>
-                                    </SidebarMenuItem>
-                                ))}
+                                {section.items.map((item) => {
+                                    // Check if this item matches the current path
+                                    const isActive = pathname === item.url;
+
+                                    return (
+                                        <SidebarMenuItem key={item.title}>
+                                            <SidebarMenuButton asChild isActive={isActive}>
+                                                <Link href={item.url}>{item.title}</Link>
+                                            </SidebarMenuButton>
+                                        </SidebarMenuItem>
+                                    );
+                                })}
                             </SidebarMenu>
                         </SidebarGroupContent>
                     </SidebarGroup>
