@@ -24,12 +24,12 @@ const data = {
             url: '#',
             items: [
                 {
-                    title: 'Important Notification',
-                    url: '#',
+                    title: 'Latest',
+                    url: '/dashboard/notification/latest',
                 },
                 {
-                    title: 'Task Notification',
-                    url: '#',
+                    title: 'ABDA Messenger',
+                    url: '/dashboard/notification/messenger',
                 },
             ],
         },

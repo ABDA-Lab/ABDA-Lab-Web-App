@@ -17,21 +17,19 @@ export const metadata: Metadata = {
     description: 'Lab at FPT University',
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="en" className={`${jetBrainsMono.variable} light`}>
-            <body className={`${jetBrainsMono.style} font-mono antialiased bg-gray-100 min-h-screen flex flex-col`}>
-                <Provider>
-                    <SidebarProvider>
-                        <AppSidebar />
-                        <SidebarInset className="">
-                            <HeaderDashboard />
-                            {children}
-                        </SidebarInset>
-                    </SidebarProvider>
-                    <Toaster position="top-right" reverseOrder={false} />
-                </Provider>
-            </body>
-        </html>
+        <div className="dashboard-layout">
+            <Provider>
+                <SidebarProvider>
+                    <AppSidebar />
+                    <SidebarInset className="">
+                        <HeaderDashboard />
+                        <main className="flex-1 w-full">{children}</main>
+                    </SidebarInset>
+                </SidebarProvider>
+                <Toaster position="top-right" reverseOrder={false} />
+            </Provider>
+        </div>
     );
 }
