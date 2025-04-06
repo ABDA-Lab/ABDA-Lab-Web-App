@@ -19,17 +19,18 @@ export const metadata: Metadata = {
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
     return (
-        <div className="dashboard-layout">
+        // <div className="dashboard-layout">
             <Provider>
                 <SidebarProvider>
                     <AppSidebar />
-                    <SidebarInset className="">
+                    <SidebarInset className="w-full flex-1">
                         <HeaderDashboard />
                         <main className="flex-1 w-full">{children}</main>
+                        {/* {children} */}
                     </SidebarInset>
                 </SidebarProvider>
                 <Toaster position="top-right" reverseOrder={false} />
             </Provider>
-        </div>
+        // </div>
     );
 }
