@@ -55,6 +55,11 @@ export default function Navigation({ mobile = false }) {
                         Conference Papers
                     </Link>
                 </div>
+                <Link
+                    href="/dashboard/notification/latest"
+                    className="block w-full px-3 py-2 text-gray-700 hover:text-blue-500 hover:bg-gray-100 rounded-md font-medium">
+                    Dashboard
+                </Link>
             </div>
         );
     }
@@ -137,6 +142,44 @@ export default function Navigation({ mobile = false }) {
                                 <div>
                                     <div className="font-medium">Conference Papers</div>
                                     <div className="text-xs text-gray-500">Papers presented at conferences</div>
+                                </div>
+                            </Link>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div className="relative group">
+                <button className="text-gray-700 hover:text-blue-500 transition-colors font-medium py-2 px-3">
+                    Dashboard
+                </button>
+                <div className="absolute left-0 top-full w-64 bg-white shadow-lg rounded-lg invisible group-hover:visible opacity-0 group-hover:opacity-100 z-50 transform -translate-y-2 group-hover:translate-y-0 transition-all duration-200 border border-gray-100">
+                    <div className="p-4">
+                        <h4 className="text-sm font-medium text-gray-500 mb-3 uppercase tracking-wider">
+                            Lab Dashboard
+                        </h4>
+                        <div className="space-y-1">
+                            <Link
+                                href="/dashboard/notification/latest"
+                                className="flex items-center w-full text-gray-700 hover:text-blue-500 hover:bg-blue-50 py-2 px-3 rounded-md transition-colors">
+                                <div>
+                                    <div className="font-medium">Notifications</div>
+                                    <div className="text-xs text-gray-500">Latest updates and alerts</div>
+                                </div>
+                            </Link>
+                            <Link
+                                href="/dashboard/up-coming/projects"
+                                className="flex items-center w-full text-gray-700 hover:text-blue-500 hover:bg-blue-50 py-2 px-3 rounded-md transition-colors">
+                                <div>
+                                    <div className="font-medium">Projects</div>
+                                    <div className="text-xs text-gray-500">Manage ongoing projects</div>
+                                </div>
+                            </Link>
+                            <Link
+                                href="/dashboard/notification/messenger"
+                                className="flex items-center w-full text-gray-700 hover:text-blue-500 hover:bg-blue-50 py-2 px-3 rounded-md transition-colors">
+                                <div>
+                                    <div className="font-medium">Messenger</div>
+                                    <div className="text-xs text-gray-500">Stay connected with others</div>
                                 </div>
                             </Link>
                         </div>
