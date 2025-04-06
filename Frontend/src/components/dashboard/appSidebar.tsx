@@ -49,7 +49,7 @@ const data = {
                 {
                     title: 'Research',
                     url: '#',
-                }
+                },
             ],
         },
         {
@@ -58,16 +58,16 @@ const data = {
             items: [
                 {
                     title: 'Shared Folder',
-                    url: '#',
+                    url: '/dashboard/manage-material/shared-folder',
                 },
                 {
-                    title: 'Private Folder',
-                    url: '#',
+                    title: 'Learning Courses',
+                    url: '/dashboard/manage-material/learning-courses',
                 },
                 {
                     title: 'Public Blogs',
                     url: '#',
-                }
+                },
             ],
         },
         {
