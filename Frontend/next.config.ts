@@ -7,44 +7,49 @@ if (!apiBaseUrl) {
 }
 
 const nextConfig: NextConfig = {
-  images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "www.vinai.io",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "research.vinai.io",
-        pathname: "/wp-content/uploads/**",
-      },
-      {
-        protocol: "https",
-        hostname: "news.vinai.io",
-        pathname: "/**",
-      },
-      {
-        protocol: "https",
-        hostname: "plus.unsplash.com",
-        pathname: "/**",
-      },
-    ],
-  },
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'images.unsplash.com',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'www.vinai.io',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'research.vinai.io',
+                pathname: '/wp-content/uploads/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'news.vinai.io',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'plus.unsplash.com',
+                pathname: '/**',
+            },
+            {
+                protocol: 'https',
+                hostname: 'cloud.appwrite.io',
+                pathname: '/**',
+            },
+        ],
+    },
 
-  async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${apiBaseUrl}/api/:path*`,
-      },
-    ];
-  },
+    async rewrites() {
+        return [
+            {
+                source: '/api/:path*',
+                destination: `${apiBaseUrl}/api/:path*`,
+            },
+        ];
+    },
 };
 
 console.log("Proxying API requests to:", apiBaseUrl);

@@ -2,3 +2,4 @@
 .history/
 .fake
 docker-compose-production.yml
+.qodo

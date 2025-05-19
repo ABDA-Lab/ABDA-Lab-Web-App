@@ -1,5 +1,5 @@
-import http from "@/lib/http";
-import { GetMeResType, UserSchemaType } from "@/schemaValidations/user.schema";
+import http from '@/lib/http_old';
+import { GetMeResType, UserSchemaType } from '@/schemaValidations/user.schema';
 
 export const getMe = async (): Promise<GetMeResType> => {
     const response = await http.get<{
@@ -12,5 +12,5 @@ export const getMe = async (): Promise<GetMeResType> => {
         throw new Error(response.message || 'Failed to fetch user profile');
     }
 
-    return response; 
+    return response;
 };
