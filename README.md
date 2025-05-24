@@ -8,7 +8,7 @@ terraform plan
 terraform apply -auto-approve
 
 aws ssm get-parameter --name "/cloudfront/public-key-id" --with-decryption --query "Parameter.Value" --output text --profile terraform-user
-
+ 
 
 cloudfront_distribution_id = "E275PW0S35OABM"
 cloudfront_domain_name = "d3uzwbw4hoxv37.cloudfront.net"
