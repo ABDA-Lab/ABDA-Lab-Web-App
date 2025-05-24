@@ -119,13 +119,14 @@ module "alb" {
 }
 
 module "ecs" {
-  source                = "./modules/ecs"
-  cluster_name          = var.cluster_name
-  vpc_id                = module.vpc.vpc_id
-  ecs_ami_id            = var.ecs_ami_id
-  instance_type         = var.instance_type
-  region                = var.region
-  subnet_ids            = [module.private_subnet1.subnet_id, module.private_subnet2.subnet_id]
+  source        = "./modules/ecs"
+  cluster_name  = var.cluster_name
+  vpc_id        = module.vpc.vpc_id
+  ecs_ami_id    = var.ecs_ami_id
+  instance_type = var.instance_type
+  region        = var.region
+  subnet_ids    = [module.public_subnet1.subnet_id, module.public_subnet1.subnet_id]
+  # subnet_ids            = [module.private_subnet1.subnet_id, module.private_subnet2.subnet_id]
   desired_capacity      = var.desired_capacity
   max_size              = var.max_size
   min_size              = var.min_size

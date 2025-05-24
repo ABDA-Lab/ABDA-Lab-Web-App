@@ -107,6 +107,7 @@ resource "aws_lb_listener" "https" {
 }
 
 # Then, create one or more listener rules that map specific paths (or hosts) to each target group.
+# For example, path-based:
 resource "aws_lb_listener_rule" "http_rules" {
   # Only if you have an http listener:
   count = var.certificate_arn == "" ? length(var.exposed_containers) : 0
@@ -123,18 +124,15 @@ resource "aws_lb_listener_rule" "http_rules" {
 
   condition {
     path_pattern {
-      # Adjust path patterns to match our API routes
-      values = [
-        element(keys(var.exposed_containers), count.index) == "api_gateway" ? 
-          "/api/*" : 
-          "/${element(keys(var.exposed_containers), count.index)}/*"
-      ]
+      # e.g. /redis/* -> the redis container, /rabbitmq/* -> the rabbitmq container
+      values = ["/${element(keys(var.exposed_containers), count.index)}/*"]
     }
   }
 }
 
-# Add HTTPS listener rules if certificate is provided
+# HTTPS listener rules - THIS WAS MISSING!
 resource "aws_lb_listener_rule" "https_rules" {
+  # Only if you have an https listener:
   count = var.certificate_arn != "" ? length(var.exposed_containers) : 0
 
   listener_arn = aws_lb_listener.https[0].arn
@@ -149,11 +147,45 @@ resource "aws_lb_listener_rule" "https_rules" {
 
   condition {
     path_pattern {
-      values = [
-        element(keys(var.exposed_containers), count.index) == "api_gateway" ? 
-          "/api/*" : 
-          "/${element(keys(var.exposed_containers), count.index)}/*"
-      ]
+      # Route based on container name
+      values = ["/${element(keys(var.exposed_containers), count.index)}/*"]
+    }
+  }
+}
+
+# Special rule to route ALL API traffic to the API Gateway
+resource "aws_lb_listener_rule" "api_gateway_http" {
+  count = var.certificate_arn == "" ? 1 : 0
+
+  listener_arn = aws_lb_listener.http[0].arn
+  priority     = 50  # Higher priority than the generic rules
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.this["api_gateway"].arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/api/*"]
+    }
+  }
+}
+
+resource "aws_lb_listener_rule" "api_gateway_https" {
+  count = var.certificate_arn != "" ? 1 : 0
+
+  listener_arn = aws_lb_listener.https[0].arn
+  priority     = 50  # Higher priority than the generic rules
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.this["api_gateway"].arn
+  }
+
+  condition {
+    path_pattern {
+      values = ["/api/*"]
     }
   }
 }
