@@ -29,22 +29,22 @@ locals {
         OCELOT_BASE_URL          = "http://localhost:8080"
         ROUTE_1_UPSTREAM_PATH    = "/api/user/{everything}"
         ROUTE_1_UPSTREAM_METHODS = "Get,Post,Put,Delete"
-        ROUTE_1_DOWNSTREAM_HOST  = "localhost"
+        ROUTE_1_DOWNSTREAM_HOST  = "127.0.0.1"
         ROUTE_1_DOWNSTREAM_PORT  = "5002"
         ROUTE_1_DOWNSTREAM_PATH  = "/api/user/{everything}"
         ROUTE_2_UPSTREAM_PATH    = "/api/auth/{everything}"
         ROUTE_2_UPSTREAM_METHODS = "Get,Post,Put,Delete"
-        ROUTE_2_DOWNSTREAM_HOST  = "localhost"
+        ROUTE_2_DOWNSTREAM_HOST  = "127.0.0.1"
         ROUTE_2_DOWNSTREAM_PORT  = "5001"
         ROUTE_2_DOWNSTREAM_PATH  = "/api/auth/{everything}"
         ROUTE_3_UPSTREAM_PATH    = "/api/resource/{everything}"
         ROUTE_3_UPSTREAM_METHODS = "Get,Post,Put,Delete"
-        ROUTE_3_DOWNSTREAM_HOST  = "localhost"
+        ROUTE_3_DOWNSTREAM_HOST  = "127.0.0.1"
         ROUTE_3_DOWNSTREAM_PORT  = "5003"
         ROUTE_3_DOWNSTREAM_PATH  = "/api/resource/{everything}"
         ROUTE_4_UPSTREAM_PATH    = "/api/post/{everything}"
         ROUTE_4_UPSTREAM_METHODS = "Get,Post,Put,Delete"
-        ROUTE_4_DOWNSTREAM_HOST  = "localhost"
+        ROUTE_4_DOWNSTREAM_HOST  = "127.0.0.1"
         ROUTE_4_DOWNSTREAM_PORT  = "8091"
         ROUTE_4_DOWNSTREAM_PATH  = "/api/v1/posts/{everything}"
       }
@@ -72,9 +72,16 @@ locals {
         ASPNETCORE_URLS        = "http://+:5002"
         DATABASE_HOST          = local.databases[0].host
         DATABASE_PORT          = local.databases[0].port
-        DATABASE_NAME          = "UserService"
+        DATABASE_NAME          = "AbdaUserService"
         DATABASE_USERNAME      = local.databases[0].username
         DATABASE_PASSWORD      = local.databases[0].password
+        RABBITMQ_HOST          = "localhost"
+        RABBITMQ_PORT          = "5672"
+        RABBITMQ_USERNAME      = var.rabbitmq_username
+        RABBITMQ_PASSWORD      = var.rabbitmq_password
+        REDIS_HOST             = "localhost"
+        REDIS_PASSWORD         = var.redis_password
+        REDIS_PORT             = "6379"
       }
       mount_points   = []
       expose_port    = false
@@ -99,13 +106,20 @@ locals {
         ASPNETCORE_ENVIRONMENT = "Production"
         DATABASE_HOST          = local.databases[0].host
         DATABASE_PORT          = local.databases[0].port
-        DATABASE_NAME          = "IdentityService"
+        DATABASE_NAME          = "AbdaIdentityService"
         DATABASE_USERNAME      = local.databases[0].username
         DATABASE_PASSWORD      = local.databases[0].password
         ASPNETCORE_URLS        = "http://+:5001"
         JWT_ISSUER             = "IdentityService"
         JWT_AUDIENCE           = "AllMicroservices"
         JWT_KEY                = var.jwt_key
+        RABBITMQ_HOST          = "localhost"
+        RABBITMQ_PORT          = "5672"
+        RABBITMQ_USERNAME      = var.rabbitmq_username
+        RABBITMQ_PASSWORD      = var.rabbitmq_password
+        REDIS_HOST             = "localhost"
+        REDIS_PASSWORD         = var.redis_password
+        REDIS_PORT             = "6379"
       }
       mount_points   = []
       expose_port    = false
@@ -119,6 +133,46 @@ locals {
       }
     }
  
+    resource_microservice = {
+      container_name      = local.services_list[5]
+      name                = local.services_list[5]
+      use_dockerhub       = false
+      ecr_repository_name = local.services_list[5]
+      image_tag           = "latest"
+      command             = []
+      env_vars = {
+        ASPNETCORE_ENVIRONMENT = "Production"
+        DATABASE_HOST          = local.databases[0].host
+        DATABASE_PORT          = local.databases[0].port
+        DATABASE_NAME          = "AbdaResourceService"
+        DATABASE_USERNAME      = local.databases[0].username
+        DATABASE_PASSWORD      = local.databases[0].password
+        ASPNETCORE_URLS        = "http://+:5003"
+        RABBITMQ_HOST          = "localhost"
+        RABBITMQ_PORT          = "5672"
+        RABBITMQ_USERNAME      = var.rabbitmq_username
+        RABBITMQ_PASSWORD      = var.rabbitmq_password
+        REDIS_HOST             = "localhost"
+        REDIS_PASSWORD         = var.redis_password
+        REDIS_PORT             = "6379"
+        AWS_ACCESS_KEY_USER    = "JBDNKNMCZOISDDCV3E7W"
+        AWS_SECRET_KEY_USER    = "lcPccn3OpYFtdo2DZ42LdQe6hDoQ1stcw4r4zggY"
+        AWS_ROLE_ARN           = "arn:aws:iam::100000335123:role/admin"
+        AWS_CLOUD_FRONT_KEY_ID = "K3VUFDI2YP1EC1"
+        LAMBDA_EDGE_SECRET     = "0Kg04La06!"
+      }
+      mount_points   = []
+      expose_port    = false
+      container_port = 5003
+      health_check = {
+        command     = ["CMD", "curl", "-f", "http://localhost:5003/api/resource/health"]
+        interval    = 5
+        timeout     = 3
+        retries     = 5
+        startPeriod = 0
+      }
+    }
+
     redis_service = {
       container_name      = local.services_list[1]
       name                = local.services_list[1]

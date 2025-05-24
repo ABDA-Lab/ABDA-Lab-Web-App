@@ -33,6 +33,24 @@ resource "aws_iam_role_policy_attachment" "ssm_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
 
+# IAM Role for ECS Task Execution
+resource "aws_iam_role" "ecs_task_execution_role" {
+  name = "${var.cluster_name}-task-execution-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect    = "Allow",
+      Principal = { Service = "ecs-tasks.amazonaws.com" },
+      Action    = "sts:AssumeRole"
+    }]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_policy" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
 resource "aws_iam_instance_profile" "ecs_instance_profile" {
   name = "${var.cluster_name}-instance-profile"
   role = aws_iam_role.ecs_instance_role.name
@@ -49,6 +67,51 @@ resource "aws_security_group" "ecs_instance_sg" {
     to_port         = var.container_port
     protocol        = "tcp"
     security_groups = [var.alb_security_group_id]
+  }
+
+  # Allow all internal traffic between ECS instances for service communication
+  ingress {
+    from_port = 0
+    to_port   = 0
+    protocol  = "-1"
+    self      = true
+    description = "Allow all internal traffic between ECS instances"
+  }
+
+  # Allow Redis traffic
+  ingress {
+    from_port       = 6379
+    to_port         = 6379
+    protocol        = "tcp"
+    self            = true
+    description     = "Allow Redis traffic"
+  }
+
+  # Allow RabbitMQ traffic
+  ingress {
+    from_port       = 5672
+    to_port         = 5672
+    protocol        = "tcp"
+    self            = true
+    description     = "Allow RabbitMQ traffic"
+  }
+
+  # Allow microservices traffic
+  ingress {
+    from_port       = 5001
+    to_port         = 5003
+    protocol        = "tcp"
+    self            = true
+    description     = "Allow microservices traffic"
+  }
+
+  # Allow Spring service traffic
+  ingress {
+    from_port       = 8091
+    to_port         = 8091
+    protocol        = "tcp"
+    self            = true
+    description     = "Allow Spring service traffic"
   }
 
   egress {

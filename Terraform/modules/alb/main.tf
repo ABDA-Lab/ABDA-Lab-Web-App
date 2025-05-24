@@ -107,7 +107,6 @@ resource "aws_lb_listener" "https" {
 }
 
 # Then, create one or more listener rules that map specific paths (or hosts) to each target group.
-# For example, path-based:
 resource "aws_lb_listener_rule" "http_rules" {
   # Only if you have an http listener:
   count = var.certificate_arn == "" ? length(var.exposed_containers) : 0
@@ -124,8 +123,37 @@ resource "aws_lb_listener_rule" "http_rules" {
 
   condition {
     path_pattern {
-      # e.g. /redis/* -> the redis container, /rabbitmq/* -> the rabbitmq container
-      values = ["/${element(keys(var.exposed_containers), count.index)}/*"]
+      # Adjust path patterns to match our API routes
+      values = [
+        element(keys(var.exposed_containers), count.index) == "api_gateway" ? 
+          "/api/*" : 
+          "/${element(keys(var.exposed_containers), count.index)}/*"
+      ]
+    }
+  }
+}
+
+# Add HTTPS listener rules if certificate is provided
+resource "aws_lb_listener_rule" "https_rules" {
+  count = var.certificate_arn != "" ? length(var.exposed_containers) : 0
+
+  listener_arn = aws_lb_listener.https[0].arn
+  priority     = 100 + count.index
+
+  action {
+    type = "forward"
+    target_group_arn = aws_lb_target_group.this[
+      element(keys(var.exposed_containers), count.index)
+    ].arn
+  }
+
+  condition {
+    path_pattern {
+      values = [
+        element(keys(var.exposed_containers), count.index) == "api_gateway" ? 
+          "/api/*" : 
+          "/${element(keys(var.exposed_containers), count.index)}/*"
+      ]
     }
   }
 }
