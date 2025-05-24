@@ -58,12 +58,13 @@ resource "aws_lb_target_group" "this" {
   target_type = "ip"
 
   health_check {
-    path                = var.health_check_path
+    path                = each.key == "api_gateway" ? "/" : var.health_check_path
     protocol            = "HTTP"
     healthy_threshold   = 2
     unhealthy_threshold = 2
     interval            = 30
     timeout             = 5
+    matcher             = each.key == "api_gateway" ? "200,404" : "200"
   }
 
   tags = {

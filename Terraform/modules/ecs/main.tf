@@ -44,11 +44,36 @@ resource "aws_security_group" "ecs_instance_sg" {
   description = "Security group for ECS container instances, allowing traffic only from the ALB"
   vpc_id      = var.vpc_id
 
+  # Allow ALB to reach exposed services
   ingress {
     from_port       = var.container_port
     to_port         = var.container_port
     protocol        = "tcp"
     security_groups = [var.alb_security_group_id]
+  }
+
+  # Allow inter-service communication for microservices
+  ingress {
+    from_port = 5001
+    to_port   = 5003
+    protocol  = "tcp"
+    self      = true
+  }
+
+  # Allow communication with Redis
+  ingress {
+    from_port = 6379
+    to_port   = 6379
+    protocol  = "tcp"
+    self      = true
+  }
+
+  # Allow communication with RabbitMQ
+  ingress {
+    from_port = 5672
+    to_port   = 5672
+    protocol  = "tcp"
+    self      = true
   }
 
   egress {
